@@ -47,9 +47,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
                         email: user.email,
                         name: user.name,
                         image: user.image,
-                        role: user.role,
-                        roleExplicitlyChosen: user.roleExplicitlyChosen,
-                        creatorStatus: "NOT_VERIFIED"
+                        role: user.role
                     };
                 } catch (error) {
                     console.error("Authorization error:", error);
@@ -67,12 +65,11 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
             if (user) {
                 token.id = user.id!;
                 token.role = user.role;
-                token.roleExplicitlyChosen = user.roleExplicitlyChosen;
             }
 
             if (token && !token.roleExplicitlyChosen) {
                 const dbUser = await prisma.user.findUnique({
-                    where: { id: token.id },
+                    where: { id: token.id as string },
                     select: { roleExplicitlyChosen: true }
                 });
                 if (dbUser) {
@@ -86,7 +83,6 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
             if (session.user) {
                 session.user.id = token.id as string;
                 session.user.role = token.role as Role
-                session.user.roleExplicitlyChosen = token.roleExplicitlyChosen;
             }
             return session;
         },
