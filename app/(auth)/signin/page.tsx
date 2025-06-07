@@ -1,3 +1,5 @@
+"use client"
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -5,20 +7,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Separator } from "@/components/ui/separator";
 import { Globe, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
+import Link from "next/link";
 
 const SignIn = () => {
     const [showPassword, setShowPassword] = useState(false);
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-50 via-cyan-50 to-emerald-50 relative overflow-hidden">
-            {/* Background Elements */}
             <div className="absolute inset-0">
                 <div className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-br from-teal-200/20 to-cyan-200/20 rounded-full blur-3xl animate-pulse"></div>
                 <div className="absolute bottom-20 right-10 w-96 h-96 bg-gradient-to-br from-emerald-200/20 to-teal-200/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
                 <div className="absolute top-1/2 left-1/4 w-64 h-64 bg-gradient-to-br from-cyan-200/15 to-teal-200/15 rounded-full blur-2xl animate-pulse delay-500"></div>
             </div>
-
-            {/* Floating Elements */}
             <div className="absolute top-32 left-20 animate-float">
                 <div className="w-12 h-12 bg-gradient-to-br from-teal-400 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
                     <Globe className="w-6 h-6 text-white" />
@@ -29,8 +29,6 @@ const SignIn = () => {
                     <Mail className="w-5 h-5 text-white" />
                 </div>
             </div>
-
-            {/* Main Content */}
             <div className="relative z-10 w-full max-w-md px-6">
                 <Card className="shadow-2xl border-0 bg-white/80 backdrop-blur-md">
                     <CardHeader className="text-center pb-6">
@@ -47,9 +45,7 @@ const SignIn = () => {
                             Sign in to continue your language learning journey
                         </CardDescription>
                     </CardHeader>
-
                     <CardContent className="space-y-6">
-                        {/* Google Sign In */}
                         <Button
                             variant="outline"
                             className="w-full py-6 border-gray-200 hover:bg-gray-50 transition-all duration-300"
@@ -62,7 +58,6 @@ const SignIn = () => {
                             </svg>
                             Continue with Google
                         </Button>
-
                         <div className="relative">
                             <div className="absolute inset-0 flex items-center">
                                 <Separator className="w-full" />
@@ -71,8 +66,6 @@ const SignIn = () => {
                                 <span className="bg-white px-2 text-gray-500">Or continue with email</span>
                             </div>
                         </div>
-
-                        {/* Email Form */}
                         <div className="space-y-4">
                             <div className="space-y-2">
                                 <Label htmlFor="email">Email</Label>
@@ -86,7 +79,6 @@ const SignIn = () => {
                                     />
                                 </div>
                             </div>
-
                             <div className="space-y-2">
                                 <Label htmlFor="password">Password</Label>
                                 <div className="relative">
@@ -106,7 +98,6 @@ const SignIn = () => {
                                     </button>
                                 </div>
                             </div>
-
                             <div className="flex items-center justify-between">
                                 <label className="flex items-center space-x-2 text-sm">
                                     <input type="checkbox" className="rounded border-gray-300 text-teal-600 focus:ring-teal-500" />
@@ -116,17 +107,15 @@ const SignIn = () => {
                                     Forgot password?
                                 </a>
                             </div>
-
                             <Button className="w-full py-6 bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300">
                                 Sign In
                             </Button>
                         </div>
-
                         <div className="text-center text-sm text-gray-600">
-                            Don't have an account?{" "}
-                            <a href="/signup" className="text-teal-600 hover:text-teal-700 font-medium">
+                            Don&apos;t have an account?{" "}
+                            <Link href="/signup" className="text-teal-600 hover:text-teal-700 font-medium">
                                 Sign up here
-                            </a>
+                            </Link>
                         </div>
                     </CardContent>
                 </Card>

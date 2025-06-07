@@ -1,20 +1,12 @@
+"use client";
+
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Mic, MessageSquare, BookOpenText, Users, Clock, Star, Coins, Zap } from 'lucide-react';
+import { Mic, MessageSquare, BookOpenText, Users, Clock, Star, Coins } from 'lucide-react';
 import {
     SidebarProvider,
-    Sidebar,
-    SidebarContent,
-    SidebarHeader,
-    SidebarFooter,
-    SidebarMenu,
-    SidebarMenuItem,
-    SidebarMenuButton,
-    SidebarGroup,
-    SidebarGroupLabel,
-    SidebarGroupContent,
     SidebarTrigger,
     SidebarInset
 } from '@/components/ui/sidebar';
@@ -165,7 +157,7 @@ const Dashboard = () => {
                                         {services.map((service, index) => {
                                             const IconComponent = service.icon;
                                             return (
-                                                <Card key={service.id} className="group relative overflow-hidden border-0 shadow-md hover:shadow-xl transition-all duration-500 hover:-translate-y-1 bg-white/90 backdrop-blur-sm">
+                                                <Card key={index} className="group relative overflow-hidden border-0 shadow-md hover:shadow-xl transition-all duration-500 hover:-translate-y-1 bg-white/90 backdrop-blur-sm">
                                                     {/* Gradient Background */}
                                                     <div className={`absolute inset-0 bg-gradient-to-br ${service.color} opacity-5 group-hover:opacity-10 transition-opacity duration-300`} />
 

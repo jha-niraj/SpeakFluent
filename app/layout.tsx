@@ -4,7 +4,6 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-providers";
 import { Navbar } from "@/components/(landingpage)/landingnavbar";
 import { Toaster } from "@/components/ui/sonner";
-import { Provider } from "@radix-ui/react-tooltip";
 import { Providers } from "./providers/providers";
 
 const geistSans = Geist({

@@ -1,3 +1,5 @@
+"use client"
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -472,8 +474,8 @@ const Index = () => {
 
 					<Card className="bg-white/20 backdrop-blur-md border-0 rounded-2xl p-8 max-w-3xl mx-auto">
 						<p className="text-white italic text-xl leading-relaxed mb-4">
-							"HimalSpeak made me conversation-ready for my studies in Moscow. The AI conversations felt so real,
-							I was confident from day one!"
+							&quot;HimalSpeak made me conversation-ready for my studies in Moscow. The AI conversations felt so real,
+							I was confident from day one!&quot;
 						</p>
 						<p className="text-white/80 font-medium">— Priya S., Nepali student in Russia</p>
 					</Card>
