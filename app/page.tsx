@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import {
-	ArrowRight, Play, Star, Globe, Mic, BookOpen, Trophy, Zap,
+	ArrowRight, Star, Globe, Mic, BookOpen, Trophy, Zap,
 	Target, Award, Lightbulb, Rocket, Shield, Heart, Check
 } from "lucide-react"
 import { motion } from "framer-motion"
