@@ -1,200 +1,204 @@
 "use client"
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Globe, Mail, Lock, Eye, EyeOff, User, Phone } from "lucide-react";
-import { useState } from "react";
+import type React from "react"
 
-const SignUp = () => {
-    const [showPassword, setShowPassword] = useState(false);
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+import { useState } from "react"
+import Link from "next/link"
+import { motion } from "framer-motion"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Checkbox } from "@/components/ui/checkbox"
+import { AuthLayout } from "@/components/authlayout"
+import { ArrowRight, BookOpen, Globe, Mic, MessageCircle, Zap } from "lucide-react"
+import { useRouter } from "next/navigation"
+
+export default function SignUp() {
+    const [name, setName] = useState("")
+    const [email, setEmail] = useState("")
+    const [password, setPassword] = useState("")
+    const [isLoading, setIsLoading] = useState(false)
+    const router = useRouter()
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+        setIsLoading(true)
+
+        // Simulate API call
+        setTimeout(() => {
+            setIsLoading(false)
+            router.push("/auth/verify")
+        }, 1500)
+    }
+
+    const floatingElements = [
+        <motion.div
+            key="floating-1"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2, duration: 0.8 }}
+            className="absolute top-24 left-24 animate-float"
+        >
+            <div className="w-12 h-12 bg-gradient-to-br from-teal-400 to-emerald-500 rounded-2xl flex items-center justify-center shadow-lg">
+                <Mic className="w-6 h-6 text-white" />
+            </div>
+        </motion.div>,
+        <motion.div
+            key="floating-2"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4, duration: 0.8 }}
+            className="absolute top-40 right-40 animate-float-delayed"
+        >
+            <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-2xl flex items-center justify-center shadow-lg">
+                <BookOpen className="w-5 h-5 text-white" />
+            </div>
+        </motion.div>,
+        <motion.div
+            key="floating-3"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6, duration: 0.8 }}
+            className="absolute bottom-40 left-32 animate-float-slow"
+        >
+            <div className="w-14 h-14 bg-gradient-to-br from-teal-400 to-emerald-500 rounded-full flex items-center justify-center shadow-lg">
+                <Globe className="w-7 h-7 text-white" />
+            </div>
+        </motion.div>,
+        <motion.div
+            key="floating-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8, duration: 0.8 }}
+            className="absolute bottom-32 right-24 animate-float-reverse"
+        >
+            <div className="w-12 h-12 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-full flex items-center justify-center shadow-lg">
+                <MessageCircle className="w-6 h-6 text-white" />
+            </div>
+        </motion.div>,
+        <motion.div
+            key="floating-5"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.0, duration: 0.8 }}
+            className="absolute top-1/2 right-16 animate-float"
+        >
+            <div className="w-10 h-10 bg-gradient-to-br from-teal-400 to-emerald-500 rounded-2xl flex items-center justify-center shadow-lg">
+                <Zap className="w-5 h-5 text-white" />
+            </div>
+        </motion.div>,
+    ]
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-50 via-cyan-50 to-emerald-50 relative overflow-hidden py-8">
-            {/* Background Elements */}
-            <div className="absolute inset-0">
-                <div className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-br from-teal-200/20 to-cyan-200/20 rounded-full blur-3xl animate-pulse"></div>
-                <div className="absolute bottom-20 right-10 w-96 h-96 bg-gradient-to-br from-emerald-200/20 to-teal-200/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-                <div className="absolute top-1/2 right-1/4 w-64 h-64 bg-gradient-to-br from-cyan-200/15 to-teal-200/15 rounded-full blur-2xl animate-pulse delay-500"></div>
+        <AuthLayout
+            title="Create your account"
+            subtitle="Join thousands of language learners today"
+            floating={floatingElements}
+        >
+            <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="space-y-2">
+                    <Label htmlFor="name">Full Name</Label>
+                    <Input
+                        id="name"
+                        placeholder="John Doe"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        required
+                        className="rounded-xl border-teal-200 focus:border-teal-300 focus:ring focus:ring-teal-200 focus:ring-opacity-50"
+                    />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                        id="email"
+                        type="email"
+                        placeholder="you@example.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        className="rounded-xl border-teal-200 focus:border-teal-300 focus:ring focus:ring-teal-200 focus:ring-opacity-50"
+                    />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="password">Password</Label>
+                    <Input
+                        id="password"
+                        type="password"
+                        placeholder="••••••••"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        className="rounded-xl border-teal-200 focus:border-teal-300 focus:ring focus:ring-teal-200 focus:ring-opacity-50"
+                    />
+                    <p className="text-xs text-gray-500">Must be at least 8 characters</p>
+                </div>
+                <div className="flex items-center space-x-2">
+                    <Checkbox id="terms" required />
+                    <label
+                        htmlFor="terms"
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    >
+                        I agree to the{" "}
+                        <Link href="/terms" className="text-teal-600 hover:text-teal-700 hover:underline">
+                            Terms of Service
+                        </Link>{" "}
+                        and{" "}
+                        <Link href="/privacy" className="text-teal-600 hover:text-teal-700 hover:underline">
+                            Privacy Policy
+                        </Link>
+                    </label>
+                </div>
+                <Button
+                    type="submit"
+                    className="w-full bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white rounded-xl"
+                    disabled={isLoading}
+                >
+                    {isLoading ? "Creating account..." : "Create Account"}
+                    {!isLoading && <ArrowRight className="ml-2 h-4 w-4" />}
+                </Button>
+            </form>
+
+            <div className="mt-6 text-center">
+                <p className="text-sm text-gray-600">
+                    Already have an account?{" "}
+                    <Link href="/auth/signin" className="text-teal-600 hover:text-teal-700 hover:underline font-medium">
+                        Sign in
+                    </Link>
+                </p>
             </div>
 
-            {/* Floating Elements */}
-            <div className="absolute top-20 right-20 animate-float">
-                <div className="w-12 h-12 bg-gradient-to-br from-teal-400 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
-                    <User className="w-6 h-6 text-white" />
+            <div className="mt-8 pt-6 border-t border-gray-200">
+                <p className="text-xs text-center text-gray-500 mb-4">Or continue with</p>
+                <div className="grid grid-cols-2 gap-4">
+                    <Button variant="outline" className="rounded-xl border-teal-200 hover:bg-teal-50">
+                        <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
+                            <path
+                                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                                fill="#4285F4"
+                            />
+                            <path
+                                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                                fill="#34A853"
+                            />
+                            <path
+                                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                                fill="#FBBC05"
+                            />
+                            <path
+                                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                                fill="#EA4335"
+                            />
+                        </svg>
+                        Google
+                    </Button>
+                    <Button variant="outline" className="rounded-xl border-teal-200 hover:bg-teal-50">
+                        <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" />
+                        </svg>
+                        Facebook
+                    </Button>
                 </div>
             </div>
-            <div className="absolute bottom-40 left-32 animate-float delay-1000">
-                <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-xl flex items-center justify-center shadow-lg">
-                    <Phone className="w-5 h-5 text-white" />
-                </div>
-            </div>
-
-            {/* Main Content */}
-            <div className="relative z-10 w-full max-w-md px-6">
-                <Card className="shadow-2xl border-0 bg-white/80 backdrop-blur-md">
-                    <CardHeader className="text-center pb-6">
-                        <div className="flex items-center justify-center space-x-2 mb-4">
-                            <div className="w-10 h-10 bg-gradient-to-br from-teal-400 to-teal-600 rounded-lg flex items-center justify-center">
-                                <Globe className="w-6 h-6 text-white" />
-                            </div>
-                            <span className="text-2xl font-bold bg-gradient-to-r from-teal-600 to-teal-800 bg-clip-text text-transparent">
-                                HimalSpeak
-                            </span>
-                        </div>
-                        <CardTitle className="text-2xl font-bold text-gray-800">Join HimalSpeak</CardTitle>
-                        <CardDescription className="text-gray-600">
-                            Start your language learning journey today
-                        </CardDescription>
-                    </CardHeader>
-
-                    <CardContent className="space-y-6">
-                        {/* Google Sign Up */}
-                        <Button
-                            variant="outline"
-                            className="w-full py-6 border-gray-200 hover:bg-gray-50 transition-all duration-300"
-                        >
-                            <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
-                                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-                                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-                            </svg>
-                            Sign up with Google
-                        </Button>
-
-                        <div className="relative">
-                            <div className="absolute inset-0 flex items-center">
-                                <Separator className="w-full" />
-                            </div>
-                            <div className="relative flex justify-center text-xs uppercase">
-                                <span className="bg-white px-2 text-gray-500">Or create account with email</span>
-                            </div>
-                        </div>
-
-                        {/* Email Form */}
-                        <div className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="firstName">First Name</Label>
-                                    <div className="relative">
-                                        <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                                        <Input
-                                            id="firstName"
-                                            placeholder="John"
-                                            className="pl-10 py-3 border-gray-200 focus:border-teal-500 focus:ring-teal-500"
-                                        />
-                                    </div>
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="lastName">Last Name</Label>
-                                    <Input
-                                        id="lastName"
-                                        placeholder="Smith"
-                                        className="py-3 border-gray-200 focus:border-teal-500 focus:ring-teal-500"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="email">Email</Label>
-                                <div className="relative">
-                                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                                    <Input
-                                        id="email"
-                                        type="email"
-                                        placeholder="Enter your email"
-                                        className="pl-10 py-3 border-gray-200 focus:border-teal-500 focus:ring-teal-500"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="phone">Phone Number</Label>
-                                <div className="relative">
-                                    <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                                    <Input
-                                        id="phone"
-                                        type="tel"
-                                        placeholder="+977 98xxxxxxxx"
-                                        className="pl-10 py-3 border-gray-200 focus:border-teal-500 focus:ring-teal-500"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="password">Password</Label>
-                                <div className="relative">
-                                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                                    <Input
-                                        id="password"
-                                        type={showPassword ? "text" : "password"}
-                                        placeholder="Create a password"
-                                        className="pl-10 pr-10 py-3 border-gray-200 focus:border-teal-500 focus:ring-teal-500"
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowPassword(!showPassword)}
-                                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                                    >
-                                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="confirmPassword">Confirm Password</Label>
-                                <div className="relative">
-                                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                                    <Input
-                                        id="confirmPassword"
-                                        type={showConfirmPassword ? "text" : "password"}
-                                        placeholder="Confirm your password"
-                                        className="pl-10 pr-10 py-3 border-gray-200 focus:border-teal-500 focus:ring-teal-500"
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                                    >
-                                        {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div className="flex items-start space-x-2">
-                                <input type="checkbox" className="rounded border-gray-300 text-teal-600 focus:ring-teal-500 mt-1" />
-                                <span className="text-sm text-gray-600">
-                                    I agree to the{" "}
-                                    <a href="#" className="text-teal-600 hover:text-teal-700 font-medium">
-                                        Terms of Service
-                                    </a>{" "}
-                                    and{" "}
-                                    <a href="#" className="text-teal-600 hover:text-teal-700 font-medium">
-                                        Privacy Policy
-                                    </a>
-                                </span>
-                            </div>
-
-                            <Button className="w-full py-6 bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300">
-                                Create Account
-                            </Button>
-                        </div>
-
-                        <div className="text-center text-sm text-gray-600">
-                            Already have an account?{" "}
-                            <a href="/signin" className="text-teal-600 hover:text-teal-700 font-medium">
-                                Sign in here
-                            </a>
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
-        </div>
-    );
-};
-
-export default SignUp;
+        </AuthLayout>
+    )
+}

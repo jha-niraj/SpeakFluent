@@ -14,7 +14,7 @@ import SmoothScroll from "@/components/smoothscroll"
 const MainPage = () => {
 	return (
 		<SmoothScroll>
-			<section className="w-full min-h-screen bg-white">
+			<section className="w-full min-h-screen">
 				<LandingNavbar />
 				<section className="w-full relative min-h-screen flex items-center justify-center overflow-hidden pt-28 md:pt-8">
 					<div className="absolute top-0 left-0 w-64 h-64 bg-gradient-to-br from-teal-500/20 to-emerald-500/20 rounded-br-full"></div>
@@ -137,9 +137,14 @@ const MainPage = () => {
 						</div>
 					</section>
 				</section>
-				<section className="w-full py-20 bg-gradient-to-br from-white to-gray-50" id="features">
+				<section className="w-full py-16" id="features">
 					<section className="max-w-7xl mx-auto">
+						<div className="absolute inset-0">
+								<div className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-br from-teal-200/20 to-emerald-200/20 rounded-full blur-3xl animate-pulse"></div>
+								<div className="absolute bottom-20 right-10 w-96 h-96 bg-gradient-to-br from-emerald-200/20 to-teal-200/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+							</div>
 						<div className="max-w-7xl mx-auto px-6">
+							
 							<div className="text-center mb-16">
 								<div className="inline-flex items-center space-x-2 bg-teal-100 rounded-full px-5 py-1.5 mb-5">
 									<Zap className="w-4 h-4 text-teal-600" />
@@ -219,15 +224,6 @@ const MainPage = () => {
 														))
 													}
 												</div>
-												<div className="mt-6 pt-4 border-t border-teal-100">
-													<Button
-														variant="ghost"
-														className="w-full justify-center text-teal-600 hover:text-teal-700 hover:bg-teal-50 group"
-													>
-														Learn More
-														<ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-													</Button>
-												</div>
 											</CardContent>
 										</Card>
 									))
@@ -236,7 +232,7 @@ const MainPage = () => {
 						</div>
 					</section>
 				</section>
-				<section className="py-20 bg-gradient-to-br from-gray-50 to-teal-50">
+				<section className="py-16">
 					<div className="max-w-7xl mx-auto px-6">
 						<div className="text-center mb-16">
 							<div className="inline-flex items-center space-x-2 bg-teal-100 rounded-full px-5 py-1.5 mb-5">
@@ -352,7 +348,7 @@ const MainPage = () => {
 						</div>
 					</div>
 				</section>
-				<section className="py-20 bg-gradient-to-br from-white to-gray-50" id="challenges">
+				<section className="py-16" id="challenges">
 					<div className="max-w-7xl mx-auto px-6">
 						<div className="text-center mb-16">
 							<div className="inline-flex items-center space-x-2 bg-teal-100 rounded-full px-5 py-1.5 mb-5">
@@ -411,7 +407,7 @@ const MainPage = () => {
 						</div>
 					</div>
 				</section>
-				<section className="py-20 bg-gradient-to-br from-gray-50 to-teal-50" id="how-it-works">
+				<section className="py-16" id="how-it-works">
 					<div className="max-w-7xl mx-auto px-6">
 						<div className="text-center mb-16">
 							<div className="inline-flex items-center space-x-2 bg-teal-100 rounded-full px-5 py-1.5 mb-5">
@@ -501,7 +497,7 @@ const MainPage = () => {
 						</div>
 					</div>
 				</section>
-				<section className="py-20 bg-gradient-to-br from-white to-gray-50" id="pricing">
+				<section className="py-16" id="pricing">
 					<div className="max-w-7xl mx-auto px-6">
 						<div className="text-center mb-16">
 							<div className="inline-flex items-center space-x-2 bg-teal-100 rounded-full px-5 py-1.5 mb-5">
