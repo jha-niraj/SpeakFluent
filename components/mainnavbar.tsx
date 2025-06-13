@@ -1,85 +1,77 @@
-'use client';
+"use client"
 
-import { useTheme } from "next-themes";
-import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState } from "react";
-import {
-    Bell, Moon, Sun, ChevronDown, Users, Home,
-    Menu, User, Settings, LogOut, Crown, Award, School
-} from "lucide-react";
-import { Button } from "./ui/button";
-import { Badge } from "./ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { useTheme } from "next-themes"
+import { usePathname, useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
+import { Bell, Moon, Sun, Home, User, Settings, LogOut, Crown, Award, Mic } from "lucide-react"
+import { Button } from "./ui/button"
+import { Badge } from "./ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 import {
     DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger
-} from "./ui/dropdown-menu";
-import { motion } from "framer-motion";
-import { getCurrentUser } from "@/actions/auth.action";
-import { signOut } from "@/actions/auth.action";
+} from "./ui/dropdown-menu"
+import { motion } from "framer-motion"
+import { useSession } from "next-auth/react"
 
 const MainNavbar = ({ isCollapsed }: { isCollapsed: boolean }) => {
-    const { theme, setTheme } = useTheme();
-    const [scrolled, setScrolled] = useState(false);
-    const [currentUser, setCurrentUser] = useState<any>(null);
-    const pathname = usePathname();
-    const router = useRouter();
+    const { data: session } = useSession()
+    const { theme, setTheme } = useTheme()
+    const [scrolled, setScrolled] = useState(false)
+    const [currentUser, setCurrentUser] = useState<any>({ name: "Priya S.", email: "priya@example.com" })
+    const pathname = usePathname()
+    const router = useRouter()
 
     // Mock data - replace with actual data fetching
-    const [notifications, setNotifications] = useState(2);
+    const [notifications, setNotifications] = useState(2)
 
     useEffect(() => {
         const handleScroll = () => {
-            setScrolled(window.scrollY > 20);
-        };
+            setScrolled(window.scrollY > 20)
+        }
 
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
-
-    useEffect(() => {
-        const fetchCurrentUser = async () => {
-            const user = await getCurrentUser();
-            setCurrentUser(user);
-        };
-        fetchCurrentUser();
-    }, []);
+        window.addEventListener("scroll", handleScroll)
+        return () => window.removeEventListener("scroll", handleScroll)
+    }, [])
 
     const getPageTitle = () => {
-        const pathSegments = pathname.split('/').filter(Boolean);
-        const currentPath = pathSegments[pathSegments.length - 1] || 'dashboard';
+        const pathSegments = pathname.split("/").filter(Boolean)
+        const currentPath = pathSegments[pathSegments.length - 1] || "dashboard"
 
         switch (currentPath) {
-            case 'dashboard':
-                return 'Dashboard';
-            case 'students':
-                return 'Student Management';
-            case 'billing':
-                return 'Billing System';
-            case 'payments':
-                return 'Payment Processing';
-            case 'academics':
-                return 'Academic Management';
-            case 'reports':
-                return 'Reports & Analytics';
-            case 'communication':
-                return 'Communication';
-            case 'settings':
-                return 'Settings';
+            case "dashboard":
+                return "Dashboard"
+            case "practice":
+                return "Practice Sessions"
+            case "lessons":
+                return "Language Lessons"
+            case "conversations":
+                return "AI Conversations"
+            case "challenges":
+                return "Language Challenges"
+            case "progress":
+                return "Learning Progress"
+            case "community":
+                return "Language Community"
+            case "settings":
+                return "Account Settings"
             default:
-                return currentPath.charAt(0).toUpperCase() + currentPath.slice(1);
+                return currentPath.charAt(0).toUpperCase() + currentPath.slice(1)
         }
-    };
+    }
 
     const handleSignOut = async () => {
         try {
-            await signOut();
+            // await signOut();
+            router.push("/auth/signin")
         } catch (error) {
-            console.error('Sign out error:', error);
+            console.error("Sign out error:", error)
         }
-    };
+    }
 
     return (
-        <nav className={`fixed top-0 right-0 bg-background/80 backdrop-blur-xl border-b border-border transition-all duration-300 z-10 ${scrolled ? 'shadow-sm bg-background/95' : ''} ${isCollapsed ? 'left-[60px]' : 'left-[200px]'} left-0`}>
+        <nav
+            className={`fixed top-0 right-0 bg-background/80 backdrop-blur-xl border-b border-border transition-all duration-300 z-10 ${scrolled ? "shadow-sm bg-background/95" : ""} ${isCollapsed ? "left-[60px]" : "left-[200px]"} left-0`}
+        >
             <div className="px-3 sm:px-6 py-3 sm:py-4">
                 <div className="flex justify-between items-center">
                     <div className="flex items-center gap-2 sm:gap-4">
@@ -93,41 +85,39 @@ const MainNavbar = ({ isCollapsed }: { isCollapsed: boolean }) => {
                                 {getPageTitle()}
                             </motion.h1>
                             {
-                            currentUser && (
-                                <Badge variant="secondary" className="hidden sm:flex bg-blue-500/10 text-blue-600 border-blue-500/20">
-                                    <School className="h-3 w-3 mr-1" />
-                                    Admin
-                                </Badge>
-                            )
+                                session?.user && (
+                                    <Badge variant="secondary" className="hidden sm:flex bg-teal-500/10 text-teal-600 border-teal-500/20">
+                                        <Mic className="h-3 w-3 mr-1" />
+                                        Student
+                                    </Badge>
+                                )
                             }
                         </div>
                     </div>
                     <div className="flex items-center gap-2 sm:gap-3">
                         <motion.div
-                            className="hidden lg:flex items-center gap-1 sm:gap-2 bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-950/30 dark:to-blue-950/30 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl border border-blue-500/20"
+                            className="hidden lg:flex items-center gap-1 sm:gap-2 bg-gradient-to-r from-teal-50 to-emerald-50 dark:from-teal-950/30 dark:to-emerald-950/30 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl border border-teal-500/20"
                             whileHover={{ scale: 1.02 }}
                         >
-                            <Users className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600 dark:text-blue-400" />
-                            <span className="font-semibold text-blue-700 dark:text-blue-300 text-xs sm:text-sm">
-                                245 Students
-                            </span>
+                            <Crown className="h-3 w-3 sm:h-4 sm:w-4 text-teal-600 dark:text-teal-400" />
+                            <span className="font-semibold text-teal-700 dark:text-teal-300 text-xs sm:text-sm">250 Credits</span>
                         </motion.div>
                         <div className="hidden md:flex items-center bg-muted/50 rounded-xl p-1 border border-border/50">
                             <Button
                                 variant="ghost"
                                 size="sm"
-                                className={`h-7 w-7 p-0 rounded-lg transition-all cursor-pointer ${theme === 'light' ? 'bg-background shadow-sm' : 'hover:bg-muted'}`}
-                                onClick={() => setTheme('light')}
+                                className={`h-7 w-7 p-0 rounded-lg transition-all cursor-pointer ${theme === "light" ? "bg-background shadow-sm" : "hover:bg-muted"}`}
+                                onClick={() => setTheme("light")}
                             >
                                 <Sun className="h-3 w-3 text-amber-500" />
                             </Button>
                             <Button
                                 variant="ghost"
                                 size="sm"
-                                className={`h-7 w-7 p-0 rounded-lg transition-all cursor-pointer ${theme === 'dark' ? 'bg-background shadow-sm' : 'hover:bg-muted'}`}
-                                onClick={() => setTheme('dark')}
+                                className={`h-7 w-7 p-0 rounded-lg transition-all cursor-pointer ${theme === "dark" ? "bg-background shadow-sm" : "hover:bg-muted"}`}
+                                onClick={() => setTheme("dark")}
                             >
-                                <Moon className="h-3 w-3 text-blue-500" />
+                                <Moon className="h-3 w-3 text-teal-500" />
                             </Button>
                         </div>
                         <Button
@@ -137,32 +127,31 @@ const MainNavbar = ({ isCollapsed }: { isCollapsed: boolean }) => {
                         >
                             <Bell className="h-4 w-4 text-muted-foreground" />
                             {
-                            notifications > 0 && (
-                                <motion.div
-                                    initial={{ scale: 0 }}
-                                    animate={{ scale: 1 }}
-                                    className="absolute -top-1 -right-1"
-                                >
-                                    <Badge className="h-4 w-4 rounded-full p-0 flex items-center justify-center bg-rose-500 text-white text-xs">
-                                        {notifications}
-                                    </Badge>
-                                </motion.div>
-                            )
+                                notifications > 0 && (
+                                    <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute -top-1 -right-1">
+                                        <Badge className="h-4 w-4 rounded-full p-0 flex items-center justify-center bg-teal-500 text-white text-xs">
+                                            {notifications}
+                                        </Badge>
+                                    </motion.div>
+                                )
                             }
                         </Button>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" className="relative h-8 w-8 rounded-full p-0">
                                     <Avatar className="h-8 w-8 border-2 border-border/50">
-                                        <AvatarImage src="" alt={currentUser?.name || "Admin"} />
-                                        <AvatarFallback className="bg-gradient-to-r from-blue-500 to-green-500 text-white text-xs font-bold">
-                                            {currentUser?.name?.split(" ").map((n: string) => n[0]).join("") || "A"}
+                                        <AvatarImage src="/placeholder.svg" alt={currentUser?.name || "User"} />
+                                        <AvatarFallback className="bg-gradient-to-r from-teal-500 to-emerald-500 text-white text-xs font-bold">
+                                            {currentUser?.name
+                                                ?.split(" ")
+                                                .map((n: string) => n[0])
+                                                .join("") || "U"}
                                         </AvatarFallback>
                                     </Avatar>
                                     <motion.div
                                         className="absolute -bottom-1 -right-1 w-3 h-3 bg-emerald-500 rounded-full border border-background"
                                         animate={{ scale: [1, 1.2, 1] }}
-                                        transition={{ duration: 2, repeat: Infinity }}
+                                        transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
                                     />
                                 </Button>
                             </DropdownMenuTrigger>
@@ -170,13 +159,11 @@ const MainNavbar = ({ isCollapsed }: { isCollapsed: boolean }) => {
                                 <DropdownMenuLabel className="font-normal">
                                     <div className="flex flex-col space-y-1">
                                         <p className="text-sm font-medium leading-none">{currentUser?.name}</p>
-                                        <p className="text-xs leading-none text-muted-foreground">
-                                            {currentUser?.email}
-                                        </p>
+                                        <p className="text-xs leading-none text-muted-foreground">{currentUser?.email}</p>
                                     </div>
                                 </DropdownMenuLabel>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem className="cursor-pointer md:hidden" onClick={() => router.push('/dashboard')}>
+                                <DropdownMenuItem className="cursor-pointer md:hidden" onClick={() => router.push("/dashboard")}>
                                     <Home className="mr-2 h-4 w-4" />
                                     <span>Dashboard</span>
                                 </DropdownMenuItem>
@@ -184,42 +171,51 @@ const MainNavbar = ({ isCollapsed }: { isCollapsed: boolean }) => {
                                     <Bell className="mr-2 h-4 w-4" />
                                     <span>Notifications</span>
                                     {
-                                    notifications > 0 && (
-                                        <Badge className="ml-auto h-4 w-4 rounded-full p-0 flex items-center justify-center bg-rose-500 text-white text-xs">
-                                            {notifications}
-                                        </Badge>
-                                    )
+                                        notifications > 0 && (
+                                            <Badge className="ml-auto h-4 w-4 rounded-full p-0 flex items-center justify-center bg-teal-500 text-white text-xs">
+                                                {notifications}
+                                            </Badge>
+                                        )
                                     }
                                 </DropdownMenuItem>
-                                <DropdownMenuItem className="cursor-pointer md:hidden" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
+                                <DropdownMenuItem
+                                    className="cursor-pointer md:hidden"
+                                    onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                                >
                                     {
-                                    theme === 'dark' ? (
-                                        <>
-                                            <Sun className="mr-2 h-4 w-4" />
-                                            <span>Light Mode</span>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Moon className="mr-2 h-4 w-4" />
-                                            <span>Dark Mode</span>
-                                        </>
-                                    )
+                                        theme === "dark" ? (
+                                            <>
+                                                <Sun className="mr-2 h-4 w-4" />
+                                                <span>Light Mode</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Moon className="mr-2 h-4 w-4" />
+                                                <span>Dark Mode</span>
+                                            </>
+                                        )
                                     }
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator className="md:hidden" />
                                 <DropdownMenuItem className="cursor-pointer">
                                     <User className="mr-2 h-4 w-4" />
-                                    <span>Profile</span>
+                                    <span>My Profile</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem className="cursor-pointer">
+                                    <Award className="mr-2 h-4 w-4" />
+                                    <span>My Achievements</span>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem className="cursor-pointer">
                                     <Settings className="mr-2 h-4 w-4" />
-                                    <span>Settings</span>
+                                    <span>Account Settings</span>
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem
-                                    className="cursor-pointer text-red-600 dark:text-red-400"
-                                    onClick={handleSignOut}
-                                >
+                                <DropdownMenuItem className="cursor-pointer">
+                                    <Crown className="mr-2 h-4 w-4 text-amber-500" />
+                                    <span>Buy Credits</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem className="cursor-pointer text-red-600 dark:text-red-400" onClick={handleSignOut}>
                                     <LogOut className="mr-2 h-4 w-4" />
                                     <span>Log out</span>
                                 </DropdownMenuItem>
@@ -229,7 +225,7 @@ const MainNavbar = ({ isCollapsed }: { isCollapsed: boolean }) => {
                 </div>
             </div>
         </nav>
-    );
-};
+    )
+}
 
-export default MainNavbar; 
+export default MainNavbar;
