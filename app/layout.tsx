@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Space_Grotesk } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "@/components/theme-providers";
-import { Navbar } from "@/components/(landingpage)/landingnavbar";
+import { ThemeProvider } from "@/components/themeprovider";
 import { Toaster } from "@/components/ui/sonner";
 import { Providers } from "./providers/providers";
 
@@ -44,7 +43,6 @@ export default function RootLayout({
 						disableTransitionOnChange
 					>
 						<Toaster />
-						<Navbar />
 						{children}
 					</ThemeProvider>
 				</Providers>
