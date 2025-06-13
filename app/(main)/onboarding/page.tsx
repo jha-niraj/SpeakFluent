@@ -40,7 +40,7 @@ interface TimeOption {
     description: string
 }
 
-export default function Onboarding() {
+const Onboarding = () => {
     const [step, setStep] = useState(1)
     const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null)
     const [selectedLevel, setSelectedLevel] = useState<string | null>(null)
@@ -449,3 +449,5 @@ export default function Onboarding() {
         </div>
     )
 }
+
+export default Onboarding;

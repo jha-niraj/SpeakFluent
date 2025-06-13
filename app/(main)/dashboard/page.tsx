@@ -6,9 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Mic, MessageSquare, BookOpenText, Users, Clock, Star, Coins } from 'lucide-react';
 import {
-    SidebarProvider,
-    SidebarTrigger,
-    SidebarInset
+    SidebarProvider, SidebarTrigger, SidebarInset
 } from '@/components/ui/sidebar';
 import { AppSidebar } from '../_components/appsidebar';
 

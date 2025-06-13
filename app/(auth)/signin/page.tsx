@@ -125,14 +125,14 @@ export default function SignIn() {
             <div className="mt-6 text-center">
                 <p className="text-sm text-gray-600">
                     Don't have an account?{" "}
-                    <Link href="/auth/signup" className="text-teal-600 hover:text-teal-700 hover:underline font-medium">
+                    <Link href="/signup" className="text-teal-600 hover:text-teal-700 hover:underline font-medium">
                         Sign up
                     </Link>
                 </p>
             </div>
-            <div className="mt-8 pt-6 border-t border-gray-200">
+            <div className="pt-6 border-t border-gray-200">
                 <p className="text-xs text-center text-gray-500 mb-4">Or continue with</p>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4">
                     <Button variant="outline" className="rounded-xl border-teal-200 hover:bg-teal-50">
                         <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                             <path

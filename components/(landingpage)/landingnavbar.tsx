@@ -12,6 +12,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { cn } from "@/lib/utils"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useTheme } from "next-themes"
+import { useSession } from "next-auth/react"
 
 const navigation = [
     {
@@ -52,10 +53,10 @@ const resourcesItems = [
 ]
 
 export default function LandingNavbar() {
+    const { data: session, status } = useSession()
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
     const [scrolled, setScrolled] = useState(false)
     const pathname = usePathname()
-    const [isLoggedIn, setIsLoggedIn] = useState(false)
     const { theme, setTheme } = useTheme();
 
     useEffect(() => {
@@ -198,22 +199,26 @@ export default function LandingNavbar() {
                                 </Button>
                             </div>
                             {
-                                !isLoggedIn ? (
+                                status !== "authenticated" ? (
                                     <>
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            className="rounded-xl border-teal-200 text-teal-700 hover:bg-teal-50"
-                                        >
-                                            Sign In
-                                        </Button>
-                                        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                                        <Link href="/signin">
                                             <Button
+                                                variant="outline"
                                                 size="sm"
-                                                className="bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
+                                                className="rounded-xl border-teal-200 text-teal-700 hover:bg-teal-50"
                                             >
-                                                Sign Up
+                                                Sign In
                                             </Button>
+                                        </Link>
+                                        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                                            <Link href="/signup">
+                                                <Button
+                                                    size="sm"
+                                                    className="bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
+                                                >
+                                                    Sign Up
+                                                </Button>
+                                            </Link>
                                         </motion.div>
                                     </>
                                 ) : (
@@ -339,7 +344,7 @@ export default function LandingNavbar() {
                                         </div>
                                         <div className="mt-8 space-y-3">
                                             {
-                                                !isLoggedIn ? (
+                                                status !== "authenticated" ? (
                                                     <>
                                                         <Button
                                                             variant="outline"
