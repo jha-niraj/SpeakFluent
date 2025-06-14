@@ -1,25 +1,19 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react';
-import { usePathname } from "next/navigation";
 import {
-    LayoutDashboard, User, FileText,TrendingUp, Settings, DollarSign, 
+    LayoutDashboard, Settings, DollarSign, 
     GraduationCap, Users, Receipt, FileBarChart, MessageSquare
 } from 'lucide-react';
 import Sidebar, { Route } from '@/components/mainsidebar';
 import MainNavbar from '@/components/mainnavbar';
-import { motion, AnimatePresence } from 'framer-motion';
 
 interface LayoutProps {
     children: React.ReactNode
 }
 
 const Layout = ({ children }: LayoutProps) => {
-    const pathname = usePathname();
-
-    // Set initial state from localStorage if available, otherwise default to true (collapsed)
     const [isCollapsed, setIsCollapsed] = useState(() => {
-        // Only run on client side
         if (typeof window !== 'undefined') {
             const saved = localStorage.getItem('sidebarCollapsed');
             return saved !== null ? JSON.parse(saved) : true;
@@ -78,9 +72,7 @@ const Layout = ({ children }: LayoutProps) => {
         }
     ], []);
 
-    // This effect only runs once on initial load to check screen size
     useEffect(() => {
-        // Only set initial state based on screen size if there's no saved preference
         if (typeof window !== 'undefined' && localStorage.getItem('sidebarCollapsed') === null) {
             const shouldBeCollapsed = window.innerWidth < 1024;
             setIsCollapsed(shouldBeCollapsed);
@@ -90,7 +82,6 @@ const Layout = ({ children }: LayoutProps) => {
     const toggleSidebar = () => {
         const newState = !isCollapsed;
         setIsCollapsed(newState);
-        // Save preference to localStorage
         if (typeof window !== 'undefined') {
             localStorage.setItem('sidebarCollapsed', JSON.stringify(newState));
         }

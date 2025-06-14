@@ -21,7 +21,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-	title: "Himal Speak",
+	title: "Speak Fluent",
 	description: "One Platfrom for all your language needs",
 };
 

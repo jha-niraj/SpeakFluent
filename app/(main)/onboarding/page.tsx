@@ -328,7 +328,7 @@ const Onboarding = () => {
                                     step === 3 && (
                                         <div>
                                             <h2 className="text-2xl font-bold text-gray-800 mb-2">Your learning goal</h2>
-                                            <p className="text-gray-600 mb-6">What's your primary reason for learning?</p>
+                                            <p className="text-gray-600 mb-6">What&apos;s your primary reason for learning?</p>
                                             <RadioGroup value={selectedGoal || ""} onValueChange={setSelectedGoal} className="space-y-4">
                                                 {
                                                     goals.map((goal) => (

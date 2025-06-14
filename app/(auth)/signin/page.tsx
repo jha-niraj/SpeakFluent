@@ -8,7 +8,6 @@ import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
 import { AuthLayout } from "@/components/authlayout"
 import { ArrowRight, BookOpen, Globe, Mic, Trophy } from "lucide-react"
 import { useRouter } from "next/navigation"
@@ -124,7 +123,7 @@ export default function SignIn() {
             </form>
             <div className="mt-6 text-center">
                 <p className="text-sm text-gray-600">
-                    Don't have an account?{" "}
+                    Don&apos;t have an account?{" "}
                     <Link href="/signup" className="text-teal-600 hover:text-teal-700 hover:underline font-medium">
                         Sign up
                     </Link>

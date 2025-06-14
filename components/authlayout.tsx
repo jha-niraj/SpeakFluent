@@ -17,7 +17,7 @@ export function AuthLayout({ children, title, subtitle, floating }: AuthLayoutPr
         <div className="min-h-screen w-full bg-gradient-to-br from-white to-teal-50/30 flex flex-col items-center justify-center p-4 relative overflow-hidden">
             <div className="absolute top-0 left-0 w-64 h-64 bg-gradient-to-br from-teal-500/10 to-emerald-500/10 rounded-br-full"></div>
             <div className="absolute bottom-0 right-0 w-64 h-64 bg-gradient-to-tl from-teal-500/10 to-emerald-500/10 rounded-tl-full"></div>
-            {floating && floating.map((item, index) => item)}
+            {floating && floating.map((item) => item)}
             <div className="mb-8">
                 <Link href="/" className="flex items-center gap-2">
                     <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">

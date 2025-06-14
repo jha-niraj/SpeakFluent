@@ -53,7 +53,7 @@ const resourcesItems = [
 ]
 
 export default function LandingNavbar() {
-    const { data: session, status } = useSession()
+    const { status } = useSession();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
     const [scrolled, setScrolled] = useState(false)
     const pathname = usePathname()
@@ -97,7 +97,7 @@ export default function LandingNavbar() {
                                     <Globe className="w-6 h-6 text-white" />
                                 </div>
                                 <span className="text-xl font-bold bg-gradient-to-r from-teal-600 to-emerald-700 bg-clip-text text-transparent">
-                                    HimalSpeak
+                                    SpeakFluent
                                 </span>
                             </Link>
                         </motion.div>
@@ -268,7 +268,7 @@ export default function LandingNavbar() {
                                             </div>
                                             <div>
                                                 <SheetTitle className="text-xl font-bold bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent">
-                                                    HimalSpeak
+                                                    SpeakFluent
                                                 </SheetTitle>
                                                 <p className="text-xs text-teal-600 font-medium">Master Languages Like a Native</p>
                                             </div>

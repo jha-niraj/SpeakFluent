@@ -3,7 +3,7 @@
 import { useTheme } from "next-themes"
 import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
-import { Bell, Moon, Sun, Home, User, Settings, LogOut, Crown, Award, Mic } from "lucide-react"
+import { Moon, Sun, Home, User, Settings, LogOut, Crown, Award, Mic } from "lucide-react"
 import { Button } from "./ui/button"
 import { Badge } from "./ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
@@ -17,12 +17,11 @@ const MainNavbar = ({ isCollapsed }: { isCollapsed: boolean }) => {
     const { data: session } = useSession()
     const { theme, setTheme } = useTheme()
     const [scrolled, setScrolled] = useState(false)
-    const [currentUser, setCurrentUser] = useState<any>({ name: "Priya S.", email: "priya@example.com" })
     const pathname = usePathname()
     const router = useRouter()
 
     // Mock data - replace with actual data fetching
-    const [notifications, setNotifications] = useState(2)
+    // const [notifications, setNotifications] = useState(2)
 
     useEffect(() => {
         const handleScroll = () => {
@@ -120,7 +119,7 @@ const MainNavbar = ({ isCollapsed }: { isCollapsed: boolean }) => {
                                 <Moon className="h-3 w-3 text-teal-500" />
                             </Button>
                         </div>
-                        <Button
+                        {/* <Button
                             variant="ghost"
                             size="sm"
                             className="hidden md:flex relative hover:bg-muted rounded-xl p-2 cursor-pointer"
@@ -135,17 +134,19 @@ const MainNavbar = ({ isCollapsed }: { isCollapsed: boolean }) => {
                                     </motion.div>
                                 )
                             }
-                        </Button>
+                        </Button> */}
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" className="relative h-8 w-8 rounded-full p-0">
                                     <Avatar className="h-8 w-8 border-2 border-border/50">
-                                        <AvatarImage src="/placeholder.svg" alt={currentUser?.name || "User"} />
+                                        <AvatarImage src="/placeholder.svg" alt={session?.user?.name || "User"} />
                                         <AvatarFallback className="bg-gradient-to-r from-teal-500 to-emerald-500 text-white text-xs font-bold">
-                                            {currentUser?.name
-                                                ?.split(" ")
-                                                .map((n: string) => n[0])
-                                                .join("") || "U"}
+                                            {
+                                                session?.user?.name
+                                                    ?.split(" ")
+                                                    .map((n: string) => n[0])
+                                                    .join("") || "U"
+                                            }
                                         </AvatarFallback>
                                     </Avatar>
                                     <motion.div
@@ -158,8 +159,8 @@ const MainNavbar = ({ isCollapsed }: { isCollapsed: boolean }) => {
                             <DropdownMenuContent className="w-56" align="end" forceMount>
                                 <DropdownMenuLabel className="font-normal">
                                     <div className="flex flex-col space-y-1">
-                                        <p className="text-sm font-medium leading-none">{currentUser?.name}</p>
-                                        <p className="text-xs leading-none text-muted-foreground">{currentUser?.email}</p>
+                                        <p className="text-sm font-medium leading-none">{session?.user?.name}</p>
+                                        <p className="text-xs leading-none text-muted-foreground">{session?.user?.email}</p>
                                     </div>
                                 </DropdownMenuLabel>
                                 <DropdownMenuSeparator />
@@ -167,7 +168,7 @@ const MainNavbar = ({ isCollapsed }: { isCollapsed: boolean }) => {
                                     <Home className="mr-2 h-4 w-4" />
                                     <span>Dashboard</span>
                                 </DropdownMenuItem>
-                                <DropdownMenuItem className="cursor-pointer md:hidden">
+                                {/* <DropdownMenuItem className="cursor-pointer md:hidden">
                                     <Bell className="mr-2 h-4 w-4" />
                                     <span>Notifications</span>
                                     {
@@ -177,7 +178,7 @@ const MainNavbar = ({ isCollapsed }: { isCollapsed: boolean }) => {
                                             </Badge>
                                         )
                                     }
-                                </DropdownMenuItem>
+                                </DropdownMenuItem> */}
                                 <DropdownMenuItem
                                     className="cursor-pointer md:hidden"
                                     onClick={() => setTheme(theme === "dark" ? "light" : "dark")}

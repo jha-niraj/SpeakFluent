@@ -1,8 +1,6 @@
 "use client"
 
 import type React from "react"
-
-import { useTheme } from "next-themes"
 import { usePathname, useRouter } from "next/navigation"
 import { LogOut, ChevronRight, Globe } from "lucide-react"
 import Link from "next/link"
@@ -27,7 +25,6 @@ interface SidebarProps {
 }
 
 const Sidebar = ({ routes = [], isCollapsed, toggleSidebar }: SidebarProps) => {
-    const { theme } = useTheme()
     const pathname = usePathname()
     const router = useRouter()
 
@@ -46,6 +43,7 @@ const Sidebar = ({ routes = [], isCollapsed, toggleSidebar }: SidebarProps) => {
             await signOut();
             router.push("/auth/signin")
         } catch (error) {
+            console.error("Failed to sign out", error)
             toast.error("Failed to sign out")
         }
     }
