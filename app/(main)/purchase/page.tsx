@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { 
     Coins, ArrowLeft, Zap, Crown, Star, Check, 
-    CreditCard, Shield, Globe, Sparkles
+    CreditCard, Shield, Globe, Sparkles, MessageCircle, Mic
 } from 'lucide-react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
@@ -25,64 +25,79 @@ const BuyCredits = () => {
 
     const creditPackages = [
         {
-            id: 'basic',
-            credits: 50,
-            price: 22.5,
-            originalPrice: 25,
-            title: '50 Credits',
-            description: 'Perfect for getting started',
+            id: 'starter',
+            credits: 100,
+            price: 9.99,
+            originalPrice: 14.99,
+            title: '100 Credits',
+            description: 'Perfect for beginners',
             badge: null,
-            features: ['Basic conversations', 'Text feedback', 'Standard support'],
+            features: [
+                '10 Conversation Sessions',
+                'Basic Voice Training',
+                'Progress Tracking',
+                'Email Support'
+            ],
             popular: false,
-            savings: '10%'
+            savings: '33%',
+            sessions: '10 sessions'
         },
         {
             id: 'popular',
-            credits: 100,
-            price: 40,
-            originalPrice: 50,
-            title: '100 Credits',
+            credits: 300,
+            price: 24.99,
+            originalPrice: 44.99,
+            title: '300 Credits',
             description: 'Most popular choice',
             badge: 'Most Popular',
-            features: ['Extended conversations', 'Voice feedback', 'Priority support', 'Progress tracking'],
+            features: [
+                '30 Conversation Sessions',
+                'Advanced Voice Analysis',
+                'Personalized Feedback',
+                'Priority Support',
+                'Progress Analytics'
+            ],
             popular: true,
-            savings: '20%'
+            savings: '44%',
+            sessions: '30 sessions'
         },
         {
-            id: 'value',
-            credits: 500,
-            price: 175,
-            originalPrice: 250,
-            title: '500 Credits',
-            description: 'Best value for serious learners',
+            id: 'pro',
+            credits: 600,
+            price: 44.99,
+            originalPrice: 89.99,
+            title: '600 Credits',
+            description: 'For serious learners',
             badge: 'Best Value',
-            features: ['Unlimited conversations', 'Advanced analytics', 'Premium support', 'Custom learning paths'],
+            features: [
+                '60 Conversation Sessions',
+                'Premium Voice Coaching',
+                'Detailed Analytics',
+                'Custom Learning Path',
+                '24/7 Chat Support'
+            ],
             popular: false,
-            savings: '30%'
+            savings: '50%',
+            sessions: '60 sessions'
         },
         {
-            id: 'enterprise',
-            credits: 1000,
-            price: 300,
-            originalPrice: 500,
-            title: '1000 Credits',
-            description: 'For power users',
-            badge: 'Premium',
-            features: ['Everything included', 'Personal tutor sessions', '24/7 support', 'Advanced features'],
-            popular: false,
-            savings: '40%'
-        },
-        {
-            id: 'mega',
-            credits: 3000,
-            price: 750,
-            originalPrice: 1500,
-            title: '3000 Credits',
+            id: 'unlimited',
+            credits: 1500,
+            price: 99.99,
+            originalPrice: 224.99,
+            title: '1500 Credits',
             description: 'Ultimate learning package',
-            badge: 'Ultimate',
-            features: ['All premium features', 'Certification support', 'Expert guidance', 'Lifetime updates'],
+            badge: 'Premium',
+            features: [
+                '150 Conversation Sessions',
+                'AI Tutor Access',
+                'Advanced Scenarios',
+                'Certification Support',
+                'Personal Learning Coach'
+            ],
             popular: false,
-            savings: '50%'
+            savings: '56%',
+            sessions: '150 sessions'
         }
     ]
 
@@ -93,18 +108,20 @@ const BuyCredits = () => {
 
     const handleCustomPurchase = () => {
         const credits = parseInt(customAmount)
-        if (credits < 10) {
-            toast.error('Minimum purchase is 10 credits')
+        if (credits < 50) {
+            toast.error('Minimum purchase is 50 credits')
             return
         }
         
-        const price = credits * 0.5 // 0.5 NPR per credit
+        const price = credits * 0.15 // $0.15 per credit
+        const sessions = Math.floor(credits / 10)
         const customPackage = {
             id: 'custom',
             credits: credits,
             price: price,
             title: `${credits} Credits`,
             description: 'Custom amount',
+            sessions: `${sessions} sessions`,
             custom: true
         }
         
@@ -120,10 +137,9 @@ const BuyCredits = () => {
             const result = await createCreditPurchase(selectedPackage.credits, selectedPackage.price)
             
             if (result.success) {
-                // Simulate Khalti payment process
-                // In real implementation, integrate with Khalti SDK
+                // Simulate payment process
                 setTimeout(async () => {
-                    const paymentId = `khalti_${Date.now()}`
+                    const paymentId = `payment_${Date.now()}`
                     const completeResult = await completeCreditPurchase(result.transactionId!, paymentId)
                     
                     if (completeResult.success) {
@@ -148,103 +164,90 @@ const BuyCredits = () => {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-teal-50 to-emerald-50">
-            {/* Header */}
-            <div className="bg-white/80 backdrop-blur-sm border-b border-teal-100 sticky top-0 z-10">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex items-center justify-between h-16">
-                        <div className="flex items-center space-x-4">
-                            <Link href="/dashboard">
-                                <Button variant="ghost" size="sm" className="text-gray-600 hover:text-teal-600">
-                                    <ArrowLeft className="w-4 h-4 mr-2" />
-                                    Back to Dashboard
-                                </Button>
-                            </Link>
-                        </div>
-                        <div className="flex items-center space-x-4">
-                            <div className="w-8 h-8 bg-gradient-to-br from-teal-500 to-emerald-600 rounded-lg flex items-center justify-center">
-                                <Coins className="w-5 h-5 text-white" />
-                            </div>
-                            <span className="text-lg font-bold bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent">
-                                Buy Credits
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {/* Hero Section */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="text-center mb-12"
                 >
-                    <h1 className="text-4xl font-bold text-gray-900 mb-4">
-                        Buy Credits: Because Cash Can't Code (But Credits Can) 💳
+                    <h1 className="text-5xl font-bold text-gray-900 mb-6">
+                        Fuel Your Language Learning Journey 🚀
                     </h1>
-                    <p className="text-lg text-gray-600 mb-6">
-                        Grab some credits and unlock assessments, projects, or AI tools. No subscriptions, no nonsense—just pay for what you actually use.
+                    <p className="text-xl text-gray-600 mb-8 max-w-4xl mx-auto leading-relaxed">
+                        Purchase credits to unlock AI-powered conversations, personalized feedback, and premium features. Each conversation session costs only 10 credits!
                     </p>
-                    <div className="flex justify-center space-x-2 mb-8">
-                        <Badge className="bg-teal-100 text-teal-800">INR</Badge>
-                        <Badge className="bg-emerald-100 text-emerald-800">NPR</Badge>
+                    <div className="flex justify-center items-center space-x-6 mb-12">
+                        <div className="flex items-center space-x-3 bg-white/70 rounded-2xl px-6 py-3 shadow-lg">
+                            <MessageCircle className="w-5 h-5 text-teal-600" />
+                            <span className="text-base font-semibold">10 Credits = 1 Session</span>
+                        </div>
+                        <div className="flex items-center space-x-3 bg-white/70 rounded-2xl px-6 py-3 shadow-lg">
+                            <Mic className="w-5 h-5 text-emerald-600" />
+                            <span className="text-base font-semibold">AI Voice Training</span>
+                        </div>
+                        <div className="flex items-center space-x-3 bg-white/70 rounded-2xl px-6 py-3 shadow-lg">
+                            <Globe className="w-5 h-5 text-green-600" />
+                            <span className="text-base font-semibold">100+ Languages</span>
+                        </div>
                     </div>
                 </motion.div>
-
-                {/* Currency Toggle - Static for now */}
-                <div className="flex justify-center mb-8">
-                    <div className="bg-white/80 backdrop-blur-sm rounded-full p-1 border border-teal-200">
-                        <Button variant="default" size="sm" className="bg-teal-500 text-white rounded-full">
-                            NPR
-                        </Button>
-                        <Button variant="ghost" size="sm" className="text-gray-600 rounded-full">
-                            USD
-                        </Button>
-                    </div>
-                </div>
-
-                {/* Custom Amount Section */}
+                
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
-                    className="mb-12"
+                    className="mb-16"
                 >
-                    <Card className="max-w-md mx-auto bg-white/90 backdrop-blur-sm border-0 shadow-lg">
-                        <CardHeader className="text-center">
-                            <CardTitle className="text-xl text-gray-900">Custom Credits</CardTitle>
-                            <CardDescription>Pick your own adventure. Start small or go big—your wallet, your rules.</CardDescription>
+                    <Card className="max-w-md mx-auto bg-white/90 backdrop-blur-sm border-0 shadow-xl">
+                        <CardHeader className="text-center p-8">
+                            <CardTitle className="text-2xl text-gray-900">Custom Credits</CardTitle>
+                            <CardDescription className="text-base">Choose your perfect learning amount</CardDescription>
                         </CardHeader>
-                        <CardContent>
-                            <div className="flex items-center space-x-2 mb-4">
-                                <Input
-                                    type="number"
-                                    placeholder="Credits amount"
-                                    value={customAmount}
-                                    onChange={(e) => setCustomAmount(e.target.value)}
-                                    className="rounded-xl border-teal-200 focus:border-teal-300"
-                                    min="10"
-                                />
-                                <span className="text-sm text-gray-500">= {(parseInt(customAmount) * 0.5 || 0).toFixed(2)} NPR</span>
+                        <CardContent className="p-8 pt-0">
+                            <div className="space-y-6">
+                                <div className="flex items-center space-x-2">
+                                    <Input
+                                        type="number"
+                                        placeholder="Enter credits (min 50)"
+                                        value={customAmount}
+                                        onChange={(e) => setCustomAmount(e.target.value)}
+                                        className="rounded-2xl border-indigo-200 focus:border-indigo-300 h-12"
+                                        min="50"
+                                    />
+                                </div>
+                                {customAmount && parseInt(customAmount) >= 50 && (
+                                    <div className="bg-gradient-to-r from-teal-50 to-emerald-50 rounded-2xl p-4 space-y-2">
+                                        <div className="flex justify-between text-sm">
+                                            <span>Credits:</span>
+                                            <span className="font-semibold">{customAmount}</span>
+                                        </div>
+                                        <div className="flex justify-between text-sm">
+                                            <span>Sessions:</span>
+                                            <span className="font-semibold">{Math.floor(parseInt(customAmount) / 10)}</span>
+                                        </div>
+                                        <div className="flex justify-between text-base font-bold text-teal-700">
+                                            <span>Total:</span>
+                                            <span>${(parseInt(customAmount) * 0.15).toFixed(2)}</span>
+                                        </div>
+                                    </div>
+                                )}
+                                <Button 
+                                    onClick={handleCustomPurchase}
+                                    disabled={!customAmount || parseInt(customAmount) < 50}
+                                    className="w-full bg-gradient-to-r from-teal-500 to-emerald-600 text-white rounded-2xl h-12 text-base font-semibold"
+                                >
+                                    Purchase Custom Credits
+                                </Button>
                             </div>
-                            <p className="text-xs text-gray-500 mb-4">Perfect for when you just need a taste—don't worry, we won't judge your commitment issues.</p>
-                            <Button 
-                                onClick={handleCustomPurchase}
-                                disabled={!customAmount || parseInt(customAmount) < 10}
-                                className="w-full bg-gradient-to-r from-teal-500 to-emerald-600 text-white rounded-xl"
-                            >
-                                Buy Now
-                            </Button>
                         </CardContent>
                     </Card>
                 </motion.div>
-
-                {/* Credit Packages */}
-                <div className="mb-8">
-                    <h2 className="text-2xl font-bold text-gray-900 text-center mb-2">Credit Packages</h2>
-                    <p className="text-gray-600 text-center mb-8">Bundles for the bold. More credits, less whining about prices.</p>
+                
+                <div className="mb-16">
+                    <h2 className="text-3xl font-bold text-gray-900 text-center mb-4">Learning Packages</h2>
+                    <p className="text-xl text-gray-600 text-center mb-12">Choose the perfect package for your language learning goals</p>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                         {creditPackages.map((pkg, index) => (
                             <motion.div
                                 key={pkg.id}
@@ -254,68 +257,65 @@ const BuyCredits = () => {
                                 className={`${pkg.popular ? 'lg:scale-105' : ''}`}
                             >
                                 <Card className={`
-                                    relative overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 
+                                    relative overflow-hidden border-0 shadow-xl hover:shadow-2xl transition-all duration-300 
                                     ${pkg.popular ? 'bg-gradient-to-br from-teal-50 to-emerald-50 ring-2 ring-teal-200' : 'bg-white/90'} 
-                                    backdrop-blur-sm group cursor-pointer
+                                    backdrop-blur-sm group cursor-pointer h-full hover:scale-105
                                 `}>
-                                    {pkg.badge && (
-                                        <div className="absolute top-4 right-4">
+                                    {/* Badges positioned at top corners */}
+                                    <div className="absolute top-6 left-6 right-6 flex justify-between items-start">
+                                        {pkg.savings && (
+                                            <div className="bg-red-500 text-white text-xs px-3 py-1 rounded-full font-semibold">
+                                                Save {pkg.savings}
+                                            </div>
+                                        )}
+                                        {pkg.badge && (
                                             <Badge className={`
                                                 ${pkg.popular ? 'bg-teal-500 text-white' : 'bg-emerald-500 text-white'}
                                             `}>
                                                 {pkg.badge}
                                             </Badge>
-                                        </div>
-                                    )}
+                                        )}
+                                    </div>
 
-                                    {pkg.savings && (
-                                        <div className="absolute top-4 left-4">
-                                            <div className="bg-red-500 text-white text-xs px-2 py-1 rounded-full font-medium">
-                                                Save {pkg.savings}
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    <CardHeader className="p-6">
+                                    <CardHeader className="p-8 pt-16">
                                         <div className="text-center">
                                             <div className={`
-                                                w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center
+                                                w-20 h-20 mx-auto mb-6 rounded-3xl flex items-center justify-center
                                                 ${pkg.popular ? 'bg-gradient-to-br from-teal-500 to-emerald-600' : 'bg-gradient-to-br from-gray-400 to-gray-600'}
                                             `}>
-                                                {pkg.id === 'basic' && <Coins className="w-8 h-8 text-white" />}
-                                                {pkg.id === 'popular' && <Star className="w-8 h-8 text-white" />}
-                                                {pkg.id === 'value' && <Zap className="w-8 h-8 text-white" />}
-                                                {pkg.id === 'enterprise' && <Crown className="w-8 h-8 text-white" />}
-                                                {pkg.id === 'mega' && <Sparkles className="w-8 h-8 text-white" />}
+                                                {pkg.id === 'starter' && <Coins className="w-10 h-10 text-white" />}
+                                                {pkg.id === 'popular' && <Star className="w-10 h-10 text-white" />}
+                                                {pkg.id === 'pro' && <Zap className="w-10 h-10 text-white" />}
+                                                {pkg.id === 'unlimited' && <Crown className="w-10 h-10 text-white" />}
                                             </div>
-                                            <CardTitle className="text-2xl font-bold text-gray-900 mb-2">
+                                            <CardTitle className="text-2xl font-bold text-gray-900 mb-3">
                                                 {pkg.title}
                                             </CardTitle>
-                                            <CardDescription className="text-gray-600 mb-4">
+                                            <CardDescription className="text-gray-600 mb-6 text-base">
                                                 {pkg.description}
                                             </CardDescription>
-                                            <div className="space-y-2">
-                                                <div className="flex items-center justify-center space-x-2">
-                                                    <span className="text-3xl font-bold text-gray-900">
-                                                        {pkg.price.toFixed(0)} NPR
+                                            <div className="space-y-3">
+                                                <div className="flex items-center justify-center space-x-3">
+                                                    <span className="text-4xl font-bold text-gray-900">
+                                                        ${pkg.price}
                                                     </span>
                                                     {pkg.originalPrice && (
-                                                        <span className="text-lg text-gray-500 line-through">
-                                                            {pkg.originalPrice} NPR
+                                                        <span className="text-xl text-gray-500 line-through">
+                                                            ${pkg.originalPrice}
                                                         </span>
                                                     )}
                                                 </div>
-                                                <p className="text-sm text-gray-500">
-                                                    {(pkg.price / pkg.credits).toFixed(2)} NPR per credit
+                                                <p className="text-base text-teal-600 font-semibold">
+                                                    {pkg.sessions}
                                                 </p>
                                             </div>
                                         </div>
                                     </CardHeader>
 
-                                    <CardContent className="p-6 pt-0">
-                                        <div className="space-y-3 mb-6">
+                                    <CardContent className="p-8 pt-0">
+                                        <div className="space-y-4 mb-8">
                                             {pkg.features.map((feature, featureIndex) => (
-                                                <div key={featureIndex} className="flex items-center space-x-2">
+                                                <div key={featureIndex} className="flex items-center space-x-3">
                                                     <Check className="w-5 h-5 text-emerald-500 flex-shrink-0" />
                                                     <span className="text-sm text-gray-600">{feature}</span>
                                                 </div>
@@ -325,14 +325,14 @@ const BuyCredits = () => {
                                         <Button
                                             onClick={() => handlePackageSelect(pkg)}
                                             className={`
-                                                w-full rounded-xl transition-all duration-300
+                                                w-full rounded-2xl transition-all duration-300 h-12 text-base font-semibold
                                                 ${pkg.popular 
                                                     ? 'bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:shadow-lg hover:scale-105' 
                                                     : 'bg-gradient-to-r from-gray-600 to-gray-700 text-white hover:shadow-lg hover:scale-105'
                                                 }
                                             `}
                                         >
-                                            Buy Now
+                                            Get Started
                                         </Button>
                                     </CardContent>
                                 </Card>
@@ -348,21 +348,25 @@ const BuyCredits = () => {
                     transition={{ delay: 0.8 }}
                     className="text-center"
                 >
-                    <p className="text-sm text-gray-500 mb-4">
-                        Credits don't expire—hoard them like a dragon if you want. We dare you.
+                    <p className="text-base text-gray-500 mb-6">
+                        Your credits never expire - learn at your own pace
                     </p>
-                    <div className="flex justify-center items-center space-x-6 text-gray-400">
+                    <div className="flex justify-center items-center space-x-8 text-gray-400">
                         <div className="flex items-center space-x-2">
-                            <Shield className="w-4 h-4" />
-                            <span className="text-xs">Secure Payment</span>
+                            <Shield className="w-5 h-5" />
+                            <span className="text-sm font-medium">Secure Payment</span>
                         </div>
                         <div className="flex items-center space-x-2">
-                            <Globe className="w-4 h-4" />
-                            <span className="text-xs">Global Access</span>
+                            <Globe className="w-5 h-5" />
+                            <span className="text-sm font-medium">24/7 Access</span>
                         </div>
                         <div className="flex items-center space-x-2">
-                            <Coins className="w-4 h-4" />
-                            <span className="text-xs">No Expiry</span>
+                            <Coins className="w-5 h-5" />
+                            <span className="text-sm font-medium">No Expiry</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <Sparkles className="w-5 h-5" />
+                            <span className="text-sm font-medium">AI Powered</span>
                         </div>
                     </div>
                 </motion.div>
@@ -372,49 +376,49 @@ const BuyCredits = () => {
             <Dialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
                 <DialogContent className="max-w-md">
                     <DialogHeader>
-                        <DialogTitle className="text-center">Complete Your Purchase</DialogTitle>
+                        <DialogTitle className="text-center text-xl">Complete Your Purchase</DialogTitle>
                         <DialogDescription className="text-center">
-                            You're about to purchase {selectedPackage?.credits} credits for {selectedPackage?.price} NPR
+                            You're about to purchase {selectedPackage?.credits} credits for ${selectedPackage?.price}
                         </DialogDescription>
                     </DialogHeader>
                     
-                    <div className="space-y-4">
-                        {/* Khalti Payment Option */}
-                        <div className="bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg p-4 border border-purple-200">
-                            <div className="flex items-center space-x-3 mb-3">
-                                <div className="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center">
-                                    <CreditCard className="w-5 h-5 text-white" />
+                    <div className="space-y-6">
+                        {/* Payment Option */}
+                        <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl p-6 border border-indigo-200">
+                            <div className="flex items-center space-x-4 mb-4">
+                                <div className="w-12 h-12 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center">
+                                    <CreditCard className="w-6 h-6 text-white" />
                                 </div>
                                 <div>
-                                    <h4 className="font-semibold text-gray-900">Khalti Payment</h4>
-                                    <p className="text-sm text-gray-600">Secure payment with Khalti</p>
+                                    <h4 className="font-semibold text-gray-900 text-lg">Secure Payment</h4>
+                                    <p className="text-sm text-gray-600">Global payment gateway</p>
                                 </div>
                             </div>
                             
                             <Button 
                                 onClick={handlePayment}
                                 disabled={isProcessing}
-                                className="w-full bg-purple-600 hover:bg-purple-700 text-white rounded-lg"
+                                className="w-full bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white rounded-2xl h-12 text-base font-semibold"
                             >
-                                {isProcessing ? 'Processing...' : `Pay ${selectedPackage?.price} NPR with Khalti`}
+                                {isProcessing ? 'Processing...' : `Pay $${selectedPackage?.price} Securely`}
                             </Button>
                         </div>
 
                         {/* Order Summary */}
-                        <div className="bg-gray-50 rounded-lg p-4">
-                            <h4 className="font-semibold text-gray-900 mb-2">Order Summary</h4>
-                            <div className="space-y-1 text-sm">
+                        <div className="bg-gray-50 rounded-2xl p-6">
+                            <h4 className="font-semibold text-gray-900 mb-4 text-lg">Order Summary</h4>
+                            <div className="space-y-3 text-base">
                                 <div className="flex justify-between">
                                     <span>Credits:</span>
-                                    <span>{selectedPackage?.credits}</span>
+                                    <span className="font-semibold">{selectedPackage?.credits}</span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span>Amount:</span>
-                                    <span>{selectedPackage?.price} NPR</span>
+                                    <span>Sessions:</span>
+                                    <span className="font-semibold">{selectedPackage?.sessions || Math.floor(selectedPackage?.credits / 10) + ' sessions'}</span>
                                 </div>
-                                <div className="flex justify-between font-semibold pt-2 border-t">
+                                <div className="flex justify-between font-bold pt-3 border-t text-lg">
                                     <span>Total:</span>
-                                    <span>{selectedPackage?.price} NPR</span>
+                                    <span>${selectedPackage?.price}</span>
                                 </div>
                             </div>
                         </div>

@@ -53,7 +53,7 @@ const resourcesItems = [
 ]
 
 export default function LandingNavbar() {
-    const { status } = useSession();
+    const { data: session, status } = useSession();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
     const [scrolled, setScrolled] = useState(false)
     const pathname = usePathname()
@@ -223,26 +223,30 @@ export default function LandingNavbar() {
                                     </>
                                 ) : (
                                     <div className="flex items-center space-x-4">
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            className="rounded-xl border-teal-200 text-teal-700 hover:bg-teal-50"
-                                        >
-                                            Buy Credits
-                                        </Button>
+                                        <Link href="/purchase">
+                                            <Button
+                                                asChild
+                                                variant="outline"
+                                                size="sm"
+                                                className="rounded-xl border-teal-200 text-teal-700 hover:bg-teal-50"
+                                            >
+                                                Buy Credits
+                                            </Button>
+                                        </Link>
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
                                                 <Avatar className="h-9 w-9 cursor-pointer hover:ring-2 hover:ring-teal-200 transition-all">
-                                                    <AvatarImage src="/placeholder.svg?height=36&width=36" />
+                                                    <AvatarImage src={session?.user?.image} />
                                                     <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
                                                         US
                                                     </AvatarFallback>
                                                 </Avatar>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end" className="w-56 p-2 rounded-xl">
-                                                <DropdownMenuItem className="cursor-pointer">Profile</DropdownMenuItem>
+                                                <Link href="/profile">
+                                                    <DropdownMenuItem className="cursor-pointer">Profile</DropdownMenuItem>
+                                                </Link>
                                                 <DropdownMenuItem className="cursor-pointer">My Courses</DropdownMenuItem>
-                                                <DropdownMenuItem className="cursor-pointer">Settings</DropdownMenuItem>
                                                 <DropdownMenuItem onClick={() => signOut()} className="cursor-pointer text-red-500">Sign Out</DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>

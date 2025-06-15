@@ -5,6 +5,36 @@ import { prisma } from '@/lib/prisma'
 import { TransactionType, TransactionStatus } from '@prisma/client'
 import { revalidatePath } from 'next/cache'
 
+export async function fetchCredits() {
+    const session = await auth();
+
+    if (!session) {
+        throw new Error("User is not authenticated");
+    }
+
+    try {
+        const response = await prisma.user.findUnique({
+            where: {
+                id: session?.user?.id
+            },
+            select: {
+                credits: true
+            }
+        })
+        if (!response) {
+            throw new Error("Failed to fetch the XP and Credits");
+        }
+
+        return {
+            credits: response.credits
+        }
+    } catch (err) {
+        const error = err as Error;
+        console.log("Error Occurred while converting XP: " + error);
+        throw new Error("Error occurred while converting XP");
+    }
+}
+
 export async function getUserCredits() {
 	const session = await auth()
 
@@ -148,6 +178,49 @@ export async function useCredits(amount: number, description: string) {
 	} catch (error) {
 		console.error('Error using credits:', error)
 		return { success: false, error: 'Failed to use credits' }
+	}
+}
+
+export async function deductCredits(userId: string, amount: number, description: string) {
+	try {
+		const user = await prisma.user.findUnique({
+			where: { id: userId },
+			select: { credits: true }
+		})
+
+		if (!user || user.credits < amount) {
+			return { success: false, error: 'Insufficient credits' }
+		}
+
+		// Deduct credits and create usage transaction
+		await prisma.$transaction(async (tx) => {
+			// Update user credits
+			await tx.user.update({
+				where: { id: userId },
+				data: {
+					credits: {
+						decrement: amount
+					}
+				}
+			})
+
+			// Create usage transaction
+			await tx.creditTransaction.create({
+				data: {
+					userId: userId,
+					type: TransactionType.USAGE,
+					status: TransactionStatus.COMPLETED,
+					amount: -amount, // Negative for usage
+					description: description
+				}
+			})
+		})
+
+		revalidatePath('/dashboard')
+		return { success: true }
+	} catch (error) {
+		console.error('Error deducting credits:', error)
+		return { success: false, error: 'Failed to deduct credits' }
 	}
 }
 

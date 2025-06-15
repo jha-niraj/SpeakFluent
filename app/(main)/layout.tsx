@@ -2,8 +2,12 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import {
-    LayoutDashboard, Settings, DollarSign, 
-    GraduationCap, Users, Receipt, FileBarChart, MessageSquare
+    LayoutDashboard, Settings, DollarSign,
+    GraduationCap, Users, Receipt, FileBarChart, MessageSquare,
+    Home,
+    CreditCard,
+    TrendingUp,
+    User
 } from 'lucide-react';
 import Sidebar, { Route } from '@/components/mainsidebar';
 import MainNavbar from '@/components/mainnavbar';
@@ -25,50 +29,32 @@ const Layout = ({ children }: LayoutProps) => {
         {
             path: "dashboard",
             name: "Dashboard",
-            icon: <LayoutDashboard className="h-5 w-5" />,
+            icon: <Home className="h-5 w-5" />,
             status: "active"
         },
         {
-            path: "students",
-            name: "Students",
-            icon: <Users className="h-5 w-5" />,
-            status: "active"
-        },
-        {
-            path: "billing",
-            name: "Billing",
-            icon: <DollarSign className="h-5 w-5" />,
-            status: "active"
-        },
-        {
-            path: "payments",
-            name: "Payments",
-            icon: <Receipt className="h-5 w-5" />,
-            status: "active"
-        },
-        {
-            path: "academics",
-            name: "Academics",
-            icon: <GraduationCap className="h-5 w-5" />,
-            status: "active"
-        },
-        {
-            path: "reports",
-            name: "Reports",
-            icon: <FileBarChart className="h-5 w-5" />,
-            status: "active"
-        },
-        {
-            path: "communication",
-            name: "Communication",
+            path: "conversation",
+            name: "AI Conversation",
             icon: <MessageSquare className="h-5 w-5" />,
-            status: "coming"
+            status: "active"
         },
         {
-            path: "settings",
-            name: "Settings",
-            icon: <Settings className="h-5 w-5" />,
-            status: "coming"
+            path: "purchase",
+            name: "Buy Credits",
+            icon: <CreditCard className="h-5 w-5" />,
+            status: "active"
+        },
+        {
+            path: "progress",
+            name: "Progress",
+            icon: <TrendingUp className="h-5 w-5" />,
+            status: "active"
+        },
+        {
+            path: "profile",
+            name: "Profile",
+            icon: <User className="h-5 w-5" />,
+            status: "active"
         }
     ], []);
 
