@@ -11,6 +11,7 @@ import { Button } from "./ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 import { motion } from "framer-motion"
 import { signOut, useSession } from "next-auth/react"
+import Image from "next/image"
 
 export interface Route {
     path: string
@@ -64,12 +65,12 @@ const Sidebar = ({ routes = [], isCollapsed, toggleSidebar }: SidebarProps) => {
                     {/* Header */}
                     <div className="flex items-center justify-center p-4 h-[80px] border-b border-border/20">
                         <Link href="/dashboard" className="flex gap-2 items-center justify-center group cursor-pointer">
-                            <div className="relative">
-                                <div className="w-12 h-12 bg-gradient-to-br from-teal-500 via-emerald-600 to-green-500 rounded-2xl flex items-center justify-center shadow-xl group-hover:shadow-teal-500/25 transition-all duration-300 group-hover:scale-110">
-                                    <Languages className="text-white h-7 w-7" />
-                                </div>
-                                <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-emerald-400 to-teal-500 rounded-full border-2 border-background animate-pulse"></div>
-                            </div>
+                            <Image
+                                src="/mainlogo.png"
+                                alt="SpeakFluent"
+                                width={32}
+                                height={32}
+                            />
                             <motion.div
                                 animate={{
                                     opacity: isCollapsed ? 0 : 1,

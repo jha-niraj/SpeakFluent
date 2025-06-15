@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useTheme } from "next-themes"
 import { signOut, useSession } from "next-auth/react"
+import Image from "next/image"
 
 const navigation = [
     {
@@ -93,9 +94,12 @@ export default function LandingNavbar() {
                     <div className="flex items-center justify-between h-16">
                         <motion.div className="flex lg:flex-1" whileHover={{ scale: 1.02 }} transition={{ duration: 0.2 }}>
                             <Link href="/" className="flex items-center group gap-2">
-                                <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
-                                    <Globe className="w-6 h-6 text-white" />
-                                </div>
+                                <Image
+                                    src="/mainlogo.png"
+                                    alt="SpeakFluent"
+                                    width={32}
+                                    height={32}
+                                />
                                 <span className="text-xl font-bold bg-gradient-to-r from-teal-600 to-emerald-700 bg-clip-text text-transparent">
                                     SpeakFluent
                                 </span>

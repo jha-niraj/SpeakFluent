@@ -288,34 +288,6 @@ const ConversationPage = () => {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-teal-50 to-emerald-50">
-            {/* Header */}
-            <div className="bg-white/80 backdrop-blur-sm border-b border-teal-100 sticky top-0 z-10">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex items-center justify-between h-16">
-                        <div className="flex items-center space-x-4">
-                            <Link href="/dashboard">
-                                <Button variant="ghost" size="sm" className="text-gray-600 hover:text-teal-600">
-                                    <ArrowLeft className="w-4 h-4 mr-2" />
-                                    Back to Dashboard
-                                </Button>
-                            </Link>
-                        </div>
-                        <div className="flex items-center space-x-4">
-                            <div className="flex items-center space-x-2 bg-teal-50 rounded-full px-3 py-1">
-                                <Coins className="w-4 h-4 text-teal-600" />
-                                <span className="text-sm font-medium text-teal-700">{credits} credits</span>
-                            </div>
-                            <div className="w-8 h-8 bg-gradient-to-br from-teal-500 to-emerald-600 rounded-lg flex items-center justify-center">
-                                <MessageSquare className="w-5 h-5 text-white" />
-                            </div>
-                            <span className="text-lg font-bold bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent">
-                                AI Conversation
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {!conversationState.isActive ? (
                     /* Start Screen */
