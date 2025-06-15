@@ -21,6 +21,7 @@ import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { getUserCredits } from '@/actions/credits.action';
 import { getUserWeeklyGoals, createWeeklyGoal, createMultipleGoals, toggleGoalCompletion, deleteWeeklyGoal, createPresetGoals } from '@/actions/dashboard.action';
+import { checkFeatureAccess } from '@/actions/foundations.action';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 
@@ -49,16 +50,22 @@ const Dashboard = () => {
     const [isCreatingGoal, setIsCreatingGoal] = useState(false);
     const [activeTab, setActiveTab] = useState('preset');
 
+    // Foundation Features States
+    const [showMajorFeaturesDialog, setShowMajorFeaturesDialog] = useState(false);
+    const [featureAccess, setFeatureAccess] = useState<any>(null);
+
     useEffect(() => {
         const fetchData = async () => {
             if (session?.user?.id) {
                 try {
-                    const [userCredits, goalsResult] = await Promise.all([
+                    const [userCredits, goalsResult, accessResult] = await Promise.all([
                         getUserCredits(),
-                        getUserWeeklyGoals()
+                        getUserWeeklyGoals(),
+                        checkFeatureAccess()
                     ]);
                     
                     setCredits(userCredits);
+                    setFeatureAccess(accessResult);
                     
                     if (goalsResult.success) {
                         setWeeklyGoals(goalsResult.goals || []);
@@ -514,45 +521,6 @@ const Dashboard = () => {
         }
     ];
 
-    const platformFeatures = [
-        {
-            title: "Real-time AI Conversations",
-            description: "Practice with advanced AI tutors that understand context and provide meaningful responses",
-            icon: MessageSquare,
-            color: "from-teal-500 to-emerald-600"
-        },
-        {
-            title: "Pronunciation Analysis",
-            description: "Get instant feedback on your pronunciation with our advanced speech recognition technology",
-            icon: Headphones,
-            color: "from-emerald-500 to-green-600"
-        },
-        {
-            title: "Video Lessons",
-            description: "Learn from native speakers with interactive video content and cultural insights",
-            icon: Video,
-            color: "from-green-500 to-teal-500"
-        },
-        {
-            title: "Progress Tracking",
-            description: "Monitor your learning journey with detailed analytics and personalized recommendations",
-            icon: TrendingUp,
-            color: "from-emerald-500 to-teal-600"
-        },
-        {
-            title: "Interactive Exercises",
-            description: "Reinforce your learning with gamified exercises and real-world scenarios",
-            icon: Zap,
-            color: "from-amber-500 to-orange-600"
-        },
-        {
-            title: "Secure & Private",
-            description: "Your learning data is encrypted and secure. Practice with confidence and privacy",
-            icon: Shield,
-            color: "from-teal-500 to-cyan-600"
-        }
-    ];
-
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-teal-50 to-emerald-50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -626,36 +594,152 @@ const Dashboard = () => {
 
                 {/* Quick Actions */}
                 <div className="mb-12">
-                    <h3 className="text-2xl font-bold text-gray-900 mb-6">Quick Start</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {quickActions.map((action, index) => {
-                            const IconComponent = action.icon;
-                            return (
-                                <motion.div
-                                    key={index}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.4 + index * 0.1 }}
-                                >
-                                    <Link href={action.href}>
-                                        <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-white/90 backdrop-blur-sm cursor-pointer group hover:scale-105">
-                                            <CardContent className="p-6">
-                                                <div className="flex items-center space-x-4">
-                                                    <div className={`p-4 rounded-2xl ${action.color} group-hover:scale-110 transition-transform duration-300`}>
-                                                        <IconComponent className="w-6 h-6 text-white" />
-                                                    </div>
-                                                    <div className="flex-1">
-                                                        <h4 className="text-lg font-semibold text-gray-900">{action.title}</h4>
-                                                        <p className="text-sm text-gray-600">{action.description}</p>
-                                                    </div>
-                                                    <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-teal-600 transition-colors" />
-                                                </div>
-                                            </CardContent>
-                                        </Card>
-                                    </Link>
-                                </motion.div>
-                            );
-                        })}
+                    <h3 className="text-2xl font-bold text-gray-900 mb-6">Learning Path</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        {/* Foundation Features Card */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.4 }}
+                        >
+                            <Link href="/foundations">
+                                <Card className="border-0 shadow-xl hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-teal-50 to-emerald-50 cursor-pointer group h-full">
+                                    <CardContent className="p-8">
+                                        <div className="flex items-center justify-between mb-6">
+                                            <div className="p-4 bg-gradient-to-br from-teal-500 to-emerald-600 rounded-3xl">
+                                                <BookOpenText className="h-8 w-8 text-white" />
+                                            </div>
+                                            <Badge className="bg-teal-500 text-white">
+                                                Start Here
+                                            </Badge>
+                                        </div>
+                                        <h4 className="text-2xl font-bold text-gray-900 mb-4">Foundation Modules</h4>
+                                        <p className="text-gray-600 mb-6 leading-relaxed">
+                                            Master the fundamentals before advancing. Learn script, pronunciation, vocabulary, grammar, and cultural context.
+                                        </p>
+                                        <div className="space-y-3">
+                                            <div className="flex items-center text-sm text-gray-600">
+                                                <div className="w-2 h-2 bg-teal-500 rounded-full mr-3"></div>
+                                                Script & Writing System
+                                            </div>
+                                            <div className="flex items-center text-sm text-gray-600">
+                                                <div className="w-2 h-2 bg-emerald-500 rounded-full mr-3"></div>
+                                                Phonetics & Pronunciation
+                                            </div>
+                                            <div className="flex items-center text-sm text-gray-600">
+                                                <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
+                                                Essential Vocabulary
+                                            </div>
+                                            <div className="flex items-center text-sm text-gray-600">
+                                                <div className="w-2 h-2 bg-teal-600 rounded-full mr-3"></div>
+                                                Grammar Fundamentals
+                                            </div>
+                                            <div className="flex items-center text-sm text-gray-600">
+                                                <div className="w-2 h-2 bg-emerald-600 rounded-full mr-3"></div>
+                                                Cultural Context
+                                            </div>
+                                        </div>
+                                        <div className="mt-6 flex items-center text-teal-600 group-hover:text-teal-700 transition-colors">
+                                            <span className="font-medium">Begin Foundation →</span>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            </Link>
+                        </motion.div>
+
+                        {/* Major Features Card */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.5 }}
+                        >
+                            <Card 
+                                className={`border-0 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer group h-full ${
+                                    featureAccess?.hasAccess 
+                                        ? 'bg-gradient-to-br from-emerald-50 to-green-50' 
+                                        : 'bg-gradient-to-br from-gray-50 to-gray-100'
+                                }`}
+                                onClick={() => {
+                                    if (featureAccess?.hasAccess) {
+                                        // Navigate to conversation
+                                        window.location.href = '/conversation';
+                                    } else {
+                                        setShowMajorFeaturesDialog(true);
+                                    }
+                                }}
+                            >
+                                <CardContent className="p-8">
+                                    <div className="flex items-center justify-between mb-6">
+                                        <div className={`p-4 rounded-3xl ${
+                                            featureAccess?.hasAccess 
+                                                ? 'bg-gradient-to-br from-emerald-500 to-green-600' 
+                                                : 'bg-gradient-to-br from-gray-400 to-gray-500'
+                                        }`}>
+                                            <MessageSquare className="h-8 w-8 text-white" />
+                                        </div>
+                                        <Badge className={
+                                            featureAccess?.hasAccess 
+                                                ? 'bg-emerald-500 text-white' 
+                                                : 'bg-gray-400 text-white'
+                                        }>
+                                            {featureAccess?.hasAccess ? 'Unlocked' : 'Locked'}
+                                        </Badge>
+                                    </div>
+                                    <h4 className="text-2xl font-bold text-gray-900 mb-4">Major Features</h4>
+                                    <p className={`mb-6 leading-relaxed ${
+                                        featureAccess?.hasAccess ? 'text-gray-600' : 'text-gray-500'
+                                    }`}>
+                                        {featureAccess?.hasAccess 
+                                            ? 'Access advanced AI conversations, voice coaching, and interactive scenarios.'
+                                            : 'Complete foundation modules to unlock AI conversations and advanced features.'
+                                        }
+                                    </p>
+                                    <div className="space-y-3">
+                                        <div className={`flex items-center text-sm ${
+                                            featureAccess?.hasAccess ? 'text-gray-600' : 'text-gray-400'
+                                        }`}>
+                                            <MessageSquare className="w-4 h-4 mr-3" />
+                                            AI Conversation Practice
+                                        </div>
+                                        <div className={`flex items-center text-sm ${
+                                            featureAccess?.hasAccess ? 'text-gray-600' : 'text-gray-400'
+                                        }`}>
+                                            <Mic className="w-4 h-4 mr-3" />
+                                            Voice Coaching & Analysis
+                                        </div>
+                                        <div className={`flex items-center text-sm ${
+                                            featureAccess?.hasAccess ? 'text-gray-600' : 'text-gray-400'
+                                        }`}>
+                                            <Users className="w-4 h-4 mr-3" />
+                                            Real-Life Scenarios
+                                        </div>
+                                        <div className={`flex items-center text-sm ${
+                                            featureAccess?.hasAccess ? 'text-gray-600' : 'text-gray-400'
+                                        }`}>
+                                            <Video className="w-4 h-4 mr-3" />
+                                            Interactive Stories
+                                        </div>
+                                    </div>
+                                    {featureAccess?.hasAccess ? (
+                                        <div className="mt-6 flex items-center text-emerald-600 group-hover:text-emerald-700 transition-colors">
+                                            <span className="font-medium">Start Practicing →</span>
+                                        </div>
+                                    ) : (
+                                        <div className="mt-6">
+                                            <div className="bg-gray-200 rounded-full h-2 mb-2">
+                                                <div 
+                                                    className="bg-gradient-to-r from-teal-500 to-emerald-600 h-2 rounded-full transition-all duration-300"
+                                                    style={{ width: `${featureAccess?.progress?.percentage || 0}%` }}
+                                                ></div>
+                                            </div>
+                                            <p className="text-sm text-gray-500">
+                                                {featureAccess?.progress?.completed || 0} of {featureAccess?.progress?.total || 5} modules completed
+                                            </p>
+                                        </div>
+                                    )}
+                                </CardContent>
+                            </Card>
+                        </motion.div>
                     </div>
                 </div>
 
@@ -836,51 +920,6 @@ const Dashboard = () => {
                                                     Coming Soon
                                                 </Button>
                                             )}
-                                        </CardContent>
-                                    </Card>
-                                </motion.div>
-                            );
-                        })}
-                    </div>
-                </div>
-
-                {/* Platform Features Section */}
-                <div className="mb-12">
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 1.2 }}
-                        className="text-center mb-12"
-                    >
-                        <h3 className="text-3xl font-bold text-gray-900 mb-4">
-                            Why Choose SpeakFluent?
-                        </h3>
-                        <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                            Advanced AI technology meets language learning expertise to give you the most effective and engaging experience
-                        </p>
-                    </motion.div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {platformFeatures.map((feature, index) => {
-                            const IconComponent = feature.icon;
-                            return (
-                                <motion.div
-                                    key={index}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 1.3 + index * 0.1 }}
-                                >
-                                    <Card className="group bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
-                                        <CardContent className="p-8 text-center">
-                                            <div className={`w-16 h-16 bg-gradient-to-r ${feature.color} rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300`}>
-                                                <IconComponent className="w-8 h-8 text-white" />
-                                            </div>
-                                            <h4 className="text-xl font-semibold text-gray-900 mb-4">
-                                                {feature.title}
-                                            </h4>
-                                            <p className="text-gray-600 leading-relaxed">
-                                                {feature.description}
-                                            </p>
                                         </CardContent>
                                     </Card>
                                 </motion.div>
@@ -1160,6 +1199,97 @@ const Dashboard = () => {
                                 </>
                             )}
                         </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            {/* Major Features Access Dialog */}
+            <Dialog open={showMajorFeaturesDialog} onOpenChange={setShowMajorFeaturesDialog}>
+                <DialogContent className="max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="text-center text-xl flex items-center justify-center">
+                            <Shield className="w-6 h-6 mr-2 text-amber-500" />
+                            Foundation Required
+                        </DialogTitle>
+                        <DialogDescription className="text-center">
+                            Complete foundation modules to unlock advanced features
+                        </DialogDescription>
+                    </DialogHeader>
+                    
+                    <div className="space-y-6">
+                        <div className="text-center">
+                            <div className="w-20 h-20 bg-gradient-to-br from-amber-100 to-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <BookOpenText className="w-10 h-10 text-amber-600" />
+                            </div>
+                            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                                Master the Basics First
+                            </h3>
+                            <p className="text-gray-600 text-sm leading-relaxed">
+                                Our foundation modules ensure you have the essential skills needed for effective AI conversations. This progressive approach leads to better learning outcomes.
+                            </p>
+                        </div>
+
+                        <div className="bg-gray-50 rounded-lg p-4">
+                            <h4 className="font-medium text-gray-900 mb-3">Your Progress</h4>
+                            <div className="space-y-3">
+                                <div className="flex justify-between text-sm">
+                                    <span>Modules Completed:</span>
+                                    <span className="font-semibold">
+                                        {featureAccess?.progress?.completed || 0} of {featureAccess?.progress?.total || 5}
+                                    </span>
+                                </div>
+                                <div className="bg-gray-200 rounded-full h-2">
+                                    <div 
+                                        className="bg-gradient-to-r from-teal-500 to-emerald-600 h-2 rounded-full transition-all duration-300"
+                                        style={{ width: `${featureAccess?.progress?.percentage || 0}%` }}
+                                    ></div>
+                                </div>
+                                <p className="text-xs text-gray-500">
+                                    {featureAccess?.progress?.percentage || 0}% Complete
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="space-y-3">
+                            <h4 className="font-medium text-gray-900">What you'll unlock:</h4>
+                            <div className="space-y-2">
+                                <div className="flex items-center text-sm text-gray-600">
+                                    <MessageSquare className="w-4 h-4 mr-3 text-teal-600" />
+                                    AI Conversation Practice
+                                </div>
+                                <div className="flex items-center text-sm text-gray-600">
+                                    <Mic className="w-4 h-4 mr-3 text-emerald-600" />
+                                    Voice Coaching & Analysis
+                                </div>
+                                <div className="flex items-center text-sm text-gray-600">
+                                    <Users className="w-4 h-4 mr-3 text-green-600" />
+                                    Real-Life Scenarios
+                                </div>
+                                <div className="flex items-center text-sm text-gray-600">
+                                    <Video className="w-4 h-4 mr-3 text-teal-600" />
+                                    Interactive Stories
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex space-x-3">
+                            <Button
+                                variant="outline"
+                                onClick={() => setShowMajorFeaturesDialog(false)}
+                                className="flex-1"
+                            >
+                                Maybe Later
+                            </Button>
+                            <Button
+                                onClick={() => {
+                                    setShowMajorFeaturesDialog(false);
+                                    window.location.href = '/foundations';
+                                }}
+                                className="flex-1 bg-gradient-to-r from-teal-500 to-emerald-600 text-white"
+                            >
+                                Start Foundation
+                            </Button>
+                        </div>
                     </div>
                 </DialogContent>
             </Dialog>

@@ -22,7 +22,8 @@ export async function getUserProfile() {
 			role: true,
 			credits: true,
 			createdAt: true,
-			emailVerified: true
+			emailVerified: true,
+			selectedLanguage: true
 		}
 	})
 

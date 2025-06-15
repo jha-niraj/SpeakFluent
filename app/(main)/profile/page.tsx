@@ -17,6 +17,8 @@ import { motion } from 'framer-motion'
 import { useSession } from 'next-auth/react'
 import { getUserProfile, updateProfile, changePassword } from '@/actions/profile.action'
 import { getCreditTransactions } from '@/actions/credits.action'
+import { updateLanguagePreference } from '@/actions/foundations.action'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from 'sonner'
 
 const ProfilePage = () => {
@@ -29,6 +31,7 @@ const ProfilePage = () => {
 
     // Profile editing states
     const [editName, setEditName] = useState('')
+    const [editLanguage, setEditLanguage] = useState('')
     const [isSaving, setSaving] = useState(false)
 
     // Password change states
@@ -50,6 +53,7 @@ const ProfilePage = () => {
 
                 setProfile(profileData)
                 setEditName(profileData?.name || '')
+                setEditLanguage(profileData?.selectedLanguage || '')
                 setTransactions(transactionData)
             } catch (error) {
                 console.error('Error fetching profile data:', error)
@@ -67,10 +71,22 @@ const ProfilePage = () => {
     const handleSaveProfile = async () => {
         setSaving(true)
         try {
-            const result = await updateProfile({ name: editName })
+            const updates: any = { name: editName }
+            
+            // Update language preference if changed
+            if (editLanguage !== profile?.selectedLanguage) {
+                const languageResult = await updateLanguagePreference(editLanguage)
+                if (!languageResult.success) {
+                    toast.error(languageResult.error || 'Failed to update language preference')
+                    setSaving(false)
+                    return
+                }
+            }
+
+            const result = await updateProfile(updates)
 
             if (result.success) {
-                setProfile({ ...profile, name: editName })
+                setProfile({ ...profile, name: editName, selectedLanguage: editLanguage })
                 await update({ name: editName })
                 setIsEditing(false)
                 toast.success('Profile updated successfully!')
@@ -316,6 +332,49 @@ const ProfilePage = () => {
                                                         </Badge>
                                                     </div>
                                                 </div>
+                                                <div className="space-y-2">
+                                                    <Label htmlFor="language" className="text-sm font-semibold text-gray-700">
+                                                        Learning Language
+                                                    </Label>
+                                                    {
+                                                        isEditing ? (
+                                                            <Select value={editLanguage} onValueChange={setEditLanguage}>
+                                                                <SelectTrigger className="h-12 rounded-xl border-teal-200 focus:border-teal-300">
+                                                                    <SelectValue placeholder="Select a language" />
+                                                                </SelectTrigger>
+                                                                <SelectContent>
+                                                                    <SelectItem value="russian">🇷🇺 Russian</SelectItem>
+                                                                    <SelectItem value="japanese">🇯🇵 Japanese</SelectItem>
+                                                                    <SelectItem value="korean">🇰🇷 Korean</SelectItem>
+                                                                    <SelectItem value="spanish">🇪🇸 Spanish</SelectItem>
+                                                                    <SelectItem value="french">🇫🇷 French</SelectItem>
+                                                                    <SelectItem value="german">🇩🇪 German</SelectItem>
+                                                                    <SelectItem value="chinese">🇨🇳 Chinese</SelectItem>
+                                                                    <SelectItem value="english">🇺🇸 English</SelectItem>
+                                                                </SelectContent>
+                                                            </Select>
+                                                        ) : (
+                                                            <div className="h-12 flex items-center px-4 bg-gray-50 rounded-xl">
+                                                                <p className="text-gray-900 font-medium">
+                                                                    {profile?.selectedLanguage ? (
+                                                                        <>
+                                                                            {profile.selectedLanguage === 'russian' && '🇷🇺 Russian'}
+                                                                            {profile.selectedLanguage === 'japanese' && '🇯🇵 Japanese'}
+                                                                            {profile.selectedLanguage === 'korean' && '🇰🇷 Korean'}
+                                                                            {profile.selectedLanguage === 'spanish' && '🇪🇸 Spanish'}
+                                                                            {profile.selectedLanguage === 'french' && '🇫🇷 French'}
+                                                                            {profile.selectedLanguage === 'german' && '🇩🇪 German'}
+                                                                            {profile.selectedLanguage === 'chinese' && '🇨🇳 Chinese'}
+                                                                            {profile.selectedLanguage === 'english' && '🇺🇸 English'}
+                                                                        </>
+                                                                    ) : (
+                                                                        <span className="text-gray-500">Not selected</span>
+                                                                    )}
+                                                                </p>
+                                                            </div>
+                                                        )
+                                                    }
+                                                </div>
                                             </div>
                                             {
                                                 isEditing && (
@@ -334,6 +393,7 @@ const ProfilePage = () => {
                                                                 onClick={() => {
                                                                     setIsEditing(false)
                                                                     setEditName(profile?.name || '')
+                                                                    setEditLanguage(profile?.selectedLanguage || '')
                                                                 }}
                                                                 className="px-8"
                                                             >
