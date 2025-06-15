@@ -18,7 +18,7 @@ export default function ForgotPasswordPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        
+
         if (!email) {
             toast.error("Please enter your email address")
             return
@@ -28,7 +28,7 @@ export default function ForgotPasswordPage() {
 
         try {
             const result = await requestPasswordReset(email)
-            
+
             if (result.success) {
                 setIsSubmitted(true)
                 // For development - show reset URL
@@ -74,30 +74,30 @@ export default function ForgotPasswordPage() {
                                 </div>
                             </div>
                         </div>
-                        
-                        {/* Development only - show reset URL */}
-                        {resetUrl && process.env.NODE_ENV === 'development' && (
-                            <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-                                <div className="flex items-start space-x-3">
-                                    <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5" />
-                                    <div className="text-sm text-yellow-800">
-                                        <p className="font-medium mb-1">Development Mode</p>
-                                        <p className="mb-2">Since email is not configured, here&apos;s your reset link:</p>
-                                        <Link 
-                                            href={resetUrl} 
-                                            className="text-teal-600 hover:text-teal-700 underline break-all"
-                                        >
-                                            {resetUrl}
-                                        </Link>
+                        {
+                            resetUrl && process.env.NODE_ENV === 'development' && (
+                                <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                                    <div className="flex items-start space-x-3">
+                                        <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5" />
+                                        <div className="text-sm text-yellow-800">
+                                            <p className="font-medium mb-1">Development Mode</p>
+                                            <p className="mb-2">Since email is not configured, here&apos;s your reset link:</p>
+                                            <Link
+                                                href={resetUrl}
+                                                className="text-teal-600 hover:text-teal-700 underline break-all"
+                                            >
+                                                {resetUrl}
+                                            </Link>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        )}
+                            )
+                        }
                     </CardContent>
                     <CardFooter className="flex flex-col space-y-4">
                         <div className="text-center text-sm text-gray-600">
                             Didn&apos;t receive an email? Check your spam folder or{" "}
-                            <button 
+                            <button
                                 onClick={() => {
                                     setIsSubmitted(false)
                                     setEmail("")
@@ -121,10 +121,8 @@ export default function ForgotPasswordPage() {
 
     return (
         <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-teal-50 to-emerald-50 px-4 py-12 sm:px-6 lg:px-8">
-            {/* Background Elements */}
             <div className="absolute top-0 left-0 w-64 h-64 bg-gradient-to-br from-teal-500/10 to-emerald-500/10 rounded-br-full"></div>
             <div className="absolute bottom-0 right-0 w-64 h-64 bg-gradient-to-tl from-teal-500/10 to-emerald-500/10 rounded-tl-full"></div>
-            
             <Card className="w-full max-w-md bg-white/90 backdrop-blur-sm shadow-xl border-0 relative">
                 <CardHeader className="space-y-4">
                     <div className="flex items-center justify-center">
@@ -147,21 +145,21 @@ export default function ForgotPasswordPage() {
                             <Label htmlFor="email" className="text-sm font-medium text-gray-700">
                                 Email address
                             </Label>
-                            <Input 
-                                id="email" 
-                                type="email" 
+                            <Input
+                                id="email"
+                                type="email"
                                 placeholder="Enter your email address"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                required 
+                                required
                                 className="rounded-lg border-gray-200 focus:border-teal-300 focus:ring-teal-200"
                                 disabled={isSubmitting}
                             />
                         </div>
                     </CardContent>
                     <CardFooter className="flex flex-col space-y-4">
-                        <Button 
-                            type="submit" 
+                        <Button
+                            type="submit"
                             className="w-full bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white rounded-lg"
                             disabled={isSubmitting}
                         >
@@ -179,4 +177,3 @@ export default function ForgotPasswordPage() {
         </div>
     )
 }
-

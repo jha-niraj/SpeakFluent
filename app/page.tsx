@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation"
 
 const MainPage = () => {
 	const router = useRouter();
+	const { status } = useSession();
 
 	return (
 		<SmoothScroll>
@@ -110,14 +111,14 @@ const MainPage = () => {
 											</Button>
 										)
 									}
-										<Button
-											size="lg"
-											onClick={() => router.push("/signin")}
-											className="bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white px-8 py-5 text-base font-semibold rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 group"
-										>
-											Start Learning Free
-											<ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-										</Button>
+									<Button
+										size="lg"
+										onClick={() => router.push("/signin")}
+										className="bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white px-8 py-5 text-base font-semibold rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 group"
+									>
+										Start Learning Free
+										<ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+									</Button>
 									{/* <Button
 										variant="outline"
 										size="lg"
@@ -162,7 +163,6 @@ const MainPage = () => {
 							<div className="absolute bottom-20 right-10 w-96 h-96 bg-gradient-to-br from-emerald-200/20 to-teal-200/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
 						</div>
 						<div className="max-w-7xl mx-auto px-6">
-
 							<div className="text-center mb-16">
 								<div className="inline-flex items-center space-x-2 bg-teal-100 rounded-full px-5 py-1.5 mb-5">
 									<Zap className="w-4 h-4 text-teal-600" />
@@ -663,19 +663,19 @@ const MainPage = () => {
 								<h4 className="text-base font-semibold mb-4">Support</h4>
 								<ul className="space-y-2 text-gray-300 text-sm">
 									<li>
-										<a href="#" className="hover:text-white transition-colors">
+										<Link href="#" className="hover:text-white transition-colors">
 											Help Center
-										</a>
+										</Link>
 									</li>
 									<li>
-										<a href="#" className="hover:text-white transition-colors">
+										<Link href="#" className="hover:text-white transition-colors">
 											Privacy Policy
-										</a>
+										</Link>
 									</li>
 									<li>
-										<a href="#" className="hover:text-white transition-colors">
+										<Link href="#" className="hover:text-white transition-colors">
 											Terms of Service
-										</a>
+										</Link>
 									</li>
 								</ul>
 							</div>
@@ -690,4 +690,4 @@ const MainPage = () => {
 	)
 }
 
-export default MainPage
+export default MainPage;

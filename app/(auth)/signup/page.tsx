@@ -223,7 +223,6 @@ export default function SignUp() {
                     </Link>
                 </p>
             </div>
-
             <div className="pt-6 border-t border-gray-200">
                 <p className="text-xs text-center text-gray-500 mb-4">Or continue with</p>
                 <div className="grid grid-cols-1 gap-4">

@@ -14,7 +14,7 @@ import { toast } from "sonner"
 export default function ResetPasswordPage() {
     const searchParams = useSearchParams()
     const router = useRouter()
-    
+
     const [token, setToken] = useState<string | null>(null)
     const [newPassword, setNewPassword] = useState("")
     const [confirmPassword, setConfirmPassword] = useState("")
@@ -46,7 +46,7 @@ export default function ResetPasswordPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        
+
         if (!token) {
             toast.error("Invalid reset token")
             return
@@ -66,7 +66,7 @@ export default function ResetPasswordPage() {
 
         try {
             const result = await resetPassword(token, newPassword)
-            
+
             if (result.success) {
                 setIsSuccess(true)
                 toast.success(result.message)
@@ -81,7 +81,6 @@ export default function ResetPasswordPage() {
         }
     }
 
-    // Loading state
     if (isValidToken === null) {
         return (
             <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-teal-50 to-emerald-50">
@@ -93,7 +92,6 @@ export default function ResetPasswordPage() {
         )
     }
 
-    // Invalid token
     if (!isValidToken) {
         return (
             <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-teal-50 to-emerald-50 px-4 py-12 sm:px-6 lg:px-8">
@@ -137,7 +135,6 @@ export default function ResetPasswordPage() {
         )
     }
 
-    // Success state
     if (isSuccess) {
         return (
             <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-teal-50 to-emerald-50 px-4 py-12 sm:px-6 lg:px-8">
@@ -178,13 +175,10 @@ export default function ResetPasswordPage() {
         )
     }
 
-    // Main reset form
     return (
         <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-teal-50 to-emerald-50 px-4 py-12 sm:px-6 lg:px-8">
-            {/* Background Elements */}
             <div className="absolute top-0 left-0 w-64 h-64 bg-gradient-to-br from-teal-500/10 to-emerald-500/10 rounded-br-full"></div>
             <div className="absolute bottom-0 right-0 w-64 h-64 bg-gradient-to-tl from-teal-500/10 to-emerald-500/10 rounded-tl-full"></div>
-            
             <Card className="w-full max-w-md bg-white/90 backdrop-blur-sm shadow-xl border-0 relative">
                 <CardHeader className="space-y-4">
                     <div className="flex items-center justify-center">
@@ -208,13 +202,13 @@ export default function ResetPasswordPage() {
                                 New Password
                             </Label>
                             <div className="relative">
-                                <Input 
-                                    id="password" 
+                                <Input
+                                    id="password"
                                     type={showNewPassword ? "text" : "password"}
                                     placeholder="Enter your new password"
                                     value={newPassword}
                                     onChange={(e) => setNewPassword(e.target.value)}
-                                    required 
+                                    required
                                     className="rounded-lg border-gray-200 focus:border-teal-300 focus:ring-teal-200 pr-10"
                                     disabled={isSubmitting}
                                 />
@@ -225,11 +219,13 @@ export default function ResetPasswordPage() {
                                     className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                                     onClick={() => setShowNewPassword(!showNewPassword)}
                                 >
-                                    {showNewPassword ? (
-                                        <EyeOff className="h-4 w-4 text-gray-400" />
-                                    ) : (
-                                        <Eye className="h-4 w-4 text-gray-400" />
-                                    )}
+                                    {
+                                        showNewPassword ? (
+                                            <EyeOff className="h-4 w-4 text-gray-400" />
+                                        ) : (
+                                            <Eye className="h-4 w-4 text-gray-400" />
+                                        )
+                                    }
                                 </Button>
                             </div>
                         </div>
@@ -238,13 +234,13 @@ export default function ResetPasswordPage() {
                                 Confirm New Password
                             </Label>
                             <div className="relative">
-                                <Input 
-                                    id="confirm-password" 
+                                <Input
+                                    id="confirm-password"
                                     type={showConfirmPassword ? "text" : "password"}
                                     placeholder="Confirm your new password"
                                     value={confirmPassword}
                                     onChange={(e) => setConfirmPassword(e.target.value)}
-                                    required 
+                                    required
                                     className="rounded-lg border-gray-200 focus:border-teal-300 focus:ring-teal-200 pr-10"
                                     disabled={isSubmitting}
                                 />
@@ -255,16 +251,16 @@ export default function ResetPasswordPage() {
                                     className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                                 >
-                                    {showConfirmPassword ? (
-                                        <EyeOff className="h-4 w-4 text-gray-400" />
-                                    ) : (
-                                        <Eye className="h-4 w-4 text-gray-400" />
-                                    )}
+                                    {
+                                        showConfirmPassword ? (
+                                            <EyeOff className="h-4 w-4 text-gray-400" />
+                                        ) : (
+                                            <Eye className="h-4 w-4 text-gray-400" />
+                                        )
+                                    }
                                 </Button>
                             </div>
                         </div>
-                        
-                        {/* Password requirements */}
                         <div className="text-xs text-gray-500 space-y-1">
                             <p>Password requirements:</p>
                             <ul className="list-disc list-inside space-y-1 ml-2">
@@ -278,8 +274,8 @@ export default function ResetPasswordPage() {
                         </div>
                     </CardContent>
                     <CardFooter className="flex flex-col space-y-4">
-                        <Button 
-                            type="submit" 
+                        <Button
+                            type="submit"
                             className="w-full bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white rounded-lg"
                             disabled={isSubmitting || newPassword.length < 8 || newPassword !== confirmPassword}
                         >
@@ -296,5 +292,4 @@ export default function ResetPasswordPage() {
             </Card>
         </div>
     )
-}
-
+};

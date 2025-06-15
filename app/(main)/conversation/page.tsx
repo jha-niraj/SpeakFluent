@@ -7,8 +7,8 @@ import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
-import { 
-    Mic, Play, Square, Volume2, 
+import {
+    Mic, Play, Square, Volume2,
     MessageSquare, Star, Clock, Coins, Mountain,
     Users, Globe, Zap, Brain, VolumeX
 } from 'lucide-react'
@@ -20,6 +20,7 @@ import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { useConversation } from '@elevenlabs/react'
+import { Label } from '@/components/ui/label'
 
 interface ConversationState {
     isActive: boolean
@@ -42,7 +43,7 @@ const ConversationPage = () => {
         duration: 0,
         transcript: []
     })
-    
+
     const [selectedLanguage, setSelectedLanguage] = useState('english')
     const [selectedTopic, setSelectedTopic] = useState('')
     const [customTopic, setCustomTopic] = useState('')
@@ -54,11 +55,11 @@ const ConversationPage = () => {
     const [isLoading, setIsLoading] = useState(false)
     const [conversationVolume, setConversationVolume] = useState(0.8)
     const [hasPermission, setHasPermission] = useState(false)
-    
+
     const { data: session } = useSession()
     const router = useRouter()
     const intervalRef = useRef<NodeJS.Timeout | null>(null)
-    
+
     // ElevenLabs Conversation Hook
     const conversation = useConversation({
         onConnect: () => {
@@ -86,7 +87,7 @@ const ConversationPage = () => {
             toast.error('Conversation error: ' + errorMessage)
         }
     })
-    
+
     // Available languages
     const languages = [
         { value: 'english', label: 'English 🇺🇸', flag: '🇺🇸' },
@@ -94,9 +95,11 @@ const ConversationPage = () => {
         { value: 'french', label: 'French 🇫🇷', flag: '🇫🇷' },
         { value: 'german', label: 'German 🇩🇪', flag: '🇩🇪' },
         { value: 'chinese', label: 'Chinese 🇨🇳', flag: '🇨🇳' },
-        { value: 'japanese', label: 'Japanese 🇯🇵', flag: '🇯🇵' }
+        { value: 'japanese', label: 'Japanese 🇯🇵', flag: '🇯🇵' },
+        { value: 'korean', label: 'Korean 🇰🇷', flag: '🇰🇷' },
+        { value: 'russian', label: 'Russian 🇷🇺', flag: '🇷🇺' }
     ]
-    
+
     // Conversation topics
     const topics = [
         { value: 'general', label: 'General Conversation', icon: MessageSquare },
@@ -181,7 +184,7 @@ const ConversationPage = () => {
         try {
             const topic = selectedTopic === 'custom' ? customTopic : selectedTopic
             const result = await startConversationSession(selectedLanguage, topic || undefined)
-            
+
             if (result.success) {
                 setConversationState({
                     isActive: true,
@@ -192,12 +195,12 @@ const ConversationPage = () => {
                 })
                 setShowStartDialog(false)
                 await fetchCredits() // Refresh credits
-                
+
                 // Start ElevenLabs conversation
                 try {
                     const agentId = process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID
                     if (agentId) {
-                        await conversation.startSession({ 
+                        await conversation.startSession({
                             agentId: agentId
                         })
                     } else {
@@ -207,7 +210,7 @@ const ConversationPage = () => {
                     console.error('ElevenLabs connection error:', elevenlabsError)
                     toast.error('Failed to connect to AI tutor')
                 }
-                
+
                 toast.success('Conversation started! 🎉')
             } else {
                 toast.error(result.error || 'Failed to start conversation')
@@ -236,7 +239,7 @@ const ConversationPage = () => {
                 sessionRating,
                 sessionFeedback
             )
-            
+
             if (result.success) {
                 setConversationState({
                     isActive: false,
@@ -289,246 +292,249 @@ const ConversationPage = () => {
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-teal-50 to-emerald-50">
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {!conversationState.isActive ? (
-                    /* Start Screen */
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="text-center"
-                    >
-                        <div className="mb-8">
-                            <div className="w-20 h-20 bg-gradient-to-br from-teal-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                                <MessageSquare className="w-10 h-10 text-white" />
-                            </div>
-                            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                                AI Language Conversation
-                            </h1>
-                            <p className="text-lg text-gray-600 mb-6">
-                                Practice speaking with our AI tutor in your chosen language
-                            </p>
-                            <div className="flex items-center justify-center space-x-4 mb-6">
-                                <Badge variant="outline" className="bg-teal-50 text-teal-700 border-teal-200">
-                                    10 Credits per Session
-                                </Badge>
-                                {!hasPermission && (
-                                    <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
-                                        Microphone Required
-                                    </Badge>
-                                )}
-                            </div>
-                        </div>
-
-                        <Card className="max-w-md mx-auto bg-white/90 backdrop-blur-sm border-0 shadow-lg mb-8">
-                            <CardHeader>
-                                <CardTitle>Session Settings</CardTitle>
-                                <CardDescription>Configure your conversation preferences</CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div>
-                                    <label className="text-sm font-medium text-gray-700 mb-2 block">Language</label>
-                                    <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
-                                        <SelectTrigger>
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {languages.map(lang => (
-                                                <SelectItem key={lang.value} value={lang.value}>
-                                                    {lang.label}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-
-                                <div>
-                                    <label className="text-sm font-medium text-gray-700 mb-2 block">Topic</label>
-                                    <Select value={selectedTopic} onValueChange={setSelectedTopic}>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Choose a topic" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {topics.map(topic => (
-                                                <SelectItem key={topic.value} value={topic.value}>
-                                                    {topic.label}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-
-                                {selectedTopic === 'custom' && (
-                                    <div>
-                                        <label className="text-sm font-medium text-gray-700 mb-2 block">Custom Topic</label>
-                                        <Textarea
-                                            placeholder="Describe what you'd like to talk about..."
-                                            value={customTopic}
-                                            onChange={(e) => setCustomTopic(e.target.value)}
-                                            className="resize-none"
-                                            rows={3}
-                                        />
-                                    </div>
-                                )}
-
-                                {!hasPermission && (
-                                    <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                                        <p className="text-sm text-red-700 mb-2">
-                                            🎤 Microphone access is required for conversations
-                                        </p>
-                                        <Button
-                                            onClick={checkMicrophonePermission}
-                                            size="sm"
-                                            variant="outline"
-                                            className="text-red-600 border-red-200"
-                                        >
-                                            Allow Microphone
-                                        </Button>
-                                    </div>
-                                )}
-                            </CardContent>
-                        </Card>
-
-                        <Button
-                            onClick={() => setShowStartDialog(true)}
-                            disabled={credits < 10 || !hasPermission}
-                            className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white px-8 py-3 rounded-xl text-lg font-medium hover:shadow-lg hover:scale-105 transition-all duration-300"
+                {
+                    !conversationState.isActive ? (
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="text-center"
                         >
-                            {credits < 10 ? 'Need More Credits' : !hasPermission ? 'Allow Microphone First' : 'Start Conversation'}
-                            <Play className="ml-2 h-5 w-5" />
-                        </Button>
-
-                        {credits < 10 && (
-                            <div className="mt-4">
-                                <Link href="/purchase">
-                                    <Button variant="outline" className="text-teal-600 border-teal-200 hover:bg-teal-50">
-                                        Buy Credits
-                                        <Coins className="ml-2 h-4 w-4" />
-                                    </Button>
-                                </Link>
+                            <div className="mb-8">
+                                <div className="w-20 h-20 bg-gradient-to-br from-teal-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                    <MessageSquare className="w-10 h-10 text-white" />
+                                </div>
+                                <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                                    AI Language Conversation
+                                </h1>
+                                <p className="text-lg text-gray-600 mb-6">
+                                    Practice speaking with our AI tutor in your chosen language
+                                </p>
+                                <div className="flex items-center justify-center space-x-4 mb-6">
+                                    <Badge variant="outline" className="bg-teal-50 text-teal-700 border-teal-200">
+                                        10 Credits per Session
+                                    </Badge>
+                                    {
+                                        !hasPermission && (
+                                            <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
+                                                Microphone Required
+                                            </Badge>
+                                        )
+                                    }
+                                </div>
                             </div>
-                        )}
-                    </motion.div>
-                ) : (
-                    /* Active Conversation Screen */
-                    <div className="space-y-6">
-                        {/* Session Info */}
-                        <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-sm">
-                            <CardContent className="p-6">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center space-x-4">
-                                        <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-emerald-600 rounded-xl flex items-center justify-center">
-                                            <MessageSquare className="w-6 h-6 text-white" />
-                                        </div>
-                                        <div>
-                                            <h3 className="font-semibold text-gray-900">{getSelectedLanguageLabel()}</h3>
-                                            <p className="text-sm text-gray-600">{getSelectedTopicLabel()}</p>
-                                        </div>
+                            <Card className="max-w-md mx-auto bg-white/90 backdrop-blur-sm border-0 shadow-lg mb-8">
+                                <CardHeader>
+                                    <CardTitle>Session Settings</CardTitle>
+                                    <CardDescription>Configure your conversation preferences</CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div>
+                                        <label className="text-sm font-medium text-gray-700 mb-2 block">Language</label>
+                                        <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
+                                            <SelectTrigger>
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {
+                                                    languages.map(lang => (
+                                                        <SelectItem key={lang.value} value={lang.value}>
+                                                            {lang.label}
+                                                        </SelectItem>
+                                                    ))
+                                                }
+                                            </SelectContent>
+                                        </Select>
                                     </div>
-                                    <div className="text-right">
-                                        <div className="flex items-center space-x-2 text-sm text-gray-600 mb-1">
-                                            <Clock className="w-4 h-4" />
-                                            <span>{formatDuration(conversationState.duration)}</span>
-                                        </div>
-                                        <Badge 
-                                            variant={conversation.status === 'connected' ? "default" : "secondary"}
-                                            className={conversation.status === 'connected' ? "bg-green-500 animate-pulse" : ""}
-                                        >
-                                            {conversation.status === 'connected' ? "Connected" : "Connecting..."}
-                                        </Badge>
+                                    <div>
+                                        <label className="text-sm font-medium text-gray-700 mb-2 block">Topic</label>
+                                        <Select value={selectedTopic} onValueChange={setSelectedTopic}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Choose a topic" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {
+                                                    topics.map(topic => (
+                                                        <SelectItem key={topic.value} value={topic.value}>
+                                                            {topic.label}
+                                                        </SelectItem>
+                                                    ))
+                                                }
+                                            </SelectContent>
+                                        </Select>
                                     </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        {/* Main Conversation Area */}
-                        <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-sm min-h-[400px]">
-                            <CardHeader>
-                                <div className="flex items-center justify-between">
-                                    <CardTitle className="flex items-center space-x-2">
-                                        <MessageSquare className="w-5 h-5 text-teal-600" />
-                                        <span>Conversation</span>
-                                    </CardTitle>
-                                    <div className="flex items-center space-x-2">
-                                        <VolumeX className="w-4 h-4 text-gray-400" />
-                                        <input
-                                            type="range"
-                                            min="0"
-                                            max="1"
-                                            step="0.1"
-                                            value={conversationVolume}
-                                            onChange={(e) => handleVolumeChange(parseFloat(e.target.value))}
-                                            className="w-20"
-                                        />
-                                        <Volume2 className="w-4 h-4 text-gray-400" />
-                                    </div>
-                                </div>
-                            </CardHeader>
-                            <CardContent className="p-6">
-                                {conversationState.transcript.length > 0 ? (
-                                    <div className="space-y-4 max-h-80 overflow-y-auto">
-                                        <AnimatePresence>
-                                            {conversationState.transcript.map((entry) => (
-                                                <motion.div
-                                                    key={entry.id}
-                                                    initial={{ opacity: 0, y: 20 }}
-                                                    animate={{ opacity: 1, y: 0 }}
-                                                    className={`flex ${entry.type === 'user' ? 'justify-end' : 'justify-start'}`}
+                                    {
+                                        selectedTopic === 'custom' && (
+                                            <div>
+                                                <Label className="text-sm font-medium text-gray-700 mb-2 block">Custom Topic</Label>
+                                                <Textarea
+                                                    placeholder="Describe what you'd like to talk about..."
+                                                    value={customTopic}
+                                                    onChange={(e) => setCustomTopic(e.target.value)}
+                                                    className="resize-none"
+                                                    rows={3}
+                                                />
+                                            </div>
+                                        )
+                                    }
+                                    {
+                                        !hasPermission && (
+                                            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                                                <p className="text-sm text-red-700 mb-2">
+                                                    🎤 Microphone access is required for conversations
+                                                </p>
+                                                <Button
+                                                    onClick={checkMicrophonePermission}
+                                                    size="sm"
+                                                    variant="outline"
+                                                    className="text-red-600 border-red-200"
                                                 >
-                                                    <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                                                        entry.type === 'user' 
-                                                            ? 'bg-teal-500 text-white' 
-                                                            : entry.type === 'ai'
-                                                            ? 'bg-gray-100 text-gray-900'
-                                                            : 'bg-blue-50 text-blue-700 text-sm'
-                                                    }`}>
-                                                        <p className="text-sm">{entry.content}</p>
-                                                        <p className="text-xs opacity-70 mt-1">
-                                                            {entry.timestamp.toLocaleTimeString()}
-                                                        </p>
-                                                    </div>
-                                                </motion.div>
-                                            ))}
-                                        </AnimatePresence>
+                                                    Allow Microphone
+                                                </Button>
+                                            </div>
+                                        )
+                                    }
+                                </CardContent>
+                            </Card>
+                            <Button
+                                onClick={() => setShowStartDialog(true)}
+                                disabled={credits < 10 || !hasPermission}
+                                className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white px-8 py-3 rounded-xl text-lg font-medium hover:shadow-lg hover:scale-105 transition-all duration-300"
+                            >
+                                {credits < 10 ? 'Need More Credits' : !hasPermission ? 'Allow Microphone First' : 'Start Conversation'}
+                                <Play className="ml-2 h-5 w-5" />
+                            </Button>
+                            {
+                                credits < 10 && (
+                                    <div className="mt-4">
+                                        <Link href="/purchase">
+                                            <Button variant="outline" className="text-teal-600 border-teal-200 hover:bg-teal-50">
+                                                Buy Credits
+                                                <Coins className="ml-2 h-4 w-4" />
+                                            </Button>
+                                        </Link>
                                     </div>
-                                ) : (
-                                    <div className="text-center py-12">
-                                        <div className="w-32 h-32 bg-gradient-to-br from-teal-100 to-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                                            <div className={`w-20 h-20 rounded-full bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center ${conversation.isSpeaking ? 'animate-pulse' : ''}`}>
-                                                <Mic className="w-10 h-10 text-white" />
+                                )
+                            }
+                        </motion.div>
+                    ) : (
+                        <div className="space-y-6">
+                            <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-sm">
+                                <CardContent className="p-6">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center space-x-4">
+                                            <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-emerald-600 rounded-xl flex items-center justify-center">
+                                                <MessageSquare className="w-6 h-6 text-white" />
+                                            </div>
+                                            <div>
+                                                <h3 className="font-semibold text-gray-900">{getSelectedLanguageLabel()}</h3>
+                                                <p className="text-sm text-gray-600">{getSelectedTopicLabel()}</p>
                                             </div>
                                         </div>
-                                        <p className="text-lg text-gray-600 mb-4">
-                                            {conversation.status === 'connected' 
-                                                ? conversation.isSpeaking 
-                                                    ? "AI is speaking..." 
-                                                    : "Start speaking to begin the conversation!" 
-                                                : "Connecting to AI tutor..."
-                                            }
-                                        </p>
-                                        <p className="text-sm text-gray-500">
-                                            Your AI tutor is ready to help you practice {getSelectedLanguageLabel().toLowerCase()}
-                                        </p>
+                                        <div className="text-right">
+                                            <div className="flex items-center space-x-2 text-sm text-gray-600 mb-1">
+                                                <Clock className="w-4 h-4" />
+                                                <span>{formatDuration(conversationState.duration)}</span>
+                                            </div>
+                                            <Badge
+                                                variant={conversation.status === 'connected' ? "default" : "secondary"}
+                                                className={conversation.status === 'connected' ? "bg-green-500 animate-pulse" : ""}
+                                            >
+                                                {conversation.status === 'connected' ? "Connected" : "Connecting..."}
+                                            </Badge>
+                                        </div>
                                     </div>
-                                )}
-                            </CardContent>
-                        </Card>
-
-                        {/* Controls */}
-                        <div className="flex items-center justify-center space-x-4">
-                            <Button
-                                onClick={() => setShowEndDialog(true)}
-                                variant="outline"
-                                size="lg"
-                                className="px-6"
-                            >
-                                <Square className="w-4 h-4 mr-2" />
-                                End Session
-                            </Button>
+                                </CardContent>
+                            </Card>
+                            <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-sm min-h-[400px]">
+                                <CardHeader>
+                                    <div className="flex items-center justify-between">
+                                        <CardTitle className="flex items-center space-x-2">
+                                            <MessageSquare className="w-5 h-5 text-teal-600" />
+                                            <span>Conversation</span>
+                                        </CardTitle>
+                                        <div className="flex items-center space-x-2">
+                                            <VolumeX className="w-4 h-4 text-gray-400" />
+                                            <input
+                                                type="range"
+                                                min="0"
+                                                max="1"
+                                                step="0.1"
+                                                value={conversationVolume}
+                                                onChange={(e) => handleVolumeChange(parseFloat(e.target.value))}
+                                                className="w-20"
+                                            />
+                                            <Volume2 className="w-4 h-4 text-gray-400" />
+                                        </div>
+                                    </div>
+                                </CardHeader>
+                                <CardContent className="p-6">
+                                    {
+                                        conversationState.transcript.length > 0 ? (
+                                            <div className="space-y-4 max-h-80 overflow-y-auto">
+                                                <AnimatePresence>
+                                                    {
+                                                        conversationState.transcript.map((entry) => (
+                                                            <motion.div
+                                                                key={entry.id}
+                                                                initial={{ opacity: 0, y: 20 }}
+                                                                animate={{ opacity: 1, y: 0 }}
+                                                                className={`flex ${entry.type === 'user' ? 'justify-end' : 'justify-start'}`}
+                                                            >
+                                                                <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${entry.type === 'user'
+                                                                        ? 'bg-teal-500 text-white'
+                                                                        : entry.type === 'ai'
+                                                                            ? 'bg-gray-100 text-gray-900'
+                                                                            : 'bg-blue-50 text-blue-700 text-sm'
+                                                                    }`}>
+                                                                    <p className="text-sm">{entry.content}</p>
+                                                                    <p className="text-xs opacity-70 mt-1">
+                                                                        {entry.timestamp.toLocaleTimeString()}
+                                                                    </p>
+                                                                </div>
+                                                            </motion.div>
+                                                        ))
+                                                    }
+                                                </AnimatePresence>
+                                            </div>
+                                        ) : (
+                                            <div className="text-center py-12">
+                                                <div className="w-32 h-32 bg-gradient-to-br from-teal-100 to-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                                                    <div className={`w-20 h-20 rounded-full bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center ${conversation.isSpeaking ? 'animate-pulse' : ''}`}>
+                                                        <Mic className="w-10 h-10 text-white" />
+                                                    </div>
+                                                </div>
+                                                <p className="text-lg text-gray-600 mb-4">
+                                                    {
+                                                        conversation.status === 'connected'
+                                                            ? conversation.isSpeaking
+                                                                ? "AI is speaking..."
+                                                                : "Start speaking to begin the conversation!"
+                                                            : "Connecting to AI tutor..."
+                                                    }
+                                                </p>
+                                                <p className="text-sm text-gray-500">
+                                                    Your AI tutor is ready to help you practice {getSelectedLanguageLabel().toLowerCase()}
+                                                </p>
+                                            </div>
+                                        )
+                                    }
+                                </CardContent>
+                            </Card>
+                            <div className="flex items-center justify-center space-x-4">
+                                <Button
+                                    onClick={() => setShowEndDialog(true)}
+                                    variant="outline"
+                                    size="lg"
+                                    className="px-6"
+                                >
+                                    <Square className="w-4 h-4 mr-2" />
+                                    End Session
+                                </Button>
+                            </div>
                         </div>
-                    </div>
-                )}
+                    )
+                }
             </div>
-
-            {/* Start Confirmation Dialog */}
             <Dialog open={showStartDialog} onOpenChange={setShowStartDialog}>
                 <DialogContent>
                     <DialogHeader>
@@ -537,7 +543,6 @@ const ConversationPage = () => {
                             You&apos;re about to start a conversation session that will use 10 credits.
                         </DialogDescription>
                     </DialogHeader>
-                    
                     <div className="space-y-4">
                         <div className="bg-teal-50 rounded-lg p-4">
                             <div className="flex justify-between items-center mb-2">
@@ -553,7 +558,6 @@ const ConversationPage = () => {
                                 <span>10 credits</span>
                             </div>
                         </div>
-                        
                         <div className="flex space-x-2">
                             <Button
                                 onClick={() => setShowStartDialog(false)}
@@ -573,8 +577,6 @@ const ConversationPage = () => {
                     </div>
                 </DialogContent>
             </Dialog>
-
-            {/* End Session Dialog */}
             <Dialog open={showEndDialog} onOpenChange={setShowEndDialog}>
                 <DialogContent>
                     <DialogHeader>
@@ -583,27 +585,27 @@ const ConversationPage = () => {
                             How was your conversation experience?
                         </DialogDescription>
                     </DialogHeader>
-                    
                     <div className="space-y-4">
                         <div>
                             <label className="text-sm font-medium mb-2 block">Rate your session (1-5 stars)</label>
                             <div className="flex space-x-1">
-                                {[1, 2, 3, 4, 5].map((star) => (
-                                    <Button
-                                        key={star}
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={() => setSessionRating(star)}
-                                        className="p-1"
-                                    >
-                                        <Star 
-                                            className={`w-6 h-6 ${star <= sessionRating ? 'fill-amber-400 text-amber-400' : 'text-gray-300'}`}
-                                        />
-                                    </Button>
-                                ))}
+                                {
+                                    [1, 2, 3, 4, 5].map((star) => (
+                                        <Button
+                                            key={star}
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => setSessionRating(star)}
+                                            className="p-1"
+                                        >
+                                            <Star
+                                                className={`w-6 h-6 ${star <= sessionRating ? 'fill-amber-400 text-amber-400' : 'text-gray-300'}`}
+                                            />
+                                        </Button>
+                                    ))
+                                }
                             </div>
                         </div>
-                        
                         <div>
                             <label className="text-sm font-medium mb-2 block">Feedback (optional)</label>
                             <Textarea
@@ -614,7 +616,6 @@ const ConversationPage = () => {
                                 rows={3}
                             />
                         </div>
-                        
                         <div className="flex space-x-2">
                             <Button
                                 onClick={() => setShowEndDialog(false)}
@@ -638,4 +639,4 @@ const ConversationPage = () => {
     )
 }
 
-export default ConversationPage
+export default ConversationPage;

@@ -6,8 +6,8 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { 
-    Coins, Zap, Crown, Star, Check, 
+import {
+    Coins, Zap, Crown, Star, Check,
     CreditCard, Shield, Globe, Sparkles, MessageCircle, Mic
 } from 'lucide-react'
 import { motion } from 'framer-motion'
@@ -111,7 +111,7 @@ const BuyCredits = () => {
             toast.error('Minimum purchase is 50 credits')
             return
         }
-        
+
         const price = credits * 0.15 // $0.15 per credit
         const sessions = Math.floor(credits / 10)
         const customPackage = {
@@ -123,7 +123,7 @@ const BuyCredits = () => {
             sessions: `${sessions} sessions`,
             custom: true
         }
-        
+
         setSelectedPackage(customPackage)
         setShowPaymentDialog(true)
     }
@@ -134,13 +134,13 @@ const BuyCredits = () => {
         setIsProcessing(true)
         try {
             const result = await createCreditPurchase(selectedPackage.credits, selectedPackage.price)
-            
+
             if (result.success) {
                 // Simulate payment process
                 setTimeout(async () => {
                     const paymentId = `payment_${Date.now()}`
                     const completeResult = await completeCreditPurchase(result.transactionId!, paymentId)
-                    
+
                     if (completeResult.success) {
                         toast.success('Credits purchased successfully! 🎉')
                         setShowPaymentDialog(false)
@@ -190,7 +190,6 @@ const BuyCredits = () => {
                         </div>
                     </div>
                 </motion.div>
-                
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -214,23 +213,25 @@ const BuyCredits = () => {
                                         min="50"
                                     />
                                 </div>
-                                {customAmount && parseInt(customAmount) >= 50 && (
-                                    <div className="bg-gradient-to-r from-teal-50 to-emerald-50 rounded-2xl p-4 space-y-2">
-                                        <div className="flex justify-between text-sm">
-                                            <span>Credits:</span>
-                                            <span className="font-semibold">{customAmount}</span>
+                                {
+                                    customAmount && parseInt(customAmount) >= 50 && (
+                                        <div className="bg-gradient-to-r from-teal-50 to-emerald-50 rounded-2xl p-4 space-y-2">
+                                            <div className="flex justify-between text-sm">
+                                                <span>Credits:</span>
+                                                <span className="font-semibold">{customAmount}</span>
+                                            </div>
+                                            <div className="flex justify-between text-sm">
+                                                <span>Sessions:</span>
+                                                <span className="font-semibold">{Math.floor(parseInt(customAmount) / 10)}</span>
+                                            </div>
+                                            <div className="flex justify-between text-base font-bold text-teal-700">
+                                                <span>Total:</span>
+                                                <span>${(parseInt(customAmount) * 0.15).toFixed(2)}</span>
+                                            </div>
                                         </div>
-                                        <div className="flex justify-between text-sm">
-                                            <span>Sessions:</span>
-                                            <span className="font-semibold">{Math.floor(parseInt(customAmount) / 10)}</span>
-                                        </div>
-                                        <div className="flex justify-between text-base font-bold text-teal-700">
-                                            <span>Total:</span>
-                                            <span>${(parseInt(customAmount) * 0.15).toFixed(2)}</span>
-                                        </div>
-                                    </div>
-                                )}
-                                <Button 
+                                    )
+                                }
+                                <Button
                                     onClick={handleCustomPurchase}
                                     disabled={!customAmount || parseInt(customAmount) < 50}
                                     className="w-full bg-gradient-to-r from-teal-500 to-emerald-600 text-white rounded-2xl h-12 text-base font-semibold"
@@ -241,106 +242,108 @@ const BuyCredits = () => {
                         </CardContent>
                     </Card>
                 </motion.div>
-                
                 <div className="mb-16">
                     <h2 className="text-3xl font-bold text-gray-900 text-center mb-4">Learning Packages</h2>
                     <p className="text-xl text-gray-600 text-center mb-12">Choose the perfect package for your language learning goals</p>
-                    
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                        {creditPackages.map((pkg, index) => (
-                            <motion.div
-                                key={pkg.id}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.3 + index * 0.1 }}
-                                className={`${pkg.popular ? 'lg:scale-105' : ''}`}
-                            >
-                                <Card className={`
+                        {
+                            creditPackages.map((pkg, index) => (
+                                <motion.div
+                                    key={pkg.id}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.3 + index * 0.1 }}
+                                    className={`${pkg.popular ? 'lg:scale-105' : ''}`}
+                                >
+                                    <Card className={`
                                     relative overflow-hidden border-0 shadow-xl hover:shadow-2xl transition-all duration-300 
                                     ${pkg.popular ? 'bg-gradient-to-br from-teal-50 to-emerald-50 ring-2 ring-teal-200' : 'bg-white/90'} 
                                     backdrop-blur-sm group cursor-pointer h-full hover:scale-105
                                 `}>
-                                    {/* Badges positioned at top corners */}
-                                    <div className="absolute top-6 left-6 right-6 flex justify-between items-start">
-                                        {pkg.savings && (
-                                            <div className="bg-red-500 text-white text-xs px-3 py-1 rounded-full font-semibold">
-                                                Save {pkg.savings}
-                                            </div>
-                                        )}
-                                        {pkg.badge && (
-                                            <Badge className={`
+                                        <div className="absolute top-6 left-6 right-6 flex justify-between items-start">
+                                            {
+                                                pkg.savings && (
+                                                    <div className="bg-red-500 text-white text-xs px-3 py-1 rounded-full font-semibold">
+                                                        Save {pkg.savings}
+                                                    </div>
+                                                )
+                                            }
+                                            {
+                                                pkg.badge && (
+                                                    <Badge className={`
                                                 ${pkg.popular ? 'bg-teal-500 text-white' : 'bg-emerald-500 text-white'}
                                             `}>
-                                                {pkg.badge}
-                                            </Badge>
-                                        )}
-                                    </div>
-
-                                    <CardHeader className="p-8 pt-16">
-                                        <div className="text-center">
-                                            <div className={`
+                                                        {pkg.badge}
+                                                    </Badge>
+                                                )
+                                            }
+                                        </div>
+                                        <CardHeader className="p-8 pt-16">
+                                            <div className="text-center">
+                                                <div className={`
                                                 w-20 h-20 mx-auto mb-6 rounded-3xl flex items-center justify-center
                                                 ${pkg.popular ? 'bg-gradient-to-br from-teal-500 to-emerald-600' : 'bg-gradient-to-br from-gray-400 to-gray-600'}
                                             `}>
-                                                {pkg.id === 'starter' && <Coins className="w-10 h-10 text-white" />}
-                                                {pkg.id === 'popular' && <Star className="w-10 h-10 text-white" />}
-                                                {pkg.id === 'pro' && <Zap className="w-10 h-10 text-white" />}
-                                                {pkg.id === 'unlimited' && <Crown className="w-10 h-10 text-white" />}
-                                            </div>
-                                            <CardTitle className="text-2xl font-bold text-gray-900 mb-3">
-                                                {pkg.title}
-                                            </CardTitle>
-                                            <CardDescription className="text-gray-600 mb-6 text-base">
-                                                {pkg.description}
-                                            </CardDescription>
-                                            <div className="space-y-3">
-                                                <div className="flex items-center justify-center space-x-3">
-                                                    <span className="text-4xl font-bold text-gray-900">
-                                                        ${pkg.price}
-                                                    </span>
-                                                    {pkg.originalPrice && (
-                                                        <span className="text-xl text-gray-500 line-through">
-                                                            ${pkg.originalPrice}
+                                                    {pkg.id === 'starter' && <Coins className="w-10 h-10 text-white" />}
+                                                    {pkg.id === 'popular' && <Star className="w-10 h-10 text-white" />}
+                                                    {pkg.id === 'pro' && <Zap className="w-10 h-10 text-white" />}
+                                                    {pkg.id === 'unlimited' && <Crown className="w-10 h-10 text-white" />}
+                                                </div>
+                                                <CardTitle className="text-2xl font-bold text-gray-900 mb-3">
+                                                    {pkg.title}
+                                                </CardTitle>
+                                                <CardDescription className="text-gray-600 mb-6 text-base">
+                                                    {pkg.description}
+                                                </CardDescription>
+                                                <div className="space-y-3">
+                                                    <div className="flex items-center justify-center space-x-3">
+                                                        <span className="text-4xl font-bold text-gray-900">
+                                                            ${pkg.price}
                                                         </span>
-                                                    )}
+                                                        {
+                                                            pkg.originalPrice && (
+                                                                <span className="text-xl text-gray-500 line-through">
+                                                                    ${pkg.originalPrice}
+                                                                </span>
+                                                            )
+                                                        }
+                                                    </div>
+                                                    <p className="text-base text-teal-600 font-semibold">
+                                                        {pkg.sessions}
+                                                    </p>
                                                 </div>
-                                                <p className="text-base text-teal-600 font-semibold">
-                                                    {pkg.sessions}
-                                                </p>
                                             </div>
-                                        </div>
-                                    </CardHeader>
-
-                                    <CardContent className="p-8 pt-0">
-                                        <div className="space-y-4 mb-8">
-                                            {pkg.features.map((feature, featureIndex) => (
-                                                <div key={featureIndex} className="flex items-center space-x-3">
-                                                    <Check className="w-5 h-5 text-emerald-500 flex-shrink-0" />
-                                                    <span className="text-sm text-gray-600">{feature}</span>
-                                                </div>
-                                            ))}
-                                        </div>
-
-                                        <Button
-                                            onClick={() => handlePackageSelect(pkg)}
-                                            className={`
-                                                w-full rounded-2xl transition-all duration-300 h-12 text-base font-semibold
-                                                ${pkg.popular 
-                                                    ? 'bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:shadow-lg hover:scale-105' 
-                                                    : 'bg-gradient-to-r from-gray-600 to-gray-700 text-white hover:shadow-lg hover:scale-105'
+                                        </CardHeader>
+                                        <CardContent className="p-8 pt-0">
+                                            <div className="space-y-4 mb-8">
+                                                {
+                                                    pkg.features.map((feature, featureIndex) => (
+                                                        <div key={featureIndex} className="flex items-center space-x-3">
+                                                            <Check className="w-5 h-5 text-emerald-500 flex-shrink-0" />
+                                                            <span className="text-sm text-gray-600">{feature}</span>
+                                                        </div>
+                                                    ))
                                                 }
+                                            </div>
+                                            <Button
+                                                onClick={() => handlePackageSelect(pkg)}
+                                                className={`
+                                                w-full rounded-2xl transition-all duration-300 h-12 text-base font-semibold
+                                                ${pkg.popular
+                                                        ? 'bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:shadow-lg hover:scale-105'
+                                                        : 'bg-gradient-to-r from-gray-600 to-gray-700 text-white hover:shadow-lg hover:scale-105'
+                                                    }
                                             `}
-                                        >
-                                            Get Started
-                                        </Button>
-                                    </CardContent>
-                                </Card>
-                            </motion.div>
-                        ))}
+                                            >
+                                                Get Started
+                                            </Button>
+                                        </CardContent>
+                                    </Card>
+                                </motion.div>
+                            ))
+                        }
                     </div>
                 </div>
-
-                {/* Trust Indicators */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -370,8 +373,6 @@ const BuyCredits = () => {
                     </div>
                 </motion.div>
             </div>
-
-            {/* Payment Dialog */}
             <Dialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
                 <DialogContent className="max-w-md">
                     <DialogHeader>
@@ -380,9 +381,7 @@ const BuyCredits = () => {
                             You&apos;re about to purchase {selectedPackage?.credits} credits for ${selectedPackage?.price}
                         </DialogDescription>
                     </DialogHeader>
-                    
                     <div className="space-y-6">
-                        {/* Payment Option */}
                         <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl p-6 border border-indigo-200">
                             <div className="flex items-center space-x-4 mb-4">
                                 <div className="w-12 h-12 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center">
@@ -393,8 +392,7 @@ const BuyCredits = () => {
                                     <p className="text-sm text-gray-600">Global payment gateway</p>
                                 </div>
                             </div>
-                            
-                            <Button 
+                            <Button
                                 onClick={handlePayment}
                                 disabled={isProcessing}
                                 className="w-full bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white rounded-2xl h-12 text-base font-semibold"
@@ -402,8 +400,6 @@ const BuyCredits = () => {
                                 {isProcessing ? 'Processing...' : `Pay $${selectedPackage?.price} Securely`}
                             </Button>
                         </div>
-
-                        {/* Order Summary */}
                         <div className="bg-gray-50 rounded-2xl p-6">
                             <h4 className="font-semibold text-gray-900 mb-4 text-lg">Order Summary</h4>
                             <div className="space-y-3 text-base">
@@ -428,4 +424,4 @@ const BuyCredits = () => {
     )
 }
 
-export default BuyCredits 
+export default BuyCredits;
