@@ -2,6 +2,7 @@
 
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
+import { GoalType } from '@prisma/client'
 import { revalidatePath } from 'next/cache'
 
 export interface WeeklyGoal {
@@ -21,6 +22,7 @@ export interface CreateGoalData {
     title: string
     description?: string
     category: string
+    type?: 'PRESET' | 'CUSTOM'
 }
 
 // Get user's weekly goals
@@ -47,7 +49,7 @@ export async function getUserWeeklyGoals() {
     }
 }
 
-// Create a new weekly goal
+// Create a new weekly goal (handles both PRESET and CUSTOM)
 export async function createWeeklyGoal(data: CreateGoalData) {
     try {
         const session = await auth()
@@ -61,7 +63,7 @@ export async function createWeeklyGoal(data: CreateGoalData) {
                 title: data.title,
                 description: data.description,
                 category: data.category,
-                type: 'CUSTOM',
+                type: data.type || 'CUSTOM',
                 completed: false
             }
         })
@@ -71,6 +73,37 @@ export async function createWeeklyGoal(data: CreateGoalData) {
     } catch (error) {
         console.error('Error creating weekly goal:', error)
         return { success: false, error: 'Failed to create goal' }
+    }
+}
+
+// Create multiple preset goals
+export async function createMultipleGoals(goals: CreateGoalData[]) {
+    try {
+        const session = await auth()
+        if (!session?.user?.id) {
+            return { success: false, error: 'Not authenticated' }
+        }
+
+        const createdGoals = await Promise.all(
+            goals.map(goalData => 
+                prisma.weeklyGoal.create({
+                    data: {
+                        userId: session.user.id,
+                        title: goalData.title,
+                        description: goalData.description,
+                        category: goalData.category,
+                        type: goalData.type || 'PRESET',
+                        completed: false
+                    }
+                })
+            )
+        )
+
+        revalidatePath('/dashboard')
+        return { success: true, goals: createdGoals }
+    } catch (error) {
+        console.error('Error creating multiple goals:', error)
+        return { success: false, error: 'Failed to create goals' }
     }
 }
 

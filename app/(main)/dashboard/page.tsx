@@ -21,7 +21,7 @@ import {
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { getUserCredits } from '@/actions/credits.action';
-import { getUserWeeklyGoals, createWeeklyGoal, toggleGoalCompletion, deleteWeeklyGoal, createPresetGoals } from '@/actions/dashboard.action';
+import { getUserWeeklyGoals, createWeeklyGoal, createMultipleGoals, toggleGoalCompletion, deleteWeeklyGoal, createPresetGoals } from '@/actions/dashboard.action';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 
@@ -36,7 +36,9 @@ const Dashboard = () => {
     const [newGoalTitle, setNewGoalTitle] = useState('');
     const [newGoalDescription, setNewGoalDescription] = useState('');
     const [newGoalCategory, setNewGoalCategory] = useState('');
+    const [selectedPresetGoals, setSelectedPresetGoals] = useState<string[]>([]);
     const [isCreatingGoal, setIsCreatingGoal] = useState(false);
+    const [activeTab, setActiveTab] = useState('preset');
 
     useEffect(() => {
         const fetchData = async () => {
@@ -77,35 +79,93 @@ const Dashboard = () => {
     }, [session, status]);
 
     const handleCreateGoal = async () => {
-        if (!newGoalTitle.trim()) {
-            toast.error('Please enter a goal title');
-            return;
-        }
-
-        setIsCreatingGoal(true);
-        try {
-            const result = await createWeeklyGoal({
-                title: newGoalTitle,
-                description: newGoalDescription,
-                category: newGoalCategory || 'custom'
-            });
-
-            if (result.success) {
-                setWeeklyGoals(prev => [result.goal, ...prev]);
-                setNewGoalTitle('');
-                setNewGoalDescription('');
-                setNewGoalCategory('');
-                setShowGoalsDialog(false);
-                toast.success('Goal created successfully! 🎯');
-            } else {
-                toast.error(result.error || 'Failed to create goal');
+        if (activeTab === 'preset') {
+            // Handle preset goals creation
+            if (selectedPresetGoals.length === 0) {
+                toast.error('Please select at least one goal');
+                return;
             }
-        } catch (error) {
-            console.error('Error creating goal:', error);
-            toast.error('Failed to create goal');
-        } finally {
-            setIsCreatingGoal(false);
+
+            setIsCreatingGoal(true);
+            try {
+                const presetGoalsData = selectedPresetGoals.map(goalTitle => {
+                    const goalInfo = getPresetGoalInfo(goalTitle);
+                    return {
+                        title: goalTitle,
+                        category: goalInfo.category,
+                        type: 'PRESET' as const
+                    };
+                });
+
+                const result = await createMultipleGoals(presetGoalsData);
+
+                if (result.success) {
+                    setWeeklyGoals(prev => [...result.goals, ...prev]);
+                    setSelectedPresetGoals([]);
+                    setShowGoalsDialog(false);
+                    toast.success(`${selectedPresetGoals.length} goals created successfully! 🎯`);
+                } else {
+                    toast.error(result.error || 'Failed to create goals');
+                }
+            } catch (error) {
+                console.error('Error creating preset goals:', error);
+                toast.error('Failed to create goals');
+            } finally {
+                setIsCreatingGoal(false);
+            }
+        } else {
+            // Handle custom goal creation
+            if (!newGoalTitle.trim()) {
+                toast.error('Please enter a goal title');
+                return;
+            }
+
+            setIsCreatingGoal(true);
+            try {
+                const result = await createWeeklyGoal({
+                    title: newGoalTitle,
+                    description: newGoalDescription,
+                    category: newGoalCategory || 'custom',
+                    type: 'CUSTOM'
+                });
+
+                if (result.success) {
+                    setWeeklyGoals(prev => [result.goal, ...prev]);
+                    setNewGoalTitle('');
+                    setNewGoalDescription('');
+                    setNewGoalCategory('');
+                    setShowGoalsDialog(false);
+                    toast.success('Goal created successfully! 🎯');
+                } else {
+                    toast.error(result.error || 'Failed to create goal');
+                }
+            } catch (error) {
+                console.error('Error creating goal:', error);
+                toast.error('Failed to create goal');
+            } finally {
+                setIsCreatingGoal(false);
+            }
         }
+    };
+
+    const getPresetGoalInfo = (title: string) => {
+        const goalMap: Record<string, { category: string }> = {
+            "Complete 3 conversations this week": { category: "conversations" },
+            "Practice speaking for 30 minutes daily": { category: "speaking" },
+            "Learn 20 new vocabulary words": { category: "vocabulary" },
+            "Watch 2 language learning videos": { category: "videos" },
+            "Read one article in target language": { category: "reading" },
+            "Practice pronunciation for 15 minutes daily": { category: "pronunciation" }
+        };
+        return goalMap[title] || { category: "custom" };
+    };
+
+    const handlePresetGoalToggle = (goalTitle: string) => {
+        setSelectedPresetGoals(prev => 
+            prev.includes(goalTitle) 
+                ? prev.filter(g => g !== goalTitle)
+                : [...prev, goalTitle]
+        );
     };
 
     const handleToggleGoal = async (goalId: string) => {
@@ -846,7 +906,7 @@ const Dashboard = () => {
 
             {/* Weekly Goals Dialog */}
             <Dialog open={showGoalsDialog} onOpenChange={setShowGoalsDialog}>
-                <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
                         <DialogTitle className="text-2xl font-semibold text-gray-900 flex items-center">
                             <Target className="w-6 h-6 mr-3 text-teal-600" />
@@ -862,7 +922,7 @@ const Dashboard = () => {
                         {weeklyGoals.length > 0 && (
                             <div>
                                 <h4 className="text-lg font-medium text-gray-900 mb-4">Current Goals</h4>
-                                <div className="space-y-3 max-h-48 overflow-y-auto">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-48 overflow-y-auto">
                                     {weeklyGoals.map((goal) => (
                                         <div
                                             key={goal.id}
@@ -888,7 +948,7 @@ const Dashboard = () => {
                                                         }`} />
                                                     </div>
                                                 )}
-                                                <div>
+                                                <div className="flex-1">
                                                     <p className={`text-sm font-medium ${
                                                         goal.completed ? 'text-emerald-900 line-through' : 'text-gray-900'
                                                     }`}>
@@ -919,78 +979,115 @@ const Dashboard = () => {
 
                         {/* Add New Goal Form */}
                         <div className="border-t pt-6">
-                            <h4 className="text-lg font-medium text-gray-900 mb-4">Add New Goal</h4>
+                            <h4 className="text-lg font-medium text-gray-900 mb-4">Add New Goals</h4>
                             
-                            <Tabs defaultValue="quick" className="w-full">
+                            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                                 <TabsList className="grid w-full grid-cols-2 mb-6">
-                                    <TabsTrigger value="quick">Quick Goals</TabsTrigger>
+                                    <TabsTrigger value="preset">Preset Goals</TabsTrigger>
                                     <TabsTrigger value="custom">Custom Goal</TabsTrigger>
                                 </TabsList>
                                 
-                                <TabsContent value="quick" className="space-y-4">
-                                    <p className="text-sm text-gray-600 mb-4">Choose from common language learning goals:</p>
-                                    <div className="grid grid-cols-1 gap-3">
+                                <TabsContent value="preset" className="space-y-4">
+                                    <p className="text-sm text-gray-600 mb-4">Select from common language learning goals (these will be auto-tracked):</p>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                         {[
-                                            { title: "Complete 3 conversations this week", category: "conversations" },
-                                            { title: "Practice speaking for 30 minutes daily", category: "speaking" },
-                                            { title: "Learn 20 new vocabulary words", category: "vocabulary" },
-                                            { title: "Watch 2 language learning videos", category: "videos" },
-                                            { title: "Read one article in target language", category: "reading" },
-                                            { title: "Practice pronunciation for 15 minutes daily", category: "pronunciation" }
-                                        ].map((quickGoal, index) => (
-                                            <Button
-                                                key={index}
-                                                variant="outline"
-                                                className="justify-start text-left h-auto p-4 hover:bg-teal-50 hover:border-teal-200"
-                                                onClick={() => {
-                                                    setNewGoalTitle(quickGoal.title);
-                                                    setNewGoalCategory(quickGoal.category);
-                                                    handleCreateGoal();
-                                                }}
-                                                disabled={isCreatingGoal}
-                                            >
-                                                <Plus className="w-4 h-4 mr-3 text-teal-600" />
-                                                <span>{quickGoal.title}</span>
-                                            </Button>
-                                        ))}
+                                            "Complete 3 conversations this week",
+                                            "Practice speaking for 30 minutes daily",
+                                            "Learn 20 new vocabulary words",
+                                            "Watch 2 language learning videos",
+                                            "Read one article in target language",
+                                            "Practice pronunciation for 15 minutes daily"
+                                        ].map((goalTitle, index) => {
+                                            const isSelected = selectedPresetGoals.includes(goalTitle);
+                                            const isAlreadyExists = weeklyGoals.some(goal => goal.title === goalTitle);
+                                            
+                                            return (
+                                                <div
+                                                    key={index}
+                                                    className={`p-4 rounded-lg border-2 transition-all duration-200 cursor-pointer ${
+                                                        isAlreadyExists 
+                                                            ? 'bg-gray-100 border-gray-300 opacity-50 cursor-not-allowed'
+                                                            : isSelected 
+                                                                ? 'bg-teal-50 border-teal-300 shadow-md' 
+                                                                : 'bg-white border-gray-200 hover:border-teal-200 hover:bg-teal-25'
+                                                    }`}
+                                                    onClick={() => !isAlreadyExists && handlePresetGoalToggle(goalTitle)}
+                                                >
+                                                    <div className="flex items-center space-x-3">
+                                                        <Checkbox
+                                                            checked={isSelected}
+                                                            disabled={isAlreadyExists}
+                                                            className="data-[state=checked]:bg-teal-500 data-[state=checked]:border-teal-500"
+                                                        />
+                                                        <div className="flex-1">
+                                                            <span className={`text-sm font-medium ${
+                                                                isAlreadyExists ? 'text-gray-500' : 'text-gray-900'
+                                                            }`}>
+                                                                {goalTitle}
+                                                            </span>
+                                                            {isAlreadyExists && (
+                                                                <p className="text-xs text-gray-500 mt-1">Already added</p>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
                                     </div>
+                                    
+                                    {selectedPresetGoals.length > 0 && (
+                                        <div className="mt-4 p-4 bg-teal-50 rounded-lg">
+                                            <p className="text-sm font-medium text-teal-800 mb-2">
+                                                Selected Goals ({selectedPresetGoals.length}):
+                                            </p>
+                                            <div className="flex flex-wrap gap-2">
+                                                {selectedPresetGoals.map((goal, index) => (
+                                                    <Badge key={index} variant="outline" className="bg-teal-100 text-teal-700 border-teal-300">
+                                                        {goal}
+                                                    </Badge>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
                                 </TabsContent>
                                 
                                 <TabsContent value="custom" className="space-y-4">
-                                    <div className="space-y-4">
-                                        <div>
-                                            <Label htmlFor="goal-title" className="text-sm font-medium text-gray-700">
-                                                Goal Title *
-                                            </Label>
-                                            <Input
-                                                id="goal-title"
-                                                placeholder="e.g., Practice Spanish conversation for 20 minutes daily"
-                                                value={newGoalTitle}
-                                                onChange={(e) => setNewGoalTitle(e.target.value)}
-                                                className="mt-1"
-                                            />
-                                        </div>
-                                        
-                                        <div>
-                                            <Label htmlFor="goal-category" className="text-sm font-medium text-gray-700">
-                                                Category
-                                            </Label>
-                                            <Select value={newGoalCategory} onValueChange={setNewGoalCategory}>
-                                                <SelectTrigger className="mt-1">
-                                                    <SelectValue placeholder="Choose a category" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="conversations">Conversations</SelectItem>
-                                                    <SelectItem value="speaking">Speaking Practice</SelectItem>
-                                                    <SelectItem value="vocabulary">Vocabulary</SelectItem>
-                                                    <SelectItem value="pronunciation">Pronunciation</SelectItem>
-                                                    <SelectItem value="reading">Reading</SelectItem>
-                                                    <SelectItem value="writing">Writing</SelectItem>
-                                                    <SelectItem value="listening">Listening</SelectItem>
-                                                    <SelectItem value="grammar">Grammar</SelectItem>
-                                                    <SelectItem value="custom">Other</SelectItem>
-                                                </SelectContent>
-                                            </Select>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div className="space-y-4">
+                                            <div>
+                                                <Label htmlFor="goal-title" className="text-sm font-medium text-gray-700">
+                                                    Goal Title *
+                                                </Label>
+                                                <Input
+                                                    id="goal-title"
+                                                    placeholder="e.g., Practice Spanish conversation for 20 minutes daily"
+                                                    value={newGoalTitle}
+                                                    onChange={(e) => setNewGoalTitle(e.target.value)}
+                                                    className="mt-1"
+                                                />
+                                            </div>
+                                            
+                                            <div>
+                                                <Label htmlFor="goal-category" className="text-sm font-medium text-gray-700">
+                                                    Category
+                                                </Label>
+                                                <Select value={newGoalCategory} onValueChange={setNewGoalCategory}>
+                                                    <SelectTrigger className="mt-1">
+                                                        <SelectValue placeholder="Choose a category" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="conversations">Conversations</SelectItem>
+                                                        <SelectItem value="speaking">Speaking Practice</SelectItem>
+                                                        <SelectItem value="vocabulary">Vocabulary</SelectItem>
+                                                        <SelectItem value="pronunciation">Pronunciation</SelectItem>
+                                                        <SelectItem value="reading">Reading</SelectItem>
+                                                        <SelectItem value="writing">Writing</SelectItem>
+                                                        <SelectItem value="listening">Listening</SelectItem>
+                                                        <SelectItem value="grammar">Grammar</SelectItem>
+                                                        <SelectItem value="custom">Other</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
                                         </div>
                                         
                                         <div>
@@ -1003,7 +1100,7 @@ const Dashboard = () => {
                                                 value={newGoalDescription}
                                                 onChange={(e) => setNewGoalDescription(e.target.value)}
                                                 className="mt-1 resize-none"
-                                                rows={3}
+                                                rows={6}
                                             />
                                         </div>
                                     </div>
@@ -1020,6 +1117,8 @@ const Dashboard = () => {
                                 setNewGoalTitle('');
                                 setNewGoalDescription('');
                                 setNewGoalCategory('');
+                                setSelectedPresetGoals([]);
+                                setActiveTab('preset');
                             }}
                             className="px-6"
                         >
@@ -1029,7 +1128,7 @@ const Dashboard = () => {
                         
                         <Button
                             onClick={handleCreateGoal}
-                            disabled={isCreatingGoal || !newGoalTitle.trim()}
+                            disabled={isCreatingGoal || (activeTab === 'preset' ? selectedPresetGoals.length === 0 : !newGoalTitle.trim())}
                             className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white px-6 hover:shadow-lg"
                         >
                             {isCreatingGoal ? (
@@ -1037,7 +1136,10 @@ const Dashboard = () => {
                             ) : (
                                 <>
                                     <Plus className="w-4 h-4 mr-2" />
-                                    Add Goal
+                                    {activeTab === 'preset' 
+                                        ? `Add ${selectedPresetGoals.length} Goal${selectedPresetGoals.length !== 1 ? 's' : ''}`
+                                        : 'Add Goal'
+                                    }
                                 </>
                             )}
                         </Button>
