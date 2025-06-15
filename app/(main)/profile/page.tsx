@@ -9,11 +9,10 @@ import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { 
-    User, Settings, Calendar, Mail, Globe, Crown, 
-    ArrowLeft, Edit3, Save, X, Lock, Eye, EyeOff,
-    Shield, Clock, CreditCard, Activity
+    User, Settings, Globe, Crown, 
+    Edit3, Save, X, Lock, Eye, EyeOff,
+    Shield, CreditCard, Activity
 } from 'lucide-react'
-import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { useSession } from 'next-auth/react'
 import { getUserProfile, updateProfile, changePassword } from '@/actions/profile.action'
@@ -208,7 +207,7 @@ const ProfilePage = () => {
                                         <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
                                         <div className="space-y-3">
                                             {transactions.slice(0, 5).map((transaction, index) => (
-                                                <div key={transaction.id} className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg">
+                                                <div key={index} className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg">
                                                     <div className="flex items-center space-x-3">
                                                         {getTransactionIcon(transaction.type)}
                                                         <div>

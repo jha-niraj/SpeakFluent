@@ -2,11 +2,10 @@
 
 import type React from "react"
 import { usePathname, useRouter } from "next/navigation"
-import { LogOut, ChevronRight, Languages, Home, MessageSquare, CreditCard, TrendingUp, User, Settings } from "lucide-react"
+import { LogOut, ChevronRight } from "lucide-react"
 import Link from "next/link"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { toast } from "sonner"
-import { Badge } from "./ui/badge"
 import { Button } from "./ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 import { motion } from "framer-motion"

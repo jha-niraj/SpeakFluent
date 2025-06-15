@@ -47,14 +47,14 @@ export async function POST(request: NextRequest) {
         //                     <h1 style="color: #059669; margin: 0;">Welcome to SpeakFluent!</h1>
         //                     <p style="color: #6b7280; font-size: 16px;">Your language learning journey starts here</p>
         //                 </div>
-                        
+
         //                 <div style="background: linear-gradient(135deg, #0d9488 0%, #059669 100%); padding: 30px; border-radius: 12px; color: white; margin-bottom: 30px;">
         //                     <h2 style="margin: 0 0 15px 0;">Hi ${name}! 👋</h2>
         //                     <p style="margin: 0; font-size: 16px; line-height: 1.5;">
         //                         We're excited to have you join our community of language learners. Get ready to embark on an amazing journey of discovery and growth!
         //                     </p>
         //                 </div>
-                        
+
         //                 <div style="margin-bottom: 30px;">
         //                     <h3 style="color: #374151; margin-bottom: 15px;">What's next?</h3>
         //                     <ul style="color: #6b7280; line-height: 1.6;">
@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
         //                         <li>Join our community discussions</li>
         //                     </ul>
         //                 </div>
-                        
+
         //                 <div style="text-align: center; margin-bottom: 30px;">
         //                     <a href="${process.env.NEXTAUTH_URL}/dashboard" 
         //                        style="background: linear-gradient(135deg, #0d9488 0%, #059669 100%); 
@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
         //                         Go to Dashboard
         //                     </a>
         //                 </div>
-                        
+
         //                 <div style="border-top: 1px solid #e5e7eb; padding-top: 20px; text-align: center;">
         //                     <p style="color: #9ca3af; font-size: 14px; margin: 0;">
         //                         Need help? Reply to this email or visit our <a href="${process.env.NEXTAUTH_URL}/support" style="color: #059669;">support center</a>
@@ -92,8 +92,9 @@ export async function POST(request: NextRequest) {
         // }
 
         // Return success response (don't include password)
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { password: _, ...userWithoutPassword } = user
-        
+
         return NextResponse.json(
             {
                 message: 'User registered successfully',

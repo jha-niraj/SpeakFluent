@@ -1,16 +1,15 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { 
-    Coins, ArrowLeft, Zap, Crown, Star, Check, 
+    Coins, Zap, Crown, Star, Check, 
     CreditCard, Shield, Globe, Sparkles, MessageCircle, Mic
 } from 'lucide-react'
-import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { createCreditPurchase, completeCreditPurchase } from '@/actions/credits.action'
 import { toast } from 'sonner'
@@ -378,7 +377,7 @@ const BuyCredits = () => {
                     <DialogHeader>
                         <DialogTitle className="text-center text-xl">Complete Your Purchase</DialogTitle>
                         <DialogDescription className="text-center">
-                            You're about to purchase {selectedPackage?.credits} credits for ${selectedPackage?.price}
+                            You&apos;re about to purchase {selectedPackage?.credits} credits for ${selectedPackage?.price}
                         </DialogDescription>
                     </DialogHeader>
                     

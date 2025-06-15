@@ -3,7 +3,7 @@
 import { useTheme } from "next-themes"
 import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
-import { Moon, Sun, Home, User, Settings, LogOut, Crown, Award, Mic, ShoppingCart, LogIn, Coins } from "lucide-react"
+import { Moon, Sun, Home, User, Settings, LogOut, Mic, ShoppingCart, LogIn, Coins } from "lucide-react"
 import { Button } from "./ui/button"
 import { Badge } from "./ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"

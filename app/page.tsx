@@ -5,13 +5,18 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import {
 	ArrowRight, Star, Globe, Mic, BookOpen, Trophy, Zap,
-	Target, Award, Lightbulb, Rocket, Shield, Heart, Check
+	Target, Award, Lightbulb, Rocket, Shield, Heart, Check,
+	Link
 } from "lucide-react"
 import { motion } from "framer-motion"
 import LandingNavbar from "@/components/(landingpage)/landingnavbar"
 import SmoothScroll from "@/components/smoothscroll"
+import { useSession } from "next-auth/react"
+import { useRouter } from "next/navigation"
 
 const MainPage = () => {
+	const router = useRouter();
+
 	return (
 		<SmoothScroll>
 			<section className="w-full min-h-screen">
@@ -93,13 +98,26 @@ const MainPage = () => {
 									transition={{ duration: 0.8, delay: 0.4 }}
 									className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6 mb-12"
 								>
-									<Button
-										size="lg"
-										className="bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white px-8 py-5 text-base font-semibold rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 group"
-									>
-										Start Learning Free
-										<ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-									</Button>
+									{
+										status === "authenticated" && (
+											<Button
+												size="lg"
+												onClick={() => router.push("/dashboard")}
+												className="bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white px-8 py-5 text-base font-semibold rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 group"
+											>
+												Start Learning Free
+												<ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+											</Button>
+										)
+									}
+										<Button
+											size="lg"
+											onClick={() => router.push("/signin")}
+											className="bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white px-8 py-5 text-base font-semibold rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 group"
+										>
+											Start Learning Free
+											<ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+										</Button>
 									{/* <Button
 										variant="outline"
 										size="lg"
@@ -140,11 +158,11 @@ const MainPage = () => {
 				<section className="w-full py-16" id="features">
 					<section className="max-w-7xl mx-auto">
 						<div className="absolute inset-0">
-								<div className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-br from-teal-200/20 to-emerald-200/20 rounded-full blur-3xl animate-pulse"></div>
-								<div className="absolute bottom-20 right-10 w-96 h-96 bg-gradient-to-br from-emerald-200/20 to-teal-200/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-							</div>
+							<div className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-br from-teal-200/20 to-emerald-200/20 rounded-full blur-3xl animate-pulse"></div>
+							<div className="absolute bottom-20 right-10 w-96 h-96 bg-gradient-to-br from-emerald-200/20 to-teal-200/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+						</div>
 						<div className="max-w-7xl mx-auto px-6">
-							
+
 							<div className="text-center mb-16">
 								<div className="inline-flex items-center space-x-2 bg-teal-100 rounded-full px-5 py-1.5 mb-5">
 									<Zap className="w-4 h-4 text-teal-600" />
@@ -668,7 +686,7 @@ const MainPage = () => {
 					</div>
 				</footer>
 			</section>
-		</SmoothScroll>
+		</SmoothScroll >
 	)
 }
 

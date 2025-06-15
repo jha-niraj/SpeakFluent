@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -13,10 +12,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { 
-    Mic, MessageSquare, BookOpenText, Users, Clock, Star, Coins, 
-    TrendingUp, Calendar, Globe, ArrowRight, Plus, Settings,
-    CreditCard, User, Brain, Target, Award, Flame, LogIn, Languages,
-    Headphones, Video, FileText, Zap, Shield, CheckCircle, X, Trash2
+    Mic, MessageSquare, Star, Coins, Globe, Plus, 
+    Target, Flame, LogIn, Languages, Headphones, 
+    Video, Zap, Shield, X, Trash2, ArrowRight, Users, 
+    BookOpenText, CreditCard, TrendingUp
 } from 'lucide-react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
@@ -25,11 +24,21 @@ import { getUserWeeklyGoals, createWeeklyGoal, createMultipleGoals, toggleGoalCo
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 
+interface WeeklyGoalProps {
+    id: string;
+    title: string;
+    description: string | null;
+    category: string;
+    type: 'PRESET' | 'CUSTOM';
+    completed: boolean;
+    completedAt: Date | null;
+}
+
 const Dashboard = () => {
     const { data: session, status } = useSession();
     const [credits, setCredits] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
-    const [weeklyGoals, setWeeklyGoals] = useState<any[]>([]);
+    const [weeklyGoals, setWeeklyGoals] = useState<WeeklyGoalProps[]>([]);
     
     // Weekly Goals Dialog States
     const [showGoalsDialog, setShowGoalsDialog] = useState(false);
@@ -100,7 +109,7 @@ const Dashboard = () => {
                 const result = await createMultipleGoals(presetGoalsData);
 
                 if (result.success) {
-                    setWeeklyGoals(prev => [...result.goals, ...prev]);
+                    setWeeklyGoals(prev => [...(result.goals || []), ...prev]);
                     setSelectedPresetGoals([]);
                     setShowGoalsDialog(false);
                     toast.success(`${selectedPresetGoals.length} goals created successfully! 🎯`);
@@ -130,7 +139,15 @@ const Dashboard = () => {
                 });
 
                 if (result.success) {
-                    setWeeklyGoals(prev => [result.goal, ...prev]);
+                    setWeeklyGoals(prev => [result.goal || {
+                        id: '', 
+                        title: '', 
+                        description: '', 
+                        category: '', 
+                        type: 'CUSTOM', 
+                        completed: false, 
+                        completedAt: null 
+                    }, ...prev]);
                     setNewGoalTitle('');
                     setNewGoalDescription('');
                     setNewGoalCategory('');
@@ -550,7 +567,7 @@ const Dashboard = () => {
                             Welcome back, {session?.user?.name?.split(' ')[0] || 'Learner'}! 👋
                         </h1>
                         <p className="text-lg text-gray-600 mb-6">
-                            Ready to continue your language learning journey? Let's make today count!
+                            Ready to continue your language learning journey? Let&apos;s make today count!
                         </p>
                         <div className="flex justify-center items-center space-x-4 mb-6">
                             <Badge variant="outline" className="bg-teal-50 text-teal-700 border-teal-200">
@@ -645,7 +662,7 @@ const Dashboard = () => {
                 {/* Learning Goals */}
                 <div className="mb-12">
                     <div className="flex items-center justify-between mb-6">
-                        <h3 className="text-2xl font-medium text-gray-900">This Week's Goals</h3>
+                        <h3 className="text-2xl font-medium text-gray-900">This Week&apos;s Goals</h3>
                         <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200">
                             {weeklyGoals.filter(goal => goal.completed).length} of {weeklyGoals.length} completed
                         </Badge>

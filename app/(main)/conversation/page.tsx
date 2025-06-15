@@ -8,8 +8,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { 
-    Mic, MicOff, ArrowLeft, Play, Pause, Square, Volume2, 
-    MessageSquare, Settings, Star, Clock, Coins, Mountain,
+    Mic, Play, Square, Volume2, 
+    MessageSquare, Star, Clock, Coins, Mountain,
     Users, Globe, Zap, Brain, VolumeX
 } from 'lucide-react'
 import Link from 'next/link'
@@ -534,7 +534,7 @@ const ConversationPage = () => {
                     <DialogHeader>
                         <DialogTitle>Start Conversation Session</DialogTitle>
                         <DialogDescription>
-                            You're about to start a conversation session that will use 10 credits.
+                            You&apos;re about to start a conversation session that will use 10 credits.
                         </DialogDescription>
                     </DialogHeader>
                     

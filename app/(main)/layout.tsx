@@ -2,8 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import {
-    LayoutDashboard, Settings, DollarSign,
-    GraduationCap, Users, Receipt, FileBarChart, MessageSquare,
+    MessageSquare,
     Home,
     CreditCard,
     TrendingUp,
