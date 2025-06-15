@@ -1,240 +1,320 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { Mic, MessageSquare, BookOpenText, Users, Clock, Star, Coins } from 'lucide-react';
-import {
-    SidebarProvider, SidebarTrigger, SidebarInset
-} from '@/components/ui/sidebar';
-import { AppSidebar } from '../_components/appsidebar';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { 
+    Mic, MessageSquare, BookOpenText, Users, Clock, Star, Coins, 
+    TrendingUp, Calendar, Globe, ArrowRight, Plus, Settings,
+    CreditCard, User
+} from 'lucide-react';
+import Link from 'next/link';
+import { useSession } from 'next-auth/react';
+import { getUserCredits } from '@/actions/credits.action';
+import { motion } from 'framer-motion';
 
 const Dashboard = () => {
+    const { data: session } = useSession();
+    const [credits, setCredits] = useState(0);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchCredits = async () => {
+            try {
+                const userCredits = await getUserCredits();
+                setCredits(userCredits);
+            } catch (error) {
+                console.error('Error fetching credits:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        if (session?.user?.id) {
+            fetchCredits();
+        }
+    }, [session]);
+
     const statsData = [
         {
             title: "Practice Time",
             value: "47 mins",
             icon: Clock,
             description: "This week",
-            color: "text-blue-600",
-            bgColor: "bg-blue-50"
+            color: "text-teal-600",
+            bgColor: "bg-teal-50",
+            change: "+12%"
         },
         {
             title: "XP Earned",
             value: "1,250",
             icon: Star,
             description: "Total points",
-            color: "text-yellow-600",
-            bgColor: "bg-yellow-50"
+            color: "text-emerald-600",
+            bgColor: "bg-emerald-50",
+            change: "+8%"
         },
         {
             title: "Credits",
-            value: "340",
+            value: isLoading ? "..." : credits.toString(),
             icon: Coins,
             description: "Available",
-            color: "text-green-600",
-            bgColor: "bg-green-50"
+            color: "text-teal-600",
+            bgColor: "bg-teal-50",
+            change: "0"
         },
         {
-            title: "Last Used",
-            value: "VoiceVoyage",
-            icon: Mic,
-            description: "2 hours ago",
-            color: "text-purple-600",
-            bgColor: "bg-purple-50"
+            title: "Streak",
+            value: "7 days",
+            icon: Calendar,
+            description: "Current streak",
+            color: "text-emerald-600",
+            bgColor: "bg-emerald-50",
+            change: "+1"
         }
     ];
 
-    const services = [
+    const learningTools = [
         {
             id: 'voicevoyage',
             title: 'VoiceVoyage',
             subtitle: 'Conversation AI',
-            description: 'Immersive voice sessions with native greetings and real-life call simulations.',
+            description: 'Practice speaking with AI tutors in real-time conversations.',
             icon: Mic,
-            features: ['Real-time feedback', 'Adaptive difficulty', 'Cultural context'],
-            color: 'from-blue-500 to-purple-600',
-            textColor: 'text-blue-600',
-            bgColor: 'bg-blue-50',
-            difficulty: 'Beginner to Advanced',
-            credits: 'Free + Premium'
+            color: 'from-teal-500 to-emerald-600',
+            textColor: 'text-teal-600',
+            bgColor: 'bg-teal-50',
+            credits: 'Free + Premium',
+            level: 'Beginner to Advanced',
+            href: '/tools/voice-voyage'
         },
         {
             id: 'storyspeak',
             title: 'StorySpeak',
             subtitle: 'Interactive Dialogues',
-            description: 'Scenario-based practice with visual storyboards and live conversations.',
+            description: 'Learn through immersive story-based conversations.',
             icon: Users,
-            features: ['Visual storyboards', 'Unit structure', 'Explorer badges'],
-            color: 'from-green-500 to-teal-600',
-            textColor: 'text-green-600',
-            bgColor: 'bg-green-50',
-            difficulty: 'Intermediate',
-            credits: '10-20 credits reward'
+            color: 'from-emerald-500 to-teal-600',
+            textColor: 'text-emerald-600',
+            bgColor: 'bg-emerald-50',
+            credits: '10-20 credits',
+            level: 'Intermediate',
+            href: '/tools/story-speak'
         },
         {
             id: 'chatquest',
             title: 'ChatQuest',
             subtitle: 'Free-form Chat',
-            description: 'Open conversation with AI tutor and guided prompts.',
+            description: 'Open conversations with guided learning paths.',
             icon: MessageSquare,
-            features: ['Open dialogue', 'Instant feedback', 'Progress tracking'],
-            color: 'from-orange-500 to-red-600',
-            textColor: 'text-orange-600',
-            bgColor: 'bg-orange-50',
-            difficulty: 'All Levels',
-            credits: '5 free, 10 credits each'
+            color: 'from-teal-400 to-emerald-500',
+            textColor: 'text-teal-600',
+            bgColor: 'bg-teal-50',
+            credits: '5-10 credits',
+            level: 'All Levels',
+            href: '/tools/chat-quest'
         },
         {
             id: 'phraseforge',
             title: 'PhraseForge',
             subtitle: 'Structured Learning',
-            description: 'Daily life phrases through interactive units and cultural quizzes.',
+            description: 'Master essential phrases through interactive lessons.',
             icon: BookOpenText,
-            features: ['Unit-based lessons', 'Interactive activities', 'Fluency tests'],
-            color: 'from-violet-500 to-pink-600',
-            textColor: 'text-violet-600',
-            bgColor: 'bg-violet-50',
-            difficulty: 'Structured',
-            credits: '20 credits per unit'
+            color: 'from-emerald-400 to-teal-500',
+            textColor: 'text-emerald-600',
+            bgColor: 'bg-emerald-50',
+            credits: '20 credits per unit',
+            level: 'Structured',
+            href: '/tools/phrase-forge'
+        }
+    ];
+
+    const quickActions = [
+        {
+            title: 'Buy Credits',
+            description: 'Purchase credits to unlock premium features',
+            icon: CreditCard,
+            color: 'bg-gradient-to-r from-teal-500 to-emerald-600',
+            href: '/buy-credits'
+        },
+        {
+            title: 'Profile',
+            description: 'Manage your account and preferences',
+            icon: User,
+            color: 'bg-gradient-to-r from-emerald-500 to-teal-600',
+            href: '/profile'
+        },
+        {
+            title: 'Settings',
+            description: 'Customize your learning experience',
+            icon: Settings,
+            color: 'bg-gradient-to-r from-teal-400 to-emerald-500',
+            href: '/settings'
         }
     ];
 
     return (
-        <SidebarProvider>
-            <div className="min-h-screen flex w-full">
-                <AppSidebar />
-                <SidebarInset>
-                    <div className="flex-1">
-                        {/* Header with Trigger */}
-                        <div className="flex items-center gap-4 p-6 border-b md:hidden">
-                            <SidebarTrigger />
-                            <h1 className="text-2xl font-bold">Dashboard</h1>
-                        </div>
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-teal-50 to-emerald-50">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div className="mb-8">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="text-center mb-8"
+                    >
+                        <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                            Welcome back, {session?.user?.name?.split(' ')[0] || 'Learner'}! 👋
+                        </h2>
+                        <p className="text-lg text-gray-600">
+                            Continue your language learning journey
+                        </p>
+                    </motion.div>
+                </div>
 
-                        <div className="p-6 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 min-h-screen">
-                            <div className="max-w-7xl mx-auto">
-                                {/* Header - Hidden on mobile since we have it above */}
-                                <div className="mb-8 hidden md:block">
-                                    <h1 className="text-4xl font-bold text-gray-900 mb-2">Learning Dashboard</h1>
-                                    <p className="text-lg text-gray-600">Track your progress and continue your language journey</p>
-                                </div>
-
-                                {/* Stats Cards */}
-                                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8">
-                                    {statsData.map((stat, index) => {
-                                        const IconComponent = stat.icon;
-                                        return (
-                                            <Card key={index} className="relative overflow-hidden border-0 shadow-md hover:shadow-lg transition-all duration-300 bg-white/80 backdrop-blur-sm">
-                                                <CardHeader className="pb-2 p-4">
-                                                    <div className="flex items-center justify-between">
-                                                        <div className={`p-2 lg:p-3 rounded-xl ${stat.bgColor}`}>
-                                                            <IconComponent className={`h-4 w-4 lg:h-6 lg:w-6 ${stat.color}`} />
-                                                        </div>
-                                                    </div>
-                                                </CardHeader>
-                                                <CardContent className="p-4 pt-0">
-                                                    <div className="space-y-1">
-                                                        <p className="text-xl lg:text-2xl font-bold text-gray-900">{stat.value}</p>
-                                                        <p className="text-sm font-medium text-gray-900">{stat.title}</p>
-                                                        <p className="text-xs text-gray-500">{stat.description}</p>
-                                                    </div>
-                                                </CardContent>
-                                            </Card>
-                                        );
-                                    })}
-                                </div>
-
-                                <Separator className="my-8" />
-
-                                {/* Learning Tools Section */}
-                                <div className="mb-8">
-                                    <h2 className="text-2xl font-bold text-gray-900 mb-6">Learning Tools</h2>
-                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                        {services.map((service, index) => {
-                                            const IconComponent = service.icon;
-                                            return (
-                                                <Card key={index} className="group relative overflow-hidden border-0 shadow-md hover:shadow-xl transition-all duration-500 hover:-translate-y-1 bg-white/90 backdrop-blur-sm">
-                                                    {/* Gradient Background */}
-                                                    <div className={`absolute inset-0 bg-gradient-to-br ${service.color} opacity-5 group-hover:opacity-10 transition-opacity duration-300`} />
-
-                                                    <CardHeader className="relative p-6">
-                                                        <div className="flex items-start justify-between">
-                                                            <div className="flex items-center space-x-4">
-                                                                <div className={`p-3 rounded-2xl ${service.bgColor} group-hover:scale-110 transition-transform duration-300`}>
-                                                                    <IconComponent className={`h-6 w-6 ${service.textColor}`} />
-                                                                </div>
-                                                                <div>
-                                                                    <CardTitle className="text-xl font-bold text-gray-900">
-                                                                        {service.title}
-                                                                    </CardTitle>
-                                                                    <CardDescription className="text-sm font-medium text-gray-600">
-                                                                        {service.subtitle}
-                                                                    </CardDescription>
-                                                                </div>
-                                                            </div>
-                                                            <div className="text-right">
-                                                                <p className="text-xs text-gray-500 mb-1">{service.difficulty}</p>
-                                                                <p className="text-xs font-medium text-gray-700">{service.credits}</p>
-                                                            </div>
-                                                        </div>
-                                                    </CardHeader>
-
-                                                    <CardContent className="relative pt-0 p-6">
-                                                        <p className="text-gray-600 mb-4 leading-relaxed text-sm">{service.description}</p>
-
-                                                        <div className="space-y-3 mb-6">
-                                                            <div className="flex flex-wrap gap-2">
-                                                                {service.features.map((feature, featureIndex) => (
-                                                                    <span key={featureIndex} className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${service.bgColor} ${service.textColor}`}>
-                                                                        {feature}
-                                                                    </span>
-                                                                ))}
-                                                            </div>
-                                                        </div>
-
-                                                        <Button
-                                                            className={`w-full bg-gradient-to-r ${service.color} text-white border-0 hover:shadow-lg hover:scale-105 transition-all duration-300`}
-                                                        >
-                                                            Start Learning
-                                                        </Button>
-                                                    </CardContent>
-                                                </Card>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-
-                                {/* Quick Actions */}
-                                <Card className="border-0 shadow-md bg-gradient-to-r from-indigo-50 to-purple-50 bg-white/80 backdrop-blur-sm">
-                                    <CardHeader>
-                                        <CardTitle className="text-xl font-bold text-gray-900">Quick Actions</CardTitle>
-                                        <CardDescription>Jump back into your learning journey</CardDescription>
+                {/* Stats Grid */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8">
+                    {statsData.map((stat, index) => {
+                        const IconComponent = stat.icon;
+                        return (
+                            <motion.div
+                                key={index}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: index * 0.1 }}
+                            >
+                                <Card className="relative overflow-hidden border-0 shadow-sm hover:shadow-md transition-all duration-300 bg-white/80 backdrop-blur-sm">
+                                    <CardHeader className="pb-2 p-4">
+                                        <div className="flex items-center justify-between">
+                                            <div className={`p-2 lg:p-3 rounded-xl ${stat.bgColor}`}>
+                                                <IconComponent className={`h-4 w-4 lg:h-5 lg:w-5 ${stat.color}`} />
+                                            </div>
+                                            <div className="text-right">
+                                                <div className="flex items-center text-xs text-emerald-600">
+                                                    <TrendingUp className="w-3 h-3 mr-1" />
+                                                    {stat.change}
+                                                </div>
+                                            </div>
+                                        </div>
                                     </CardHeader>
-                                    <CardContent>
-                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                            <Button variant="outline" className="h-16 flex-col space-y-2 hover:bg-blue-50 hover:border-blue-200 transition-all bg-white/80">
-                                                <Clock className="h-5 w-5 text-blue-600" />
-                                                <span className="text-sm">Continue Last Session</span>
-                                            </Button>
-                                            <Button variant="outline" className="h-16 flex-col space-y-2 hover:bg-green-50 hover:border-green-200 transition-all bg-white/80">
-                                                <Star className="h-5 w-5 text-green-600" />
-                                                <span className="text-sm">View Progress</span>
-                                            </Button>
-                                            <Button variant="outline" className="h-16 flex-col space-y-2 hover:bg-purple-50 hover:border-purple-200 transition-all bg-white/80">
-                                                <Coins className="h-5 w-5 text-purple-600" />
-                                                <span className="text-sm">Buy Credits</span>
-                                            </Button>
+                                    <CardContent className="p-4 pt-0">
+                                        <div className="space-y-1">
+                                            <p className="text-xl lg:text-2xl font-bold text-gray-900">{stat.value}</p>
+                                            <p className="text-sm font-medium text-gray-900">{stat.title}</p>
+                                            <p className="text-xs text-gray-500">{stat.description}</p>
                                         </div>
                                     </CardContent>
                                 </Card>
-                            </div>
-                        </div>
+                            </motion.div>
+                        );
+                    })}
+                </div>
+
+                {/* Quick Actions */}
+                <div className="mb-8">
+                    <h3 className="text-xl font-bold text-gray-900 mb-4">Quick Actions</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {quickActions.map((action, index) => {
+                            const IconComponent = action.icon;
+                            return (
+                                <motion.div
+                                    key={index}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.4 + index * 0.1 }}
+                                >
+                                    <Link href={action.href}>
+                                        <Card className="border-0 shadow-sm hover:shadow-md transition-all duration-300 bg-white/80 backdrop-blur-sm cursor-pointer group">
+                                            <CardContent className="p-4">
+                                                <div className="flex items-center space-x-4">
+                                                    <div className={`p-3 rounded-xl ${action.color} group-hover:scale-110 transition-transform duration-300`}>
+                                                        <IconComponent className="w-5 h-5 text-white" />
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <h4 className="font-semibold text-gray-900">{action.title}</h4>
+                                                        <p className="text-sm text-gray-600">{action.description}</p>
+                                                    </div>
+                                                    <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-teal-600 transition-colors" />
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </Link>
+                                </motion.div>
+                            );
+                        })}
                     </div>
-                </SidebarInset>
+                </div>
+
+                {/* Learning Tools */}
+                <div className="mb-8">
+                    <div className="flex items-center justify-between mb-6">
+                        <h3 className="text-2xl font-bold text-gray-900">Learning Tools</h3>
+                        <Badge variant="outline" className="bg-teal-50 text-teal-700 border-teal-200">
+                            4 Tools Available
+                        </Badge>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        {learningTools.map((tool, index) => {
+                            const IconComponent = tool.icon;
+                            return (
+                                <motion.div
+                                    key={index}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.6 + index * 0.1 }}
+                                >
+                                    <Card className="group relative overflow-hidden border-0 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1 bg-white/90 backdrop-blur-sm">
+                                        {/* Gradient Background */}
+                                        <div className={`absolute inset-0 bg-gradient-to-br ${tool.color} opacity-5 group-hover:opacity-10 transition-opacity duration-300`} />
+
+                                        <CardHeader className="relative p-6">
+                                            <div className="flex items-start justify-between">
+                                                <div className="flex items-center space-x-4">
+                                                    <div className={`p-3 rounded-2xl ${tool.bgColor} group-hover:scale-110 transition-transform duration-300`}>
+                                                        <IconComponent className={`h-6 w-6 ${tool.textColor}`} />
+                                                    </div>
+                                                    <div>
+                                                        <CardTitle className="text-xl font-bold text-gray-900">
+                                                            {tool.title}
+                                                        </CardTitle>
+                                                        <CardDescription className="text-sm font-medium text-gray-600">
+                                                            {tool.subtitle}
+                                                        </CardDescription>
+                                                    </div>
+                                                </div>
+                                                <div className="text-right">
+                                                    <Badge variant="outline" className="text-xs mb-1">
+                                                        {tool.level}
+                                                    </Badge>
+                                                    <p className="text-xs text-gray-500">{tool.credits}</p>
+                                                </div>
+                                            </div>
+                                        </CardHeader>
+
+                                        <CardContent className="relative pt-0 p-6">
+                                            <p className="text-gray-600 mb-6 leading-relaxed">
+                                                {tool.description}
+                                            </p>
+
+                                            <Link href={tool.href}>
+                                                <Button
+                                                    className={`w-full bg-gradient-to-r ${tool.color} text-white border-0 hover:shadow-lg hover:scale-105 transition-all duration-300`}
+                                                >
+                                                    Start Learning
+                                                    <ArrowRight className="ml-2 h-4 w-4" />
+                                                </Button>
+                                            </Link>
+                                        </CardContent>
+                                    </Card>
+                                </motion.div>
+                            );
+                        })}
+                    </div>
+                </div>
             </div>
-        </SidebarProvider>
+        </div>
     );
 };
 

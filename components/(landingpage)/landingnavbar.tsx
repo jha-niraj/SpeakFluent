@@ -12,7 +12,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { cn } from "@/lib/utils"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useTheme } from "next-themes"
-import { useSession } from "next-auth/react"
+import { signOut, useSession } from "next-auth/react"
 
 const navigation = [
     {
@@ -243,7 +243,7 @@ export default function LandingNavbar() {
                                                 <DropdownMenuItem className="cursor-pointer">Profile</DropdownMenuItem>
                                                 <DropdownMenuItem className="cursor-pointer">My Courses</DropdownMenuItem>
                                                 <DropdownMenuItem className="cursor-pointer">Settings</DropdownMenuItem>
-                                                <DropdownMenuItem className="cursor-pointer text-red-500">Sign Out</DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => signOut()} className="cursor-pointer text-red-500">Sign Out</DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </div>

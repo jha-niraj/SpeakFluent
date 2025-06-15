@@ -27,11 +27,11 @@ import {
     Crown
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useSearchParams } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 
 export function AppSidebar() {
-    const location = useSearchParams();
+    const pathname = usePathname();
     const { setOpenMobile } = useSidebar();
 
     const navigationItems = [
@@ -96,11 +96,11 @@ export function AppSidebar() {
         <Sidebar className="border-r border-gray-200">
             <SidebarHeader className="p-6 border-b border-gray-100">
                 <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                    <div className="w-8 h-8 bg-gradient-to-br from-teal-500 to-emerald-600 rounded-lg flex items-center justify-center">
                         <Crown className="h-5 w-5 text-white" />
                     </div>
                     <div>
-                        <h2 className="font-bold text-lg text-gray-900">LangMaster</h2>
+                        <h2 className="font-bold text-lg text-gray-900">SpeakFluent</h2>
                         <p className="text-xs text-gray-500">Language Learning Platform</p>
                     </div>
                 </div>
@@ -116,7 +116,7 @@ export function AppSidebar() {
                         <SidebarMenu>
                             {navigationItems.map((item) => {
                                 const IconComponent = item.icon;
-                                const isActive = location.pathname === item.url;
+                                const isActive = pathname === item.url;
                                 return (
                                     <SidebarMenuItem key={item.title}>
                                         <SidebarMenuButton asChild isActive={isActive}>
@@ -149,7 +149,7 @@ export function AppSidebar() {
                                     <SidebarMenuItem key={item.title}>
                                         <SidebarMenuButton asChild>
                                             <Link
-                                                to={item.url}
+                                                href={item.url}
                                                 onClick={handleLinkClick}
                                                 className="flex items-center space-x-3 p-3 rounded-lg transition-colors hover:bg-gray-100"
                                             >
@@ -176,12 +176,12 @@ export function AppSidebar() {
                         <SidebarMenu>
                             {accountItems.map((item) => {
                                 const IconComponent = item.icon;
-                                const isActive = location.pathname === item.url;
+                                const isActive = pathname === item.url;
                                 return (
                                     <SidebarMenuItem key={item.title}>
                                         <SidebarMenuButton asChild isActive={isActive}>
                                             <Link
-                                                to={item.url}
+                                                href={item.url}
                                                 onClick={handleLinkClick}
                                                 className="flex items-center space-x-3 p-3 rounded-lg transition-colors hover:bg-gray-100"
                                             >
@@ -202,7 +202,7 @@ export function AppSidebar() {
                 <div className="flex items-center space-x-3 p-3 rounded-lg bg-gray-50">
                     <Avatar className="h-10 w-10">
                         <AvatarImage src="" alt="User" />
-                        <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold">
+                        <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white font-semibold">
                             JD
                         </AvatarFallback>
                     </Avatar>

@@ -12,6 +12,8 @@ import { ArrowRight, ArrowLeft, Globe, Check, BookOpen, Mic, MessageCircle } fro
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Progress } from "@/components/ui/progress"
+import { saveOnboardingData } from "@/actions/onboarding.action"
+import { toast } from "sonner"
 
 interface LanguageOption {
     id: string
@@ -149,14 +151,31 @@ const Onboarding = () => {
         }
     }
 
-    const handleComplete = () => {
+    const handleComplete = async () => {
         setIsLoading(true)
 
-        // Simulate API call
-        setTimeout(() => {
+        try {
+            const onboardingData = {
+                selectedLanguage: selectedLanguage!,
+                selectedLevel: selectedLevel!,
+                selectedGoal: selectedGoal!,
+                selectedTime: selectedTime!
+            }
+
+            const result = await saveOnboardingData(onboardingData)
+
+            if (result.success) {
+                toast.success("Welcome to SpeakFluent! Your preferences have been saved.")
+                router.push("/dashboard")
+            } else {
+                toast.error(result.error || "Failed to save preferences")
+                setIsLoading(false)
+            }
+        } catch (error) {
+            console.error('Error completing onboarding:', error)
+            toast.error("Failed to save preferences")
             setIsLoading(false)
-            router.push("/dashboard")
-        }, 1500)
+        }
     }
 
     const isStepComplete = () => {

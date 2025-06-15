@@ -12,23 +12,76 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { AuthLayout } from "@/components/authlayout"
 import { ArrowRight, BookOpen, Globe, Mic, MessageCircle, Zap } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { signIn } from "next-auth/react"
+import { toast } from "sonner"
 
 export default function SignUp() {
     const [name, setName] = useState("")
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [isLoading, setIsLoading] = useState(false)
+    const [isGoogleLoading, setIsGoogleLoading] = useState(false)
     const router = useRouter()
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setIsLoading(true)
 
-        // Simulate API call
-        setTimeout(() => {
+        try {
+            const response = await fetch('/api/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name,
+                    email,
+                    password,
+                }),
+            })
+
+            const data = await response.json()
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Registration failed')
+            }
+
+            toast.success('Account created successfully! Welcome to SpeakFluent!')
+            
+            // Sign in the user after successful registration
+            const signInResult = await signIn('credentials', {
+                email,
+                password,
+                redirect: false,
+            })
+
+            if (signInResult?.ok) {
+                router.push('/dashboard')
+            } else {
+                // If auto sign-in fails, redirect to sign-in page
+                toast.info('Please sign in to continue')
+                router.push('/signin')
+            }
+
+        } catch (error) {
+            console.error('Registration error:', error)
+            toast.error(error instanceof Error ? error.message : 'Registration failed')
+        } finally {
             setIsLoading(false)
-            router.push("/auth/verify")
-        }, 1500)
+        }
+    }
+
+    const handleGoogleSignUp = async () => {
+        setIsGoogleLoading(true)
+        try {
+            await signIn('google', {
+                callbackUrl: '/dashboard'
+            })
+        } catch (error) {
+            console.error('Google sign-up error:', error)
+            toast.error('Google sign-up failed')
+            setIsGoogleLoading(false)
+        }
     }
 
     const floatingElements = [
@@ -104,6 +157,7 @@ export default function SignUp() {
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         required
+                        disabled={isLoading}
                         className="rounded-xl border-teal-200 focus:border-teal-300 focus:ring focus:ring-teal-200 focus:ring-opacity-50"
                     />
                 </div>
@@ -116,6 +170,7 @@ export default function SignUp() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
+                        disabled={isLoading}
                         className="rounded-xl border-teal-200 focus:border-teal-300 focus:ring focus:ring-teal-200 focus:ring-opacity-50"
                     />
                 </div>
@@ -128,12 +183,14 @@ export default function SignUp() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
+                        disabled={isLoading}
+                        minLength={8}
                         className="rounded-xl border-teal-200 focus:border-teal-300 focus:ring focus:ring-teal-200 focus:ring-opacity-50"
                     />
                     <p className="text-xs text-gray-500">Must be at least 8 characters</p>
                 </div>
                 <div className="flex items-center space-x-2">
-                    <Checkbox id="terms" required />
+                    <Checkbox id="terms" required disabled={isLoading} />
                     <label
                         htmlFor="terms"
                         className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -161,7 +218,7 @@ export default function SignUp() {
             <div className="mt-6 text-center">
                 <p className="text-sm text-gray-600">
                     Already have an account?{" "}
-                    <Link href="/auth/signin" className="text-teal-600 hover:text-teal-700 hover:underline font-medium">
+                    <Link href="/signin" className="text-teal-600 hover:text-teal-700 hover:underline font-medium">
                         Sign in
                     </Link>
                 </p>
@@ -170,7 +227,13 @@ export default function SignUp() {
             <div className="pt-6 border-t border-gray-200">
                 <p className="text-xs text-center text-gray-500 mb-4">Or continue with</p>
                 <div className="grid grid-cols-1 gap-4">
-                    <Button variant="outline" className="rounded-xl border-teal-200 hover:bg-teal-50">
+                    <Button 
+                        type="button"
+                        variant="outline" 
+                        className="rounded-xl border-teal-200 hover:bg-teal-50"
+                        onClick={handleGoogleSignUp}
+                        disabled={isLoading || isGoogleLoading}
+                    >
                         <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                             <path
                                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -189,7 +252,7 @@ export default function SignUp() {
                                 fill="#EA4335"
                             />
                         </svg>
-                        Google
+                        {isGoogleLoading ? "Signing up..." : "Google"}
                     </Button>
                 </div>
             </div>

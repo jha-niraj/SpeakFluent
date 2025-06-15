@@ -11,22 +11,55 @@ import { Label } from "@/components/ui/label"
 import { AuthLayout } from "@/components/authlayout"
 import { ArrowRight, BookOpen, Globe, Mic, Trophy } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { signIn } from "next-auth/react"
+import { toast } from "sonner"
 
 export default function SignIn() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [isLoading, setIsLoading] = useState(false)
+    const [isGoogleLoading, setIsGoogleLoading] = useState(false)
     const router = useRouter()
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setIsLoading(true)
 
-        // Simulate API call
-        setTimeout(() => {
+        try {
+            const result = await signIn('credentials', {
+                email,
+                password,
+                redirect: false,
+            })
+
+            if (result?.error) {
+                throw new Error('Invalid email or password')
+            }
+
+            if (result?.ok) {
+                toast.success('Welcome back!')
+                router.push('/dashboard')
+            }
+
+        } catch (error) {
+            console.error('Sign-in error:', error)
+            toast.error(error instanceof Error ? error.message : 'Sign-in failed')
+        } finally {
             setIsLoading(false)
-            router.push("/dashboard")
-        }, 1500)
+        }
+    }
+
+    const handleGoogleSignIn = async () => {
+        setIsGoogleLoading(true)
+        try {
+            await signIn('google', {
+                callbackUrl: '/dashboard'
+            })
+        } catch (error) {
+            console.error('Google sign-in error:', error)
+            toast.error('Google sign-in failed')
+            setIsGoogleLoading(false)
+        }
     }
 
     const floatingElements = [
@@ -92,13 +125,14 @@ export default function SignIn() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
+                        disabled={isLoading}
                         className="rounded-xl border-teal-200 focus:border-teal-300 focus:ring focus:ring-teal-200 focus:ring-opacity-50"
                     />
                 </div>
                 <div className="space-y-2">
                     <div className="flex items-center justify-between">
                         <Label htmlFor="password">Password</Label>
-                        <Link href="/auth/forgot-password" className="text-sm text-teal-600 hover:text-teal-700 hover:underline">
+                        <Link href="/forgot-password" className="text-sm text-teal-600 hover:text-teal-700 hover:underline">
                             Forgot password?
                         </Link>
                     </div>
@@ -109,6 +143,7 @@ export default function SignIn() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
+                        disabled={isLoading}
                         className="rounded-xl border-teal-200 focus:border-teal-300 focus:ring focus:ring-teal-200 focus:ring-opacity-50"
                     />
                 </div>
@@ -132,7 +167,13 @@ export default function SignIn() {
             <div className="pt-6 border-t border-gray-200">
                 <p className="text-xs text-center text-gray-500 mb-4">Or continue with</p>
                 <div className="grid grid-cols-1 gap-4">
-                    <Button variant="outline" className="rounded-xl border-teal-200 hover:bg-teal-50">
+                    <Button 
+                        type="button"
+                        variant="outline" 
+                        className="rounded-xl border-teal-200 hover:bg-teal-50"
+                        onClick={handleGoogleSignIn}
+                        disabled={isLoading || isGoogleLoading}
+                    >
                         <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                             <path
                                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -151,7 +192,7 @@ export default function SignIn() {
                                 fill="#EA4335"
                             />
                         </svg>
-                        Google
+                        {isGoogleLoading ? "Signing in..." : "Google"}
                     </Button>
                 </div>
             </div>

@@ -12,6 +12,19 @@ enum Role {
     ADMIN
 }
 
+enum TransactionType {
+    PURCHASE
+    USAGE
+    REFUND
+}
+
+enum TransactionStatus {
+    PENDING
+    COMPLETED
+    FAILED
+    CANCELLED
+}
+
 model User {
     id                   String    @id @default(cuid())
     email                String    @unique
@@ -21,12 +34,47 @@ model User {
     image                String    @default("https://res.cloudinary.com/dhfuckcax/image/upload/v1739810646/krk8x7fzjukcfcoefrea.jpg")
     role                 Role      @default(USER)
     roleExplicitlyChosen Boolean   @default(false)
+    credits              Int       @default(0)
 	createdAt            DateTime  @default(now())
 
+    // Onboarding preferences
+    onboardingCompleted  Boolean   @default(false)
+    selectedLanguage     String?   // russian, japanese, english
+    selectedLevel        String?   // beginner, intermediate, advanced
+    selectedGoal         String?   // travel, work, conversation, culture
+    selectedTime         String?   // casual, regular, serious, intensive
+    dailyMinutes         Int?      // 10, 20, 30, 60
+
+    // Password reset
+    resetToken           String?   @unique
+    resetTokenExpiry     DateTime?
 
     accounts              Account[]
+    creditTransactions    CreditTransaction[]
 
     @@index([email])
+}
+
+model CreditTransaction {
+    id            String            @id @default(cuid())
+    userId        String
+    type          TransactionType
+    status        TransactionStatus @default(PENDING)
+    amount        Int               // Credit amount
+    price         Float?            // Price in currency (for purchases)
+    currency      String?           @default("NPR")
+    description   String?
+    paymentMethod String?           // khalti, stripe, etc.
+    paymentId     String?           // Payment gateway transaction ID
+    metadata      Json?             // Additional data
+    createdAt     DateTime          @default(now())
+    updatedAt     DateTime          @updatedAt
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([userId])
+    @@index([type])
+    @@index([status])
 }
 
 model Account {
