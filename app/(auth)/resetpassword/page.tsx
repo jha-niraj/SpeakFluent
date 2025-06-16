@@ -1,46 +1,46 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { useSearchParams, useRouter } from "next/navigation"
-import Link from "next/link"
+import { useState, useEffect, Suspense } from "react"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowLeft, Eye, EyeOff, CheckCircle, AlertCircle, Shield } from "lucide-react"
-import { validateResetToken, resetPassword } from "@/actions/auth.action"
+import { Eye, EyeOff, CheckCircle, AlertCircle, Shield, ArrowLeft } from "lucide-react"
 import { toast } from "sonner"
+import { resetPassword, validateResetToken } from "@/actions/auth.action"
+import { useSearchParams } from "next/navigation"
+import Link from "next/link"
 
-export default function ResetPasswordPage() {
+function ResetPasswordPage() {
     const searchParams = useSearchParams()
-    const router = useRouter()
-
-    const [token, setToken] = useState<string | null>(null)
-    const [newPassword, setNewPassword] = useState("")
-    const [confirmPassword, setConfirmPassword] = useState("")
-    const [showNewPassword, setShowNewPassword] = useState(false)
+    const token = searchParams.get('token')
+    
+    const [formData, setFormData] = useState({
+        password: "",
+        confirmPassword: ""
+    })
+    const [showPassword, setShowPassword] = useState(false)
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
     const [isSubmitting, setIsSubmitting] = useState(false)
-    const [isValidToken, setIsValidToken] = useState<boolean | null>(null)
-    const [isSuccess, setIsSuccess] = useState(false)
+    const [isTokenValid, setIsTokenValid] = useState<boolean | null>(null)
+    const [isPasswordReset, setIsPasswordReset] = useState(false)
 
     useEffect(() => {
         const tokenParam = searchParams.get('token')
         if (tokenParam) {
-            setToken(tokenParam)
             validateToken(tokenParam)
         } else {
-            setIsValidToken(false)
+            setIsTokenValid(false)
         }
     }, [searchParams])
 
     const validateToken = async (tokenValue: string) => {
         try {
             const result = await validateResetToken(tokenValue)
-            setIsValidToken(result.valid)
+            setIsTokenValid(result.valid)
         } catch (error) {
             console.error('Error validating token:', error)
-            setIsValidToken(false)
+            setIsTokenValid(false)
         }
     }
 
@@ -52,12 +52,12 @@ export default function ResetPasswordPage() {
             return
         }
 
-        if (newPassword.length < 8) {
+        if (formData.password.length < 8) {
             toast.error("Password must be at least 8 characters long")
             return
         }
 
-        if (newPassword !== confirmPassword) {
+        if (formData.password !== formData.confirmPassword) {
             toast.error("Passwords do not match")
             return
         }
@@ -65,10 +65,10 @@ export default function ResetPasswordPage() {
         setIsSubmitting(true)
 
         try {
-            const result = await resetPassword(token, newPassword)
+            const result = await resetPassword(token, formData.password)
 
             if (result.success) {
-                setIsSuccess(true)
+                setIsPasswordReset(true)
                 toast.success(result.message)
             } else {
                 toast.error(result.error || "Failed to reset password")
@@ -81,7 +81,7 @@ export default function ResetPasswordPage() {
         }
     }
 
-    if (isValidToken === null) {
+    if (isTokenValid === null) {
         return (
             <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-teal-50 to-emerald-50">
                 <div className="text-center">
@@ -92,7 +92,7 @@ export default function ResetPasswordPage() {
         )
     }
 
-    if (!isValidToken) {
+    if (!isTokenValid) {
         return (
             <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-teal-50 to-emerald-50 px-4 py-12 sm:px-6 lg:px-8">
                 <Card className="w-full max-w-md bg-white/90 backdrop-blur-sm shadow-xl border-0">
@@ -135,7 +135,7 @@ export default function ResetPasswordPage() {
         )
     }
 
-    if (isSuccess) {
+    if (isPasswordReset) {
         return (
             <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-teal-50 to-emerald-50 px-4 py-12 sm:px-6 lg:px-8">
                 <Card className="w-full max-w-md bg-white/90 backdrop-blur-sm shadow-xl border-0">
@@ -204,10 +204,10 @@ export default function ResetPasswordPage() {
                             <div className="relative">
                                 <Input
                                     id="password"
-                                    type={showNewPassword ? "text" : "password"}
+                                    type={showPassword ? "text" : "password"}
                                     placeholder="Enter your new password"
-                                    value={newPassword}
-                                    onChange={(e) => setNewPassword(e.target.value)}
+                                    value={formData.password}
+                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                                     required
                                     className="rounded-lg border-gray-200 focus:border-teal-300 focus:ring-teal-200 pr-10"
                                     disabled={isSubmitting}
@@ -217,10 +217,10 @@ export default function ResetPasswordPage() {
                                     variant="ghost"
                                     size="sm"
                                     className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                                    onClick={() => setShowNewPassword(!showNewPassword)}
+                                    onClick={() => setShowPassword(!showPassword)}
                                 >
                                     {
-                                        showNewPassword ? (
+                                        showPassword ? (
                                             <EyeOff className="h-4 w-4 text-gray-400" />
                                         ) : (
                                             <Eye className="h-4 w-4 text-gray-400" />
@@ -238,8 +238,8 @@ export default function ResetPasswordPage() {
                                     id="confirm-password"
                                     type={showConfirmPassword ? "text" : "password"}
                                     placeholder="Confirm your new password"
-                                    value={confirmPassword}
-                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    value={formData.confirmPassword}
+                                    onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                                     required
                                     className="rounded-lg border-gray-200 focus:border-teal-300 focus:ring-teal-200 pr-10"
                                     disabled={isSubmitting}
@@ -264,10 +264,10 @@ export default function ResetPasswordPage() {
                         <div className="text-xs text-gray-500 space-y-1">
                             <p>Password requirements:</p>
                             <ul className="list-disc list-inside space-y-1 ml-2">
-                                <li className={newPassword.length >= 8 ? "text-green-600" : ""}>
+                                <li className={formData.password.length >= 8 ? "text-green-600" : ""}>
                                     At least 8 characters long
                                 </li>
-                                <li className={newPassword !== confirmPassword && confirmPassword ? "text-red-600" : confirmPassword && newPassword === confirmPassword ? "text-green-600" : ""}>
+                                <li className={formData.password !== formData.confirmPassword && formData.confirmPassword ? "text-red-600" : formData.confirmPassword && formData.password === formData.confirmPassword ? "text-green-600" : ""}>
                                     Both passwords must match
                                 </li>
                             </ul>
@@ -277,7 +277,7 @@ export default function ResetPasswordPage() {
                         <Button
                             type="submit"
                             className="w-full bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white rounded-lg"
-                            disabled={isSubmitting || newPassword.length < 8 || newPassword !== confirmPassword}
+                            disabled={isSubmitting || formData.password.length < 8 || formData.password !== formData.confirmPassword}
                         >
                             {isSubmitting ? "Resetting..." : "Reset password"}
                         </Button>
@@ -293,3 +293,13 @@ export default function ResetPasswordPage() {
         </div>
     )
 };
+
+export default function ResetPassword() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <div>
+                <ResetPasswordPage />
+            </div>
+        </Suspense>
+    );
+}

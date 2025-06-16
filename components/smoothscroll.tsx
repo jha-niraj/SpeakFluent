@@ -93,7 +93,7 @@ function SmoothScroll({ children }: LenisProps) {
                 smoothWheel: true,
                 wheelMultiplier: 1.2,
                 autoResize: true,
-                // @ts-expect-error
+                // @ts-expect-error - OverlayScrollbars types may not be fully compatible with React types
                 smoothTouch: false,
             }}
         >

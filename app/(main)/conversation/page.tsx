@@ -17,8 +17,6 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { startConversationSession, endConversationSession } from '@/actions/conversation.action'
 import { getUserCredits } from '@/actions/credits.action'
 import { toast } from 'sonner'
-import { useRouter } from 'next/navigation'
-import { useSession } from 'next-auth/react'
 import { useConversation } from '@elevenlabs/react'
 import { Label } from '@/components/ui/label'
 
@@ -56,8 +54,6 @@ const ConversationPage = () => {
     const [conversationVolume, setConversationVolume] = useState(0.8)
     const [hasPermission, setHasPermission] = useState(false)
 
-    const { data: session } = useSession()
-    const router = useRouter()
     const intervalRef = useRef<NodeJS.Timeout | null>(null)
 
     const conversation = useConversation({
@@ -432,12 +428,6 @@ const ConversationPage = () => {
                                                 <Clock className="w-4 h-4" />
                                                 <span>{formatDuration(conversationState.duration)}</span>
                                             </div>
-                                            <Badge
-                                                variant={conversation.status === 'connected' ? "default" : "secondary"}
-                                                className={conversation.status === 'connected' ? "bg-green-500 animate-pulse" : ""}
-                                            >
-                                                {conversation.status === 'connected' ? "Connected" : "Connecting..."}
-                                            </Badge>
                                         </div>
                                     </div>
                                 </CardContent>

@@ -15,8 +15,17 @@ import { createCreditPurchase, completeCreditPurchase } from '@/actions/credits.
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 
+interface CreditPackage {
+    id: string;
+    credits: number;
+    price: number;
+    savings?: string;
+    popular?: boolean;
+    description: string;
+}
+
 const BuyCredits = () => {
-    const [selectedPackage, setSelectedPackage] = useState<any>(null)
+    const [selectedPackage, setSelectedPackage] = useState<CreditPackage | null>(null)
     const [customAmount, setCustomAmount] = useState('')
     const [showPaymentDialog, setShowPaymentDialog] = useState(false)
     const [isProcessing, setIsProcessing] = useState(false)
@@ -100,7 +109,7 @@ const BuyCredits = () => {
         }
     ]
 
-    const handlePackageSelect = (pkg: any) => {
+    const handlePackageSelect = (pkg: CreditPackage) => {
         setSelectedPackage(pkg)
         setShowPaymentDialog(true)
     }
@@ -409,7 +418,9 @@ const BuyCredits = () => {
                                 </div>
                                 <div className="flex justify-between">
                                     <span>Sessions:</span>
-                                    <span className="font-semibold">{selectedPackage?.sessions || Math.floor(selectedPackage?.credits / 10) + ' sessions'}</span>
+                                    <span className="font-semibold">
+                                        {selectedPackage ? Math.floor(selectedPackage.credits / 10) + ' sessions' : '0 sessions'}
+                                    </span>
                                 </div>
                                 <div className="flex justify-between font-bold pt-3 border-t text-lg">
                                     <span>Total:</span>

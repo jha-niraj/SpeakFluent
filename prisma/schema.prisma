@@ -104,6 +104,8 @@ model User {
     moduleProgress       ModuleProgress[]
     quizAttempts         QuizAttempt[]
     userStats            UserStats?
+    milestones           UserMilestone[]
+    achievements         UserAchievement[]
 
     @@index([email])
 }
@@ -294,4 +296,41 @@ model UserStats {
     user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     @@index([userId])
+}
+
+model UserMilestone {
+    id            String   @id @default(cuid())
+    userId        String
+    milestoneType String   // e.g., "FIRST_CONVERSATION", "WEEK_STREAK", "MODULE_COMPLETE"
+    language      String?
+    milestone     String   // Description of the milestone
+    creditsAwarded Int     @default(0)
+    achieved      Boolean  @default(false)
+    achievedAt    DateTime?
+    metadata      Json?    // Additional data about the milestone
+    createdAt     DateTime @default(now())
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@unique([userId, milestoneType, language])
+    @@index([userId])
+    @@index([milestoneType])
+}
+
+model UserAchievement {
+    id            String   @id @default(cuid())
+    userId        String
+    achievementType String // e.g., "CONVERSATION_MASTER", "STREAK_CHAMPION", "FOUNDATION_GRADUATE"
+    title         String
+    description   String
+    badgeIcon     String?
+    badgeColor    String?
+    creditsAwarded Int    @default(0)
+    unlockedAt    DateTime
+    createdAt     DateTime @default(now())
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([userId])
+    @@index([achievementType])
 }

@@ -17,7 +17,8 @@ import Link from "next/link"
 import { fetchCredits } from "@/actions/credits.action"
 
 const MainNavbar = ({ isCollapsed }: { isCollapsed: boolean }) => {
-    const { data: session, status } = useSession()
+    const { data: session, status } = useSession();
+    console.log(session);
     const { theme, setTheme } = useTheme()
     const [scrolled, setScrolled] = useState(false)
     const pathname = usePathname()
@@ -79,11 +80,13 @@ const MainNavbar = ({ isCollapsed }: { isCollapsed: boolean }) => {
         try {
             await signOut();
             toast("Logged out successfully")
-            router.push("/auth/signin")
+            router.push("/signin")
         } catch (error) {
             console.error("Sign out error:", error)
         }
     }
+
+    console.log(session?.user?.image);
 
     return (
         <nav
@@ -153,12 +156,14 @@ const MainNavbar = ({ isCollapsed }: { isCollapsed: boolean }) => {
                                     <DropdownMenuTrigger asChild>
                                         <Button variant="ghost" className="relative h-8 w-8 rounded-full p-0">
                                             <Avatar className="h-8 w-8 border-2 border-border/50">
-                                                <AvatarImage src={session.user.image || "/placeholder.svg"} alt={session.user.name || "User"} />
+                                                <AvatarImage src={session?.user?.image || "/placeholder.svg"} alt={session?.user?.name || "User"} />
                                                 <AvatarFallback className="bg-gradient-to-r from-teal-500 to-emerald-500 text-white text-xs font-bold">
-                                                    {session.user.name
-                                                        ?.split(" ")
-                                                        .map((n: string) => n[0])
-                                                        .join("") || "U"}
+                                                    {
+                                                        session.user.name
+                                                            ?.split(" ")
+                                                            .map((n: string) => n[0])
+                                                            .join("") || "U"
+                                                    }
                                                 </AvatarFallback>
                                             </Avatar>
                                             <motion.div
@@ -184,17 +189,19 @@ const MainNavbar = ({ isCollapsed }: { isCollapsed: boolean }) => {
                                             className="cursor-pointer md:hidden"
                                             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
                                         >
-                                            {theme === "dark" ? (
-                                                <>
-                                                    <Sun className="mr-2 h-4 w-4" />
-                                                    <span>Light Mode</span>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <Moon className="mr-2 h-4 w-4" />
-                                                    <span>Dark Mode</span>
-                                                </>
-                                            )}
+                                            {
+                                                theme === "dark" ? (
+                                                    <>
+                                                        <Sun className="mr-2 h-4 w-4" />
+                                                        <span>Light Mode</span>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Moon className="mr-2 h-4 w-4" />
+                                                        <span>Dark Mode</span>
+                                                    </>
+                                                )
+                                            }
                                         </DropdownMenuItem>
                                         <DropdownMenuSeparator className="md:hidden" />
                                         <DropdownMenuItem className="cursor-pointer" onClick={() => router.push("/profile")}>
@@ -213,8 +220,7 @@ const MainNavbar = ({ isCollapsed }: { isCollapsed: boolean }) => {
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                             ) : (
-                                /* Sign In Button */
-                                <Link href="/auth/signin">
+                                <Link href="/signin">
                                     <Button
                                         className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:shadow-lg hover:scale-105 transition-all duration-200"
                                         size="sm"
@@ -223,7 +229,8 @@ const MainNavbar = ({ isCollapsed }: { isCollapsed: boolean }) => {
                                         Sign In
                                     </Button>
                                 </Link>
-                            )}
+                            )
+                        }
                     </div>
                 </div>
             </div>

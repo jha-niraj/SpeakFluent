@@ -2,6 +2,7 @@
 
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
+import { SelectedLevel } from '@prisma/client'
 import { revalidatePath } from 'next/cache'
 
 interface OnboardingData {
@@ -34,7 +35,7 @@ export async function saveOnboardingData(data: OnboardingData) {
             data: {
                 onboardingCompleted: true,
                 selectedLanguage: data.selectedLanguage,
-                selectedLevel: data.selectedLevel,
+                selectedLevel: data.selectedLevel as SelectedLevel,
                 selectedGoal: data.selectedGoal,
                 selectedTime: data.selectedTime,
                 dailyMinutes: dailyMinutes

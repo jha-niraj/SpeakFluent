@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { usePathname, useRouter } from "next/navigation"
-import { LogOut, ChevronRight } from "lucide-react"
+import { LogOut, ChevronRight, UserPlus } from "lucide-react"
 import Link from "next/link"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { toast } from "sonner"
@@ -42,7 +42,7 @@ const Sidebar = ({ routes = [], isCollapsed, toggleSidebar }: SidebarProps) => {
     const handleSignOut = async () => {
         try {
             await signOut();
-            router.push("/auth/signin")
+            router.push("/signin")
         } catch (error) {
             console.error("Failed to sign out", error)
             toast.error("Failed to sign out")
@@ -51,6 +51,10 @@ const Sidebar = ({ routes = [], isCollapsed, toggleSidebar }: SidebarProps) => {
 
     const handleNavigation = (path: string) => {
         router.push(`/${path}`)
+    }
+
+    const handleSignIn = () => {
+        router.push("/signin")
     }
 
     return (
@@ -63,7 +67,7 @@ const Sidebar = ({ routes = [], isCollapsed, toggleSidebar }: SidebarProps) => {
                 <div className="flex flex-col h-full relative">
                     {/* Header */}
                     <div className="flex items-center justify-center p-4 h-[80px] border-b border-border/20">
-                        <Link href="/dashboard" className="flex gap-2 items-center justify-center group cursor-pointer">
+                        <Link href={session ? "/dashboard" : "/"} className="flex gap-2 items-center justify-center group cursor-pointer">
                             <Image
                                 src="/mainlogo.png"
                                 alt="SpeakFluent"
@@ -93,74 +97,120 @@ const Sidebar = ({ routes = [], isCollapsed, toggleSidebar }: SidebarProps) => {
 
                     {/* Navigation */}
                     <div className="flex-grow overflow-y-auto py-6">
-                        <div className={`space-y-2 ${isCollapsed ? "px-2" : "px-4"}`}>
-                            {displayRoutes.map((route, index) => {
-                                const isActive = isActiveRoute(route.path)
+                        {session ? (
+                            // Show routes for authenticated users
+                            <div className={`space-y-2 ${isCollapsed ? "px-2" : "px-4"}`}>
+                                {displayRoutes.map((route, index) => {
+                                    const isActive = isActiveRoute(route.path)
 
-                                return (
-                                    <Tooltip key={index}>
-                                        <TooltipTrigger asChild>
-                                            <motion.button
-                                                onClick={() => handleNavigation(route.path)}
-                                                className="block w-full cursor-pointer"
-                                                whileHover={{ x: isCollapsed ? 0 : 4 }}
-                                                whileTap={{ scale: 0.98 }}
-                                                transition={{ duration: 0.1 }}
-                                            >
-                                                <div
-                                                    className={`
-                                                    ${isActive
-                                                            ? "bg-gradient-to-r from-teal-500 via-emerald-600 to-green-500 text-white shadow-xl shadow-teal-500/25"
-                                                            : "hover:bg-white/60 dark:hover:bg-slate-800/60 text-foreground/80 hover:text-foreground"
-                                                        } 
-                                                    flex items-center rounded-2xl transition-all duration-300 cursor-pointer group relative overflow-hidden backdrop-blur-sm
-                                                    ${isCollapsed ? "justify-center px-3 py-4" : "px-4 py-3.5"}
-                                                `}
+                                    return (
+                                        <Tooltip key={index}>
+                                            <TooltipTrigger asChild>
+                                                <motion.button
+                                                    onClick={() => handleNavigation(route.path)}
+                                                    className="block w-full cursor-pointer"
+                                                    whileHover={{ x: isCollapsed ? 0 : 4 }}
+                                                    whileTap={{ scale: 0.98 }}
+                                                    transition={{ duration: 0.1 }}
                                                 >
-                                                    {isActive && (
-                                                        <motion.div
-                                                            layoutId="activeBackground"
-                                                            className="absolute inset-0 bg-gradient-to-r from-teal-500 via-emerald-600 to-green-500 rounded-2xl"
-                                                            transition={{ duration: 0.2, ease: "easeInOut" }}
-                                                        />
-                                                    )}
-                                                    {isCollapsed ? (
-                                                        <div className="relative z-10 flex items-center justify-center">
-                                                            <div
-                                                                className={`transition-all duration-300 ${isActive ? "scale-110" : "group-hover:scale-110"}`}
-                                                            >
-                                                                {route.icon}
+                                                    <div
+                                                        className={`
+                                                        ${isActive
+                                                                ? "bg-gradient-to-r from-teal-500 via-emerald-600 to-green-500 text-white shadow-xl shadow-teal-500/25"
+                                                                : "hover:bg-white/60 dark:hover:bg-slate-800/60 text-foreground/80 hover:text-foreground"
+                                                            } 
+                                                        flex items-center rounded-2xl transition-all duration-300 cursor-pointer group relative overflow-hidden backdrop-blur-sm
+                                                        ${isCollapsed ? "justify-center px-3 py-4" : "px-4 py-3.5"}
+                                                    `}
+                                                    >
+                                                        {isActive && (
+                                                            <motion.div
+                                                                layoutId="activeBackground"
+                                                                className="absolute inset-0 bg-gradient-to-r from-teal-500 via-emerald-600 to-green-500 rounded-2xl"
+                                                                transition={{ duration: 0.2, ease: "easeInOut" }}
+                                                            />
+                                                        )}
+                                                        {isCollapsed ? (
+                                                            <div className="relative z-10 flex items-center justify-center">
+                                                                <div
+                                                                    className={`transition-all duration-300 ${isActive ? "scale-110" : "group-hover:scale-110"}`}
+                                                                >
+                                                                    {route.icon}
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    ) : (
-                                                        <div className="flex items-center gap-3 relative z-10 w-full">
-                                                            <div
-                                                                className={`transition-all duration-300 ${isActive ? "scale-110" : "group-hover:scale-105"} flex-shrink-0`}
-                                                            >
-                                                                {route.icon}
+                                                        ) : (
+                                                            <div className="flex items-center gap-3 relative z-10 w-full">
+                                                                <div
+                                                                    className={`transition-all duration-300 ${isActive ? "scale-110" : "group-hover:scale-105"} flex-shrink-0`}
+                                                                >
+                                                                    {route.icon}
+                                                                </div>
+                                                                <motion.span
+                                                                    initial={{ opacity: 0, x: -10 }}
+                                                                    animate={{ opacity: 1, x: 0 }}
+                                                                    transition={{ delay: index * 0.03 }}
+                                                                    className="text-sm font-medium truncate"
+                                                                >
+                                                                    {route.name}
+                                                                </motion.span>
                                                             </div>
-                                                            <motion.span
-                                                                initial={{ opacity: 0, x: -10 }}
-                                                                animate={{ opacity: 1, x: 0 }}
-                                                                transition={{ delay: index * 0.03 }}
-                                                                className="text-sm font-medium truncate"
-                                                            >
-                                                                {route.name}
-                                                            </motion.span>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </motion.button>
+                                                        )}
+                                                    </div>
+                                                </motion.button>
+                                            </TooltipTrigger>
+                                            {isCollapsed && (
+                                                <TooltipContent side="right">
+                                                    <p>{route.name}</p>
+                                                </TooltipContent>
+                                            )}
+                                        </Tooltip>
+                                    )
+                                })}
+                            </div>
+                        ) : (
+                            // Show sign in prompt for unauthenticated users
+                            <div className={`${isCollapsed ? "px-2" : "px-4"} text-center`}>
+                                {!isCollapsed && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ duration: 0.5 }}
+                                        className="bg-white/60 dark:bg-slate-800/60 rounded-2xl p-6 mb-4 backdrop-blur-sm border border-teal-100"
+                                    >
+                                        <div className="w-12 h-12 bg-gradient-to-r from-teal-500 to-emerald-600 rounded-xl flex items-center justify-center mx-auto mb-4">
+                                            <UserPlus className="w-6 h-6 text-white" />
+                                        </div>
+                                        <h3 className="text-lg font-bold text-gray-800 mb-2">Join SpeakFluent</h3>
+                                        <p className="text-sm text-gray-600 mb-4 leading-relaxed">
+                                            Sign in to access all features including AI conversations, progress tracking, and personalized learning.
+                                        </p>
+                                        <Button
+                                            onClick={handleSignIn}
+                                            className="w-full bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white rounded-xl"
+                                        >
+                                            Sign In
+                                        </Button>
+                                    </motion.div>
+                                )}
+                                
+                                {isCollapsed && (
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <Button
+                                                onClick={handleSignIn}
+                                                size="sm"
+                                                className="w-10 h-10 p-0 bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white rounded-xl"
+                                            >
+                                                <UserPlus className="w-4 h-4" />
+                                            </Button>
                                         </TooltipTrigger>
-                                        {isCollapsed && (
-                                            <TooltipContent side="right">
-                                                <p>{route.name}</p>
-                                            </TooltipContent>
-                                        )}
+                                        <TooltipContent side="right">
+                                            <p>Sign In</p>
+                                        </TooltipContent>
                                     </Tooltip>
-                                )
-                            })}
-                        </div>
+                                )}
+                            </div>
+                        )}
                     </div>
 
                     {/* Toggle Button - Moved to middle */}

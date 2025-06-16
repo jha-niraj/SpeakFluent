@@ -73,6 +73,9 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         async jwt({ token, user }) {
             if (user) {
                 token.id = user.id!;
+                token.email = user.email!;
+                token.name = user.name!;
+                token.image = user.image!;
                 token.role = user.role;
             }
 
@@ -91,6 +94,9 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         async session({ session, token }) {
             if (session.user) {
                 session.user.id = token.id as string;
+                session.user.name = token.name as string;
+                session.user.email = token.email as string;
+                session.user.image = token.image as string;
                 session.user.role = token.role as Role
             }
             return session;
@@ -130,8 +136,9 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
                 return url;
             }
             
-            // Default redirect for successful sign-ins
-            return `${baseUrl}/onboarding`;
+            // For successful sign-ins, we'll let the client handle the redirect
+            // based on onboarding status to avoid server-side user lookups
+            return `${baseUrl}/dashboard`;
         },
     },
     pages: {

@@ -21,12 +21,37 @@ import { updateLanguagePreference } from '@/actions/foundations.action'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from 'sonner'
 
+interface ProfileData {
+    id: string;
+    name: string;
+    email: string;
+    image?: string | null;
+    role: string;
+    emailVerified: Date | null;
+    selectedLanguage?: string | null;
+    credits: number;
+    createdAt: Date;
+}
+
+interface TransactionData {
+    id: string;
+    type: string;
+    amount: number;
+    description?: string | null;
+    createdAt: Date;
+}
+
+interface ProfileUpdates {
+    name: string;
+    [key: string]: string;
+}
+
 const ProfilePage = () => {
     const { data: session, update } = useSession()
     const [activeTab, setActiveTab] = useState('profile')
     const [isEditing, setIsEditing] = useState(false)
-    const [profile, setProfile] = useState<any>(null)
-    const [transactions, setTransactions] = useState<any[]>([])
+    const [profile, setProfile] = useState<ProfileData | null>(null)
+    const [transactions, setTransactions] = useState<TransactionData[]>([])
     const [isLoading, setIsLoading] = useState(true)
 
     const [editName, setEditName] = useState('')
@@ -69,7 +94,7 @@ const ProfilePage = () => {
     const handleSaveProfile = async () => {
         setSaving(true)
         try {
-            const updates: any = { name: editName }
+            const updates: ProfileUpdates = { name: editName }
             
             if (editLanguage !== profile?.selectedLanguage) {
                 const languageResult = await updateLanguagePreference(editLanguage)
@@ -83,7 +108,7 @@ const ProfilePage = () => {
             const result = await updateProfile(updates)
 
             if (result.success) {
-                setProfile({ ...profile, name: editName, selectedLanguage: editLanguage })
+                setProfile({ ...profile, name: editName, selectedLanguage: editLanguage } as ProfileData)
                 await update({ name: editName })
                 setIsEditing(false)
                 toast.success('Profile updated successfully!')
@@ -207,7 +232,7 @@ const ProfilePage = () => {
                                         <div className="bg-gradient-to-r from-green-50 to-teal-50 px-6 py-4 rounded-2xl">
                                             <div className="flex items-center justify-between">
                                                 <span className="text-sm font-medium text-gray-700">Member Since</span>
-                                                <span className="text-lg font-bold text-green-600">{formatDate(profile?.createdAt)}</span>
+                                                <span className="text-lg font-bold text-green-600">{formatDate(profile?.createdAt?.toISOString() || '')}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -224,7 +249,7 @@ const ProfilePage = () => {
                                                                     {transaction.type === 'PURCHASE' ? 'Purchased' : 'Used'} {Math.abs(transaction.amount)} credits
                                                                 </span>
                                                                 <p className="text-xs text-gray-500">
-                                                                    {formatDate(transaction.createdAt)}
+                                                                    {formatDate(transaction.createdAt.toISOString())}
                                                                 </p>
                                                             </div>
                                                         </div>

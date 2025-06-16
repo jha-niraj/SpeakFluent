@@ -15,12 +15,11 @@ import {
     Mic, MessageSquare, Globe, Plus,
     Target, Flame, LogIn, Languages,
     Video, Shield, X, Trash2, ArrowRight, Users,
-    BookOpenText, TrendingUp,
-    Coins,
-    Star
+    BookOpenText, TrendingUp, Coins, Star
 } from 'lucide-react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import { getUserCredits } from '@/actions/credits.action';
 import { getUserWeeklyGoals, createWeeklyGoal, createMultipleGoals, toggleGoalCompletion, deleteWeeklyGoal, createPresetGoals } from '@/actions/dashboard.action';
 import { checkFeatureAccess } from '@/actions/foundations.action';
@@ -29,6 +28,25 @@ import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import SmoothScroll from '@/components/smoothscroll';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+
+interface DashboardStats {
+    speakingTime: {
+        weekly: number;
+    };
+    conversations: {
+        weekly: number;
+    };
+    learningStreak: number;
+}
+
+interface FeatureAccess {
+    hasAccess: boolean;
+    progress?: {
+        completed: number;
+        total: number;
+        percentage: number;
+    };
+}
 
 interface WeeklyGoalProps {
     id: string;
@@ -42,10 +60,11 @@ interface WeeklyGoalProps {
 
 const Dashboard = () => {
     const { data: session, status } = useSession();
+    const router = useRouter();
     const [credits, setCredits] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
     const [weeklyGoals, setWeeklyGoals] = useState<WeeklyGoalProps[]>([]);
-    const [dashboardStats, setDashboardStats] = useState<any>(null);
+    const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null);
 
     // Weekly Goals Dialog States
     const [showGoalsDialog, setShowGoalsDialog] = useState(false);
@@ -58,7 +77,29 @@ const Dashboard = () => {
 
     // Foundation Features States
     const [showMajorFeaturesDialog, setShowMajorFeaturesDialog] = useState(false);
-    const [featureAccess, setFeatureAccess] = useState<any>(null);
+    const [featureAccess, setFeatureAccess] = useState<FeatureAccess | null>(null);
+
+    // Check onboarding status
+    useEffect(() => {
+        const checkOnboardingStatus = async () => {
+            if (session?.user?.id && status === 'authenticated') {
+                try {
+                    const response = await fetch('/api/user/details');
+                    if (response.ok) {
+                        const userData = await response.json();
+                        if (!userData.onboardingCompleted) {
+                            router.push('/onboarding');
+                            return;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error checking onboarding status:', error);
+                }
+            }
+        };
+
+        checkOnboardingStatus();
+    }, [session, status, router]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -72,9 +113,15 @@ const Dashboard = () => {
                     ]);
 
                     setCredits(userCredits);
-                    setFeatureAccess(accessResult);
+                    
+                    if (accessResult.success && accessResult.hasAccess !== undefined) {
+                        setFeatureAccess({
+                            hasAccess: accessResult.hasAccess,
+                            progress: accessResult.progress
+                        });
+                    }
 
-                    if (dashboardData.success) {
+                    if (dashboardData.success && dashboardData.data) {
                         setDashboardStats(dashboardData.data);
                     }
 
@@ -409,21 +456,21 @@ const Dashboard = () => {
     const statsData = [
         {
             title: "Speaking Time",
-            value: dashboardStats ? `${dashboardStats.speakingTime.weekly} mins` : "0 mins",
+            value: dashboardStats?.speakingTime?.weekly ? `${dashboardStats.speakingTime.weekly} mins` : "0 mins",
             icon: Mic,
             description: "This week",
             color: "text-teal-600",
             bgColor: "bg-teal-50",
-            change: dashboardStats?.speakingTime.weekly > 0 ? "+15%" : "0%"
+            change: (dashboardStats?.speakingTime?.weekly || 0) > 0 ? "+15%" : "0%"
         },
         {
             title: "Conversations",
-            value: dashboardStats ? dashboardStats.conversations.weekly.toString() : "0",
+            value: dashboardStats?.conversations?.weekly?.toString() || "0",
             icon: MessageSquare,
             description: "This week",
             color: "text-emerald-600",
             bgColor: "bg-emerald-50",
-            change: dashboardStats?.conversations.weekly > 0 ? `+${dashboardStats.conversations.weekly}` : "0"
+            change: (dashboardStats?.conversations?.weekly || 0) > 0 ? `+${dashboardStats?.conversations?.weekly || 0}` : "0"
         },
         {
             title: "Credits",
@@ -436,12 +483,12 @@ const Dashboard = () => {
         },
         {
             title: "Learning Streak",
-            value: dashboardStats ? `${dashboardStats.learningStreak} days` : "0 days",
+            value: dashboardStats?.learningStreak ? `${dashboardStats.learningStreak} days` : "0 days",
             icon: Flame,
             description: "Current streak",
             color: "text-green-600",
             bgColor: "bg-green-50",
-            change: dashboardStats?.learningStreak > 0 ? `+${dashboardStats.learningStreak}` : "0"
+            change: (dashboardStats?.learningStreak || 0) > 0 ? `+${dashboardStats?.learningStreak || 0}` : "0"
         }
     ];
 

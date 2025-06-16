@@ -239,3 +239,15 @@ export async function getCreditTransactions() {
 
 	return transactions
 } 
+
+export async function addCredits(userId: string, amount: number, description: string) {
+	try {
+		const user = await prisma.user.findUnique({
+			where: { id: userId },
+			select: { credits: true }
+		})
+	} catch (error) {
+		console.error('Error adding credits:', error)
+		return { success: false, error: 'Failed to add credits' }
+	}
+}
