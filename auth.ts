@@ -37,6 +37,11 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
                         return null;
                     }
 
+                    // Check if email is verified
+                    if (!user.emailVerified) {
+                        throw new Error("Please verify your email before signing in");
+                    }
+
                     const isPasswordValid = await bcrypt.compare(
                         credentials.password as string, 
                         user.password
@@ -97,6 +102,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
                 });
 
                 if (existingUser) {
+                    // Update existing user to mark email as verified
                     await prisma.user.update({
                         where: {
                             email: profile?.email as string
@@ -105,6 +111,9 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
                             emailVerified: new Date()
                         }
                     });
+                } else {
+                    // For new Google users, they'll be created by the adapter
+                    // and we'll handle onboarding in the redirect callback
                 }
 
                 return true;
@@ -112,13 +121,21 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
             return true;
         },
         async redirect({ url, baseUrl }) {
-            if (url.startsWith("/")) return `${baseUrl}${url}`
-            if (new URL(url).origin === baseUrl) return url
-            return baseUrl
+            // Handle sign-in redirects
+            if (url.startsWith("/") && !url.startsWith("/auth/signin") && !url.startsWith("/auth/signup")) {
+                return `${baseUrl}${url}`;
+            }
+            
+            if (new URL(url).origin === baseUrl) {
+                return url;
+            }
+            
+            // Default redirect for successful sign-ins
+            return `${baseUrl}/onboarding`;
         },
     },
     pages: {
-        signIn: '/signin',
+        signIn: '/auth/signin',
         error: '/error',
         signOut: '/'
     },

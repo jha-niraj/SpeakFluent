@@ -85,7 +85,7 @@ export async function createMultipleGoals(goals: CreateGoalData[]) {
         }
 
         const createdGoals = await Promise.all(
-            goals.map(goalData => 
+            goals.map(goalData =>
                 prisma.weeklyGoal.create({
                     data: {
                         userId: session.user.id,
@@ -269,5 +269,219 @@ export async function updatePresetGoalProgress(userId: string, category: string,
     } catch (error) {
         console.error('Error updating preset goal progress:', error)
         return { success: false, error: 'Failed to update progress' }
+    }
+}
+
+// Get or create user stats
+export async function getUserStats() {
+    try {
+        const session = await auth()
+        if (!session?.user?.id) {
+            return { success: false, error: 'Not authenticated' }
+        }
+
+        let userStats = await prisma.userStats.findUnique({
+            where: { userId: session.user.id }
+        })
+
+        // Create stats if they don't exist
+        if (!userStats) {
+            userStats = await prisma.userStats.create({
+                data: {
+                    userId: session.user.id,
+                    weekStartDate: getWeekStartDate()
+                }
+            })
+        }
+
+        // Check if we need to reset weekly stats
+        const weekStart = getWeekStartDate()
+        if (userStats.weekStartDate < weekStart) {
+            userStats = await prisma.userStats.update({
+                where: { userId: session.user.id },
+                data: {
+                    weeklyTalkingTime: 0,
+                    weeklyConversations: 0,
+                    weekStartDate: weekStart
+                }
+            })
+        }
+
+        return {
+            success: true,
+            stats: userStats
+        }
+    } catch (error) {
+        console.error('Error fetching user stats:', error)
+        return { success: false, error: 'Failed to fetch stats' }
+    }
+}
+
+// Update conversation stats
+export async function updateConversationStats(speakingTimeMinutes: number) {
+    try {
+        const session = await auth()
+        if (!session?.user?.id) {
+            return { success: false, error: 'Not authenticated' }
+        }
+
+        const weekStart = getWeekStartDate()
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+
+        // Get or create user stats
+        let userStats = await prisma.userStats.findUnique({
+            where: { userId: session.user.id }
+        })
+
+        if (!userStats) {
+            userStats = await prisma.userStats.create({
+                data: {
+                    userId: session.user.id,
+                    weekStartDate: weekStart
+                }
+            })
+        }
+
+        // Update stats
+        const updatedStats = await prisma.userStats.update({
+            where: { userId: session.user.id },
+            data: {
+                totalSpeakingTime: { increment: speakingTimeMinutes },
+                weeklyTalkingTime: { increment: speakingTimeMinutes },
+                totalConversations: { increment: 1 },
+                weeklyConversations: { increment: 1 },
+                lastActivityDate: new Date()
+            }
+        })
+
+        // Update streak
+        await updateLearningStreak(session.user.id)
+
+        revalidatePath('/dashboard')
+        return { success: true, stats: updatedStats }
+    } catch (error) {
+        console.error('Error updating conversation stats:', error)
+        return { success: false, error: 'Failed to update stats' }
+    }
+}
+
+// Update learning streak
+export async function updateLearningStreak(userId: string) {
+    try {
+        const userStats = await prisma.userStats.findUnique({
+            where: { userId }
+        })
+
+        if (!userStats) return
+
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+
+        const lastActivity = userStats.lastActivityDate
+        if (!lastActivity) {
+            // First activity
+            await prisma.userStats.update({
+                where: { userId },
+                data: {
+                    currentStreak: 1,
+                    longestStreak: Math.max(1, userStats.longestStreak),
+                    lastActivityDate: new Date()
+                }
+            })
+            return
+        }
+
+        const lastActivityDate = new Date(lastActivity)
+        lastActivityDate.setHours(0, 0, 0, 0)
+
+        const daysDiff = Math.floor((today.getTime() - lastActivityDate.getTime()) / (1000 * 60 * 60 * 24))
+
+        let newStreak = userStats.currentStreak
+
+        if (daysDiff === 0) {
+            // Same day, no change to streak
+            return
+        } else if (daysDiff === 1) {
+            // Consecutive day
+            newStreak = userStats.currentStreak + 1
+        } else {
+            // Streak broken
+            newStreak = 1
+        }
+
+        await prisma.userStats.update({
+            where: { userId },
+            data: {
+                currentStreak: newStreak,
+                longestStreak: Math.max(newStreak, userStats.longestStreak),
+                lastActivityDate: new Date()
+            }
+        })
+    } catch (error) {
+        console.error('Error updating learning streak:', error)
+    }
+}
+
+// Helper function to get the start of the current week (Monday)
+function getWeekStartDate(): Date {
+    const now = new Date()
+    const day = now.getDay()
+    const diff = now.getDate() - day + (day === 0 ? -6 : 1) // Adjust for Sunday being 0
+    const weekStart = new Date(now.setDate(diff))
+    weekStart.setHours(0, 0, 0, 0)
+    return weekStart
+}
+
+// Get dashboard overview data
+export async function getDashboardOverview() {
+    try {
+        const session = await auth()
+        if (!session?.user?.id) {
+            return { success: false, error: 'Not authenticated' }
+        }
+
+        const [user, userStats, conversationSessions, weeklyGoals] = await Promise.all([
+            prisma.user.findUnique({
+                where: { id: session.user.id },
+                select: { credits: true }
+            }),
+            getUserStats(),
+            prisma.conversationSession.findMany({
+                where: { userId: session.user.id },
+                select: { duration: true, createdAt: true }
+            }),
+            prisma.weeklyGoal.findMany({
+                where: { userId: session.user.id },
+                select: { completed: true }
+            })
+        ])
+
+        if (!userStats.success || !userStats.stats) {
+            return { success: false, error: 'Failed to fetch stats' }
+        }
+
+        const stats = userStats.stats
+
+        return {
+            success: true,
+            data: {
+                speakingTime: {
+                    weekly: stats.weeklyTalkingTime,
+                    total: stats.totalSpeakingTime
+                },
+                conversations: {
+                    weekly: stats.weeklyConversations,
+                    total: stats.totalConversations
+                },
+                credits: user?.credits || 0,
+                learningStreak: stats.currentStreak,
+                goalsCompleted: weeklyGoals.filter(goal => goal.completed).length,
+                totalGoals: weeklyGoals.length
+            }
+        }
+    } catch (error) {
+        console.error('Error fetching dashboard overview:', error)
+        return { success: false, error: 'Failed to fetch dashboard data' }
     }
 } 

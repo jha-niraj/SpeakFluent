@@ -67,6 +67,12 @@ enum FeatureAccessLevel {
     FULL_ACCESS
 }
 
+enum SelectedLevel {
+    BEGINNER
+    INTERMEDIATE
+    ADVANCED
+}
+
 model User {
     id                   String    @id @default(cuid())
     email                String    @unique
@@ -76,16 +82,16 @@ model User {
     image                String    @default("https://res.cloudinary.com/dhfuckcax/image/upload/v1739810646/krk8x7fzjukcfcoefrea.jpg")
     role                 Role      @default(USER)
     roleExplicitlyChosen Boolean   @default(false)
-    credits              Int       @default(300)
+    credits              Int       @default(0)
     createdAt            DateTime  @default(now())
 
     // Onboarding preferences
     onboardingCompleted Boolean @default(false)
-    selectedLanguage    String? // russian, japanese, english
-    selectedLevel       String? // beginner, intermediate, advanced
-    selectedGoal        String? // travel, work, conversation, culture
-    selectedTime        String? // casual, regular, serious, intensive
-    dailyMinutes        Int? // 10, 20, 30, 60
+    selectedLanguage    String?
+    selectedLevel       SelectedLevel?  @default(BEGINNER)
+    selectedGoal        String?
+    selectedTime        String?
+    dailyMinutes        Int?
 
     // Password reset
     resetToken       String?   @unique
@@ -97,6 +103,7 @@ model User {
     weeklyGoals          WeeklyGoal[]
     moduleProgress       ModuleProgress[]
     quizAttempts         QuizAttempt[]
+    userStats            UserStats?
 
     @@index([email])
 }
@@ -106,13 +113,13 @@ model CreditTransaction {
     userId        String
     type          TransactionType
     status        TransactionStatus @default(PENDING)
-    amount        Int // Credit amount
-    price         Float? // Price in currency (for purchases)
+    amount        Int
+    price         Float?
     currency      String?           @default("USD")
     description   String?
-    paymentMethod String? // khalti, stripe, etc.
-    paymentId     String? // Payment gateway transaction ID
-    metadata      Json? // Additional data
+    paymentMethod String?
+    paymentId     String?
+    metadata      Json?
     createdAt     DateTime          @default(now())
     updatedAt     DateTime          @updatedAt
 
@@ -149,15 +156,15 @@ model Account {
 model ConversationSession {
     id          String             @id @default(cuid())
     userId      String
-    agentId     String // ElevenLabs agent ID
-    sessionId   String? // ElevenLabs session ID
+    agentId     String
+    sessionId   String?
     status      ConversationStatus @default(ACTIVE)
     language    String             @default("english")
     topic       String?
-    duration    Int? // Duration in seconds
+    duration    Int?
     creditsUsed Int                @default(10)
-    quality     Float? // Session quality rating
-    feedback    String? // AI feedback
+    quality     Float?
+    feedback    String?
     createdAt   DateTime           @default(now())
     updatedAt   DateTime           @updatedAt
 
@@ -173,7 +180,7 @@ model WeeklyGoal {
     title       String
     description String?
     type        GoalType  @default(CUSTOM)
-    category    String // conversations, pronunciation, streak, custom
+    category    String
     completed   Boolean   @default(false)
     completedAt DateTime?
     createdAt   DateTime  @default(now())
@@ -189,13 +196,13 @@ model WeeklyGoal {
 model FoundationModule {
     id           String     @id @default(cuid())
     moduleType   ModuleType
-    language     String // russian, japanese, korean, etc.
+    language     String
     title        String
     description  String
-    content      Json // Module content structure
-    orderIndex   Int // Order in which modules should be completed
-    requiredScore Int @default(75) // Minimum score to pass
-    creditsReward Int @default(50) // Credits awarded upon completion
+    content      Json
+    orderIndex   Int
+    requiredScore Int @default(75)
+    creditsReward Int @default(50)
     isActive     Boolean    @default(true)
     createdAt    DateTime   @default(now())
     updatedAt    DateTime   @updatedAt
@@ -215,9 +222,9 @@ model ModuleProgress {
     language         String
     status           ModuleStatus @default(LOCKED)
     progressPercent  Int          @default(0)
-    currentSection   String? // Current section within module
-    timeSpent        Int          @default(0) // Time spent in minutes
-    bestScore        Int? // Best quiz score achieved
+    currentSection   String?
+    timeSpent        Int          @default(0)
+    bestScore        Int?
     completedAt      DateTime?
     lastAccessedAt   DateTime?
     createdAt        DateTime     @default(now())
@@ -238,11 +245,11 @@ model QuizAttempt {
     moduleId    String
     language    String
     quizType    QuizType
-    score       Int // Score achieved (0-100)
+    score       Int
     totalQuestions Int
     correctAnswers Int
-    timeSpent   Int // Time spent in seconds
-    answers     Json // User's answers and correct answers
+    timeSpent   Int
+    answers     Json
     passed      Boolean  @default(false)
     createdAt   DateTime @default(now())
 
@@ -259,7 +266,7 @@ model UserFeatureAccess {
     id          String             @id @default(cuid())
     userId      String
     language    String
-    featureName String // conversation_ai, advanced_chat, etc.
+    featureName String
     accessLevel FeatureAccessLevel
     unlockedAt  DateTime?
     createdAt   DateTime           @default(now())
@@ -268,4 +275,23 @@ model UserFeatureAccess {
     @@unique([userId, language, featureName])
     @@index([userId])
     @@index([language])
+}
+
+model UserStats {
+    id               String   @id @default(cuid())
+    userId           String   @unique
+    totalSpeakingTime Int     @default(0)
+    weeklyTalkingTime Int     @default(0)
+    totalConversations Int    @default(0)
+    weeklyConversations Int   @default(0)
+    currentStreak    Int      @default(0)
+    longestStreak    Int      @default(0)
+    lastActivityDate DateTime?
+    weekStartDate    DateTime @default(now())
+    createdAt        DateTime @default(now())
+    updatedAt        DateTime @updatedAt
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([userId])
 }

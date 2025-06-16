@@ -1,21 +1,25 @@
 "use client"
 
-import type React from "react"
-
 import { useState, useRef, useEffect } from "react"
-import { motion } from "framer-motion"
+import { useRouter } from "next/navigation"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { AuthLayout } from "@/components/authlayout"
-import { ArrowRight, Mail, CheckCircle, RefreshCw } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { Globe, Mail, CheckCircle, RefreshCw, ArrowLeft } from "lucide-react"
+import { verifyOTP, resendOTP } from "@/actions/auth.action"
+import { signIn } from "next-auth/react"
+import { toast } from "sonner"
+import Link from "next/link"
 
-export default function Verify() {
+export default function VerifyPage() {
+    const router = useRouter()
+    const [email, setEmail] = useState("")
+    const [userName, setUserName] = useState("")
+    const [userPassword, setUserPassword] = useState("")
     const [isLoading, setIsLoading] = useState(false)
     const [isVerified, setIsVerified] = useState(false)
     const [timer, setTimer] = useState(30)
     const [canResend, setCanResend] = useState(false)
-    const router = useRouter()
 
     // Create refs for each input
     const inputRefs = [
@@ -28,6 +32,22 @@ export default function Verify() {
     ]
 
     const [code, setCode] = useState(["", "", "", "", "", ""])
+
+    useEffect(() => {
+        // Get user data from sessionStorage
+        const storedEmail = sessionStorage.getItem('verifyEmail')
+        const storedName = sessionStorage.getItem('verifyName')
+        const storedPassword = sessionStorage.getItem('verifyPassword')
+        
+        if (storedEmail && storedName && storedPassword) {
+            setEmail(storedEmail)
+            setUserName(storedName)
+            setUserPassword(storedPassword)
+        } else {
+            // If no user data found, redirect to signup
+            router.push('/signup')
+        }
+    }, [router])
 
     useEffect(() => {
         if (timer > 0 && !canResend) {
@@ -52,6 +72,15 @@ export default function Verify() {
         if (value && index < 5) {
             inputRefs[index + 1].current?.focus()
         }
+
+        // Auto-submit when all 6 digits are entered
+        if (value && index === 5) {
+            const fullCode = [...newCode]
+            fullCode[index] = value
+            if (fullCode.every(digit => digit !== "")) {
+                handleSubmit(null, fullCode.join(""))
+            }
+        }
     }
 
     const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -72,135 +101,205 @@ export default function Verify() {
 
             // Focus the last input
             inputRefs[5].current?.focus()
+
+            // Auto-submit
+            handleSubmit(null, pastedData)
         }
     }
 
-    const handleResend = () => {
+    const handleResend = async () => {
+        if (!email) return
+
         setCanResend(false)
         setTimer(30)
-        // Simulate resending code
+
+        try {
+            const result = await resendOTP(email)
+            if (result.success) {
+                toast.success(result.message)
+            } else {
+                toast.error(result.error || "Failed to resend code")
+                setCanResend(true)
+                setTimer(0)
+            }
+        } catch (error) {
+            console.error('Resend error:', error)
+            toast.error("Failed to resend code")
+            setCanResend(true)
+            setTimer(0)
+        }
     }
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
-        setIsLoading(true)
-
-        // Check if code is complete
-        if (code.join("").length !== 6) {
-            setIsLoading(false)
+    const handleSubmit = async (e: React.FormEvent | null, otpCode?: string) => {
+        if (e) e.preventDefault()
+        
+        const codeToVerify = otpCode || code.join("")
+        
+        if (codeToVerify.length !== 6) {
+            toast.error("Please enter the complete 6-digit code")
             return
         }
 
-        // Simulate verification
-        setTimeout(() => {
-            setIsLoading(false)
-            setIsVerified(true)
+        if (!email || !userName || !userPassword) {
+            toast.error("User data not found. Please try signing up again.")
+            router.push('/signup')
+            return
+        }
 
-            // Redirect to onboarding after showing success
-            setTimeout(() => {
-                router.push("/onboarding")
-            }, 2000)
-        }, 1500)
+        setIsLoading(true)
+
+        try {
+            const result = await verifyOTP(email, codeToVerify)
+            
+            if (result.success) {
+                setIsVerified(true)
+                toast.success(result.message)
+                
+                // Clear user data from sessionStorage
+                sessionStorage.removeItem('verifyEmail')
+                sessionStorage.removeItem('verifyName')
+                sessionStorage.removeItem('verifyPassword')
+                
+                // Sign in the user automatically
+                const signInResult = await signIn("credentials", {
+                    email: email,
+                    password: userPassword,
+                    redirect: false,
+                })
+
+                if (signInResult?.ok) {
+                    // Redirect to onboarding after successful sign in
+                    setTimeout(() => {
+                        router.push("/onboarding")
+                    }, 2000)
+                } else {
+                    toast.error("Failed to sign in automatically. Please sign in manually.")
+                    setTimeout(() => {
+                        router.push("/signin")
+                    }, 2000)
+                }
+            } else {
+                toast.error(result.error || "Invalid verification code")
+                // Clear the code inputs on error
+                setCode(["", "", "", "", "", ""])
+                inputRefs[0].current?.focus()
+            }
+        } catch (error) {
+            console.error('Verification error:', error)
+            toast.error("Failed to verify code")
+            setCode(["", "", "", "", "", ""])
+            inputRefs[0].current?.focus()
+        } finally {
+            setIsLoading(false)
+        }
     }
 
-    const floatingElements = [
-        <motion.div
-            key="floating-1"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.8 }}
-            className="absolute top-1/4 left-1/4 animate-float"
-        >
-            <div className="w-16 h-16 bg-gradient-to-br from-teal-400/20 to-emerald-500/20 rounded-full flex items-center justify-center">
-                <Mail className="w-8 h-8 text-teal-500" />
+    if (isVerified) {
+        return (
+            <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-teal-50 to-emerald-50 px-4 py-12 sm:px-6 lg:px-8">
+                <Card className="w-full max-w-md bg-white/90 backdrop-blur-sm shadow-xl border-0">
+                    <CardHeader className="space-y-4 text-center">
+                        <div className="mx-auto w-16 h-16 bg-gradient-to-br from-teal-500 to-emerald-600 rounded-full flex items-center justify-center">
+                            <CheckCircle className="w-8 h-8 text-white" />
+                        </div>
+                        <div>
+                            <CardTitle className="text-2xl font-bold tracking-tight text-gray-900">
+                                Welcome to SpeakFluent!
+                            </CardTitle>
+                            <CardDescription className="text-gray-600 mt-2">
+                                Email verified successfully. Signing you in...
+                            </CardDescription>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="text-center">
+                        <div className="p-4 bg-teal-50 rounded-lg border border-teal-200">
+                            <p className="text-sm text-teal-800">
+                                Your email has been verified and you're being signed in automatically. You'll be redirected to complete your onboarding in a moment.
+                            </p>
+                        </div>
+                    </CardContent>
+                </Card>
             </div>
-        </motion.div>,
-        <motion.div
-            key="floating-2"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4, duration: 0.8 }}
-            className="absolute top-1/3 right-1/4 animate-float-delayed"
-        >
-            <div className="w-12 h-12 bg-gradient-to-br from-emerald-400/20 to-teal-500/20 rounded-full flex items-center justify-center">
-                <Mail className="w-6 h-6 text-emerald-500" />
-            </div>
-        </motion.div>,
-        <motion.div
-            key="floating-3"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6, duration: 0.8 }}
-            className="absolute bottom-1/3 left-1/5 animate-float-slow"
-        >
-            <div className="w-10 h-10 bg-gradient-to-br from-teal-400/20 to-emerald-500/20 rounded-full flex items-center justify-center">
-                <Mail className="w-5 h-5 text-teal-500" />
-            </div>
-        </motion.div>,
-    ]
+        )
+    }
 
     return (
-        <AuthLayout
-            title={isVerified ? "Verification Successful" : "Verify your email"}
-            subtitle={isVerified ? "Redirecting you to complete your profile..." : "We've sent a 6-digit code to your email"}
-            floating={floatingElements}
-        >
-            {
-                isVerified ? (
-                    <div className="flex flex-col items-center justify-center py-8">
-                        <motion.div
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            transition={{ type: "spring", stiffness: 200, damping: 20 }}
-                            className="w-20 h-20 bg-gradient-to-br from-teal-500 to-emerald-600 rounded-full flex items-center justify-center mb-6"
-                        >
-                            <CheckCircle className="w-10 h-10 text-white" />
-                        </motion.div>
-                        <p className="text-teal-600 font-medium">Your email has been verified!</p>
-                    </div>
-                ) : (
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                        <div className="flex justify-center space-x-2">
-                            {
-                                code.map((digit, index) => (
-                                    <Input
-                                        key={index}
-                                        ref={inputRefs[index]}
-                                        type="text"
-                                        maxLength={1}
-                                        value={digit}
-                                        onChange={(e) => handleInputChange(index, e.target.value)}
-                                        onKeyDown={(e) => handleKeyDown(index, e)}
-                                        onPaste={index === 0 ? handlePaste : undefined}
-                                        className="w-12 h-12 text-center text-lg font-bold rounded-xl border-teal-200 focus:border-teal-300 focus:ring focus:ring-teal-200 focus:ring-opacity-50"
-                                    />
-                                ))
-                            }
+        <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-teal-50 to-emerald-50 px-4 py-12 sm:px-6 lg:px-8">
+            <div className="absolute top-0 left-0 w-64 h-64 bg-gradient-to-br from-teal-500/10 to-emerald-500/10 rounded-br-full"></div>
+            <div className="absolute bottom-0 right-0 w-64 h-64 bg-gradient-to-tl from-teal-500/10 to-emerald-500/10 rounded-tl-full"></div>
+            
+            <Card className="w-full max-w-md bg-white/90 backdrop-blur-sm shadow-xl border-0 relative">
+                <CardHeader className="space-y-4">
+                    <div className="flex items-center justify-center">
+                        <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
+                            <Mail className="w-6 h-6 text-white" />
                         </div>
-                        <Button
-                            type="submit"
-                            className="w-full bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white rounded-xl"
-                            disabled={isLoading || code.join("").length !== 6}
-                        >
-                            {isLoading ? "Verifying..." : "Verify Email"}
-                            {!isLoading && <ArrowRight className="ml-2 h-4 w-4" />}
-                        </Button>
-                        <div className="text-center">
-                            <p className="text-sm text-gray-600 mb-2">Didn&apos;t receive the code?</p>
+                    </div>
+                    <div className="text-center">
+                        <CardTitle className="text-2xl font-bold tracking-tight text-gray-900">
+                            Verify your email
+                        </CardTitle>
+                        <CardDescription className="text-gray-600 mt-2">
+                            We've sent a 6-digit code to <br />
+                            <span className="font-medium">{email}</span>
+                        </CardDescription>
+                    </div>
+                </CardHeader>
+
+                <form onSubmit={handleSubmit}>
+                    <CardContent className="space-y-6">
+                        <div className="flex justify-center space-x-2">
+                            {code.map((digit, index) => (
+                                <Input
+                                    key={index}
+                                    ref={inputRefs[index]}
+                                    type="text"
+                                    maxLength={1}
+                                    value={digit}
+                                    onChange={(e) => handleInputChange(index, e.target.value)}
+                                    onKeyDown={(e) => handleKeyDown(index, e)}
+                                    onPaste={index === 0 ? handlePaste : undefined}
+                                    className="w-12 h-12 text-center text-lg font-bold rounded-lg border-gray-200 focus:border-teal-300 focus:ring-teal-200"
+                                    disabled={isLoading}
+                                />
+                            ))}
+                        </div>
+
+                        <div className="text-center space-y-4">
+                            <p className="text-sm text-gray-600">
+                                Didn't receive the code?
+                            </p>
                             <Button
                                 type="button"
                                 variant="ghost"
                                 onClick={handleResend}
-                                disabled={!canResend}
-                                className="text-teal-600 hover:text-teal-700 hover:bg-teal-50 rounded-xl text-sm"
+                                disabled={!canResend || isLoading}
+                                className="text-teal-600 hover:text-teal-700 hover:bg-teal-50 rounded-lg text-sm"
                             >
-                                <RefreshCw className={`mr-2 h-3 w-3 ${!canResend && "animate-spin"}`} />
+                                <RefreshCw className={`mr-2 h-4 w-4 ${!canResend && "animate-spin"}`} />
                                 {canResend ? "Resend Code" : `Resend in ${timer}s`}
                             </Button>
                         </div>
-                    </form>
-                )
-            }
-        </AuthLayout>
+                    </CardContent>
+
+                    <CardFooter className="flex flex-col space-y-4">
+                        <Button
+                            type="submit"
+                            className="w-full bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white rounded-lg"
+                            disabled={isLoading || code.join("").length !== 6}
+                        >
+                            {isLoading ? "Verifying..." : "Verify Email"}
+                        </Button>
+
+                        <div className="text-center text-sm">
+                            <Link href="/signup" className="flex items-center justify-center text-gray-600 hover:text-teal-600 transition-colors">
+                                <ArrowLeft className="w-4 h-4 mr-2" />
+                                Back to sign up
+                            </Link>
+                        </div>
+                    </CardFooter>
+                </form>
+            </Card>
+        </div>
     )
 }

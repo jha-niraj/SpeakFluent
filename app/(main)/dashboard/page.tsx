@@ -22,6 +22,7 @@ import { useSession } from 'next-auth/react';
 import { getUserCredits } from '@/actions/credits.action';
 import { getUserWeeklyGoals, createWeeklyGoal, createMultipleGoals, toggleGoalCompletion, deleteWeeklyGoal, createPresetGoals } from '@/actions/dashboard.action';
 import { checkFeatureAccess } from '@/actions/foundations.action';
+import { getDashboardOverview } from '@/actions/dashboard.action';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 
@@ -40,6 +41,7 @@ const Dashboard = () => {
     const [credits, setCredits] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
     const [weeklyGoals, setWeeklyGoals] = useState<WeeklyGoalProps[]>([]);
+    const [dashboardStats, setDashboardStats] = useState<any>(null);
     
     // Weekly Goals Dialog States
     const [showGoalsDialog, setShowGoalsDialog] = useState(false);
@@ -58,14 +60,19 @@ const Dashboard = () => {
         const fetchData = async () => {
             if (session?.user?.id) {
                 try {
-                    const [userCredits, goalsResult, accessResult] = await Promise.all([
+                    const [userCredits, goalsResult, accessResult, dashboardData] = await Promise.all([
                         getUserCredits(),
                         getUserWeeklyGoals(),
-                        checkFeatureAccess()
+                        checkFeatureAccess(),
+                        getDashboardOverview()
                     ]);
                     
                     setCredits(userCredits);
                     setFeatureAccess(accessResult);
+                    
+                    if (dashboardData.success) {
+                        setDashboardStats(dashboardData.data);
+                    }
                     
                     if (goalsResult.success) {
                         setWeeklyGoals(goalsResult.goals || []);
@@ -159,7 +166,7 @@ const Dashboard = () => {
                     setNewGoalDescription('');
                     setNewGoalCategory('');
                     setShowGoalsDialog(false);
-                    toast.success('Goal created successfully! 🎯');
+                    toast.success('Goal created successfully! ��');
                 } else {
                     toast.error(result.error || 'Failed to create goal');
                 }
@@ -398,21 +405,21 @@ const Dashboard = () => {
     const statsData = [
         {
             title: "Speaking Time",
-            value: "47 mins",
+            value: dashboardStats ? `${dashboardStats.speakingTime.weekly} mins` : "0 mins",
             icon: Mic,
             description: "This week",
             color: "text-teal-600",
             bgColor: "bg-teal-50",
-            change: "+15%"
+            change: dashboardStats?.speakingTime.weekly > 0 ? "+15%" : "0%"
         },
         {
             title: "Conversations",
-            value: "12",
+            value: dashboardStats ? dashboardStats.conversations.weekly.toString() : "0",
             icon: MessageSquare,
-            description: "Completed",
+            description: "This week",
             color: "text-emerald-600",
             bgColor: "bg-emerald-50",
-            change: "+3"
+            change: dashboardStats?.conversations.weekly > 0 ? `+${dashboardStats.conversations.weekly}` : "0"
         },
         {
             title: "Credits",
@@ -425,12 +432,12 @@ const Dashboard = () => {
         },
         {
             title: "Learning Streak",
-            value: "7 days",
+            value: dashboardStats ? `${dashboardStats.learningStreak} days` : "0 days",
             icon: Flame,
             description: "Current streak",
             color: "text-green-600",
             bgColor: "bg-green-50",
-            change: "+1"
+            change: dashboardStats?.learningStreak > 0 ? `+${dashboardStats.learningStreak}` : "0"
         }
     ];
 

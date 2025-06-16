@@ -2,14 +2,12 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import {
-    MessageSquare,
-    Home,
-    CreditCard,
-    TrendingUp,
-    User
+    MessageSquare, Home, CreditCard, TrendingUp, User,
+    Baseline
 } from 'lucide-react';
 import Sidebar, { Route } from '@/components/mainsidebar';
 import MainNavbar from '@/components/mainnavbar';
+import { AuthRedirect } from '@/components/auth/AuthRedirect';
 
 interface LayoutProps {
     children: React.ReactNode
@@ -38,6 +36,12 @@ const Layout = ({ children }: LayoutProps) => {
             status: "active"
         },
         {
+            path: "foundations",
+            name: "Foundations",
+            icon: <Baseline className="h-5 w-5" />,
+            status: "active"
+        },
+        {
             path: "purchase",
             name: "Buy Credits",
             icon: <CreditCard className="h-5 w-5" />,
@@ -47,12 +51,6 @@ const Layout = ({ children }: LayoutProps) => {
             path: "progress",
             name: "Progress",
             icon: <TrendingUp className="h-5 w-5" />,
-            status: "active"
-        },
-        {
-            path: "profile",
-            name: "Profile",
-            icon: <User className="h-5 w-5" />,
             status: "active"
         }
     ], []);
@@ -73,21 +71,23 @@ const Layout = ({ children }: LayoutProps) => {
     };
 
     return (
-        <div className="flex h-screen bg-background">
-            <Sidebar
-                routes={routes}
-                isCollapsed={isCollapsed}
-                toggleSidebar={toggleSidebar}
-            />
-            <div className="flex flex-col flex-1">
-                <MainNavbar isCollapsed={isCollapsed} />
-                <main className={`bg-background transition-all duration-300 ${isCollapsed ? 'ml-[60px]' : 'ml-[200px]'} pt-16`}>
-                    <div className="h-full">
-                        {children}
-                    </div>
-                </main>
+        <AuthRedirect>
+            <div className="flex h-screen bg-background">
+                <Sidebar
+                    routes={routes}
+                    isCollapsed={isCollapsed}
+                    toggleSidebar={toggleSidebar}
+                />
+                <div className="flex flex-col flex-1">
+                    <MainNavbar isCollapsed={isCollapsed} />
+                    <main className={`bg-background transition-all duration-300 ${isCollapsed ? 'ml-[60px]' : 'ml-[200px]'} pt-16`}>
+                        <div className="h-full">
+                            {children}
+                        </div>
+                    </main>
+                </div>
             </div>
-        </div>
+        </AuthRedirect>
     );
 };
 
