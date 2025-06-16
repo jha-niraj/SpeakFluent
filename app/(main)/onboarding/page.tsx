@@ -6,8 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { 
-    Languages, Target, Clock, Globe, ArrowRight, CheckCircle, 
+import {
+    Languages, Target, Clock, Globe, ArrowRight, CheckCircle,
     BookOpenText, Mic, Users, Star
 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
@@ -121,7 +121,6 @@ const OnboardingPage = () => {
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-teal-50 to-emerald-50">
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {/* Header */}
                 <div className="text-center mb-12">
                     <motion.div
                         initial={{ opacity: 0, y: -20 }}
@@ -132,7 +131,6 @@ const OnboardingPage = () => {
                             <Languages className="w-8 h-8 text-white" />
                         </div>
                     </motion.div>
-                    
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -145,8 +143,6 @@ const OnboardingPage = () => {
                             Let's personalize your language learning journey in just a few steps
                         </p>
                     </motion.div>
-
-                    {/* Progress Bar */}
                     <div className="max-w-md mx-auto mb-8">
                         <div className="flex justify-between items-center mb-2">
                             <span className="text-sm text-gray-600">Step {currentStep} of {totalSteps}</span>
@@ -162,360 +158,359 @@ const OnboardingPage = () => {
                         </div>
                     </div>
                 </div>
-
-                {/* Onboarding Steps */}
                 <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-xl">
                     <CardContent className="p-8">
-                        {/* Step 1: Language Selection */}
-                        {currentStep === 1 && (
-                            <motion.div
-                                initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: -20 }}
-                            >
-                                <div className="text-center mb-8">
-                                    <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                                        Which language would you like to learn?
-                                    </h2>
-                                    <p className="text-gray-600">
-                                        Choose your target language to get started with personalized content
-                                    </p>
-                                </div>
-
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                    {[
-                                        { value: 'russian', label: 'Russian', flag: '🇷🇺', popular: true },
-                                        { value: 'japanese', label: 'Japanese', flag: '🇯🇵', popular: true },
-                                        { value: 'korean', label: 'Korean', flag: '🇰🇷', popular: true },
-                                        { value: 'spanish', label: 'Spanish', flag: '🇪🇸', popular: false },
-                                        { value: 'french', label: 'French', flag: '🇫🇷', popular: false },
-                                        { value: 'german', label: 'German', flag: '🇩🇪', popular: false },
-                                        { value: 'chinese', label: 'Chinese', flag: '🇨🇳', popular: false },
-                                        { value: 'english', label: 'English', flag: '🇺🇸', popular: false }
-                                    ].map((language) => (
-                                        <motion.div
-                                            key={language.value}
-                                            whileHover={{ scale: 1.05 }}
-                                            whileTap={{ scale: 0.95 }}
-                                        >
-                                            <Card
-                                                className={`cursor-pointer transition-all duration-200 relative ${
-                                                    onboardingData.selectedLanguage === language.value
-                                                        ? 'ring-2 ring-teal-500 bg-teal-50'
-                                                        : 'hover:shadow-lg hover:bg-gray-50'
-                                                }`}
-                                                onClick={() => updateOnboardingData('selectedLanguage', language.value)}
-                                            >
-                                                {language.popular && (
-                                                    <Badge className="absolute -top-2 -right-2 bg-teal-500 text-white text-xs">
-                                                        Popular
-                                                    </Badge>
-                                                )}
-                                                <CardContent className="p-4 text-center">
-                                                    <div className="text-3xl mb-2">{language.flag}</div>
-                                                    <p className="font-medium text-gray-900">{language.label}</p>
-                                                </CardContent>
-                                            </Card>
-                                        </motion.div>
-                                    ))}
-                                </div>
-                            </motion.div>
-                        )}
-
-                        {/* Step 2: Level Selection */}
-                        {currentStep === 2 && (
-                            <motion.div
-                                initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: -20 }}
-                            >
-                                <div className="text-center mb-8">
-                                    <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                                        What's your current level?
-                                    </h2>
-                                    <p className="text-gray-600">
-                                        This helps us customize the difficulty of your lessons
-                                    </p>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                    {[
+                        {
+                            currentStep === 1 && (
+                                <motion.div
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: -20 }}
+                                >
+                                    <div className="text-center mb-8">
+                                        <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                                            Which language would you like to learn?
+                                        </h2>
+                                        <p className="text-gray-600">
+                                            Choose your target language to get started with personalized content
+                                        </p>
+                                    </div>
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                         {
-                                            value: 'beginner',
-                                            title: 'Beginner',
-                                            description: 'New to the language or know just a few words',
-                                            icon: Star,
-                                            color: 'text-green-600 bg-green-50'
-                                        },
-                                        {
-                                            value: 'intermediate',
-                                            title: 'Intermediate',
-                                            description: 'Can have basic conversations and understand some content',
-                                            icon: BookOpenText,
-                                            color: 'text-teal-600 bg-teal-50'
-                                        },
-                                        {
-                                            value: 'advanced',
-                                            title: 'Advanced',
-                                            description: 'Fluent but want to refine skills and expand vocabulary',
-                                            icon: Target,
-                                            color: 'text-emerald-600 bg-emerald-50'
-                                        }
-                                    ].map((level) => {
-                                        const IconComponent = level.icon;
-                                        return (
-                                            <motion.div
-                                                key={level.value}
-                                                whileHover={{ scale: 1.02 }}
-                                                whileTap={{ scale: 0.98 }}
-                                            >
-                                                <Card
-                                                    className={`cursor-pointer transition-all duration-200 h-full ${
-                                                        onboardingData.selectedLevel === level.value
-                                                            ? 'ring-2 ring-teal-500 bg-teal-50'
-                                                            : 'hover:shadow-lg hover:bg-gray-50'
-                                                    }`}
-                                                    onClick={() => updateOnboardingData('selectedLevel', level.value)}
+                                            [
+                                                { value: 'russian', label: 'Russian', flag: '🇷🇺', popular: true },
+                                                { value: 'japanese', label: 'Japanese', flag: '🇯🇵', popular: true },
+                                                { value: 'korean', label: 'Korean', flag: '🇰🇷', popular: true },
+                                                { value: 'spanish', label: 'Spanish', flag: '🇪🇸', popular: false },
+                                                { value: 'french', label: 'French', flag: '🇫🇷', popular: false },
+                                                { value: 'german', label: 'German', flag: '🇩🇪', popular: false },
+                                                { value: 'chinese', label: 'Chinese', flag: '🇨🇳', popular: false },
+                                                { value: 'english', label: 'English', flag: '🇺🇸', popular: false }
+                                            ].map((language) => (
+                                                <motion.div
+                                                    key={language.value}
+                                                    whileHover={{ scale: 1.05 }}
+                                                    whileTap={{ scale: 0.95 }}
                                                 >
-                                                    <CardContent className="p-6 text-center">
-                                                        <div className={`w-12 h-12 rounded-full ${level.color} flex items-center justify-center mx-auto mb-4`}>
-                                                            <IconComponent className="w-6 h-6" />
-                                                        </div>
-                                                        <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                                                            {level.title}
-                                                        </h3>
-                                                        <p className="text-sm text-gray-600">
-                                                            {level.description}
-                                                        </p>
-                                                    </CardContent>
-                                                </Card>
-                                            </motion.div>
-                                        );
-                                    })}
-                                </div>
-                            </motion.div>
-                        )}
-
-                        {/* Step 3: Goal Selection */}
-                        {currentStep === 3 && (
-                            <motion.div
-                                initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: -20 }}
-                            >
-                                <div className="text-center mb-8">
-                                    <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                                        What's your main goal?
-                                    </h2>
-                                    <p className="text-gray-600">
-                                        We'll tailor your learning experience based on your objectives
-                                    </p>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    {[
-                                        {
-                                            value: 'travel',
-                                            title: 'Travel & Tourism',
-                                            description: 'Learn practical phrases for traveling and exploring',
-                                            icon: Globe,
-                                            color: 'text-blue-600 bg-blue-50'
-                                        },
-                                        {
-                                            value: 'work',
-                                            title: 'Professional Development',
-                                            description: 'Improve language skills for career advancement',
-                                            icon: Target,
-                                            color: 'text-purple-600 bg-purple-50'
-                                        },
-                                        {
-                                            value: 'conversation',
-                                            title: 'Daily Conversation',
-                                            description: 'Become confident in everyday conversations',
-                                            icon: Mic,
-                                            color: 'text-teal-600 bg-teal-50'
-                                        },
-                                        {
-                                            value: 'culture',
-                                            title: 'Cultural Understanding',
-                                            description: 'Deepen cultural knowledge and connections',
-                                            icon: Users,
-                                            color: 'text-emerald-600 bg-emerald-50'
+                                                    <Card
+                                                        className={`cursor-pointer transition-all duration-200 relative ${onboardingData.selectedLanguage === language.value
+                                                                ? 'ring-2 ring-teal-500 bg-teal-50'
+                                                                : 'hover:shadow-lg hover:bg-gray-50'
+                                                            }`}
+                                                        onClick={() => updateOnboardingData('selectedLanguage', language.value)}
+                                                    >
+                                                        {
+                                                            language.popular && (
+                                                                <Badge className="absolute -top-2 -right-2 bg-teal-500 text-white text-xs">
+                                                                    Popular
+                                                                </Badge>
+                                                            )
+                                                        }
+                                                        <CardContent className="p-4 text-center">
+                                                            <div className="text-3xl mb-2">{language.flag}</div>
+                                                            <p className="font-medium text-gray-900">{language.label}</p>
+                                                        </CardContent>
+                                                    </Card>
+                                                </motion.div>
+                                            ))
                                         }
-                                    ].map((goal) => {
-                                        const IconComponent = goal.icon;
-                                        return (
-                                            <motion.div
-                                                key={goal.value}
-                                                whileHover={{ scale: 1.02 }}
-                                                whileTap={{ scale: 0.98 }}
-                                            >
-                                                <Card
-                                                    className={`cursor-pointer transition-all duration-200 h-full ${
-                                                        onboardingData.selectedGoal === goal.value
-                                                            ? 'ring-2 ring-teal-500 bg-teal-50'
-                                                            : 'hover:shadow-lg hover:bg-gray-50'
-                                                    }`}
-                                                    onClick={() => updateOnboardingData('selectedGoal', goal.value)}
+                                    </div>
+                                </motion.div>
+                            )
+                        }
+                        {
+                            currentStep === 2 && (
+                                <motion.div
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: -20 }}
+                                >
+                                    <div className="text-center mb-8">
+                                        <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                                            What's your current level?
+                                        </h2>
+                                        <p className="text-gray-600">
+                                            This helps us customize the difficulty of your lessons
+                                        </p>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                        {
+                                            [
+                                                {
+                                                    value: 'beginner',
+                                                    title: 'Beginner',
+                                                    description: 'New to the language or know just a few words',
+                                                    icon: Star,
+                                                    color: 'text-green-600 bg-green-50'
+                                                },
+                                                {
+                                                    value: 'intermediate',
+                                                    title: 'Intermediate',
+                                                    description: 'Can have basic conversations and understand some content',
+                                                    icon: BookOpenText,
+                                                    color: 'text-teal-600 bg-teal-50'
+                                                },
+                                                {
+                                                    value: 'advanced',
+                                                    title: 'Advanced',
+                                                    description: 'Fluent but want to refine skills and expand vocabulary',
+                                                    icon: Target,
+                                                    color: 'text-emerald-600 bg-emerald-50'
+                                                }
+                                            ].map((level) => {
+                                                const IconComponent = level.icon;
+                                                return (
+                                                    <motion.div
+                                                        key={level.value}
+                                                        whileHover={{ scale: 1.02 }}
+                                                        whileTap={{ scale: 0.98 }}
+                                                    >
+                                                        <Card
+                                                            className={`cursor-pointer transition-all duration-200 h-full ${onboardingData.selectedLevel === level.value
+                                                                    ? 'ring-2 ring-teal-500 bg-teal-50'
+                                                                    : 'hover:shadow-lg hover:bg-gray-50'
+                                                                }`}
+                                                            onClick={() => updateOnboardingData('selectedLevel', level.value)}
+                                                        >
+                                                            <CardContent className="p-6 text-center">
+                                                                <div className={`w-12 h-12 rounded-full ${level.color} flex items-center justify-center mx-auto mb-4`}>
+                                                                    <IconComponent className="w-6 h-6" />
+                                                                </div>
+                                                                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                                                                    {level.title}
+                                                                </h3>
+                                                                <p className="text-sm text-gray-600">
+                                                                    {level.description}
+                                                                </p>
+                                                            </CardContent>
+                                                        </Card>
+                                                    </motion.div>
+                                                );
+                                            })
+                                        }
+                                    </div>
+                                </motion.div>
+                            )
+                        }
+                        {
+                            currentStep === 3 && (
+                                <motion.div
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: -20 }}
+                                >
+                                    <div className="text-center mb-8">
+                                        <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                                            What's your main goal?
+                                        </h2>
+                                        <p className="text-gray-600">
+                                            We'll tailor your learning experience based on your objectives
+                                        </p>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        {
+                                            [
+                                                {
+                                                    value: 'travel',
+                                                    title: 'Travel & Tourism',
+                                                    description: 'Learn practical phrases for traveling and exploring',
+                                                    icon: Globe,
+                                                    color: 'text-blue-600 bg-blue-50'
+                                                },
+                                                {
+                                                    value: 'work',
+                                                    title: 'Professional Development',
+                                                    description: 'Improve language skills for career advancement',
+                                                    icon: Target,
+                                                    color: 'text-purple-600 bg-purple-50'
+                                                },
+                                                {
+                                                    value: 'conversation',
+                                                    title: 'Daily Conversation',
+                                                    description: 'Become confident in everyday conversations',
+                                                    icon: Mic,
+                                                    color: 'text-teal-600 bg-teal-50'
+                                                },
+                                                {
+                                                    value: 'culture',
+                                                    title: 'Cultural Understanding',
+                                                    description: 'Deepen cultural knowledge and connections',
+                                                    icon: Users,
+                                                    color: 'text-emerald-600 bg-emerald-50'
+                                                }
+                                            ].map((goal) => {
+                                                const IconComponent = goal.icon;
+                                                return (
+                                                    <motion.div
+                                                        key={goal.value}
+                                                        whileHover={{ scale: 1.02 }}
+                                                        whileTap={{ scale: 0.98 }}
+                                                    >
+                                                        <Card
+                                                            className={`cursor-pointer transition-all duration-200 h-full ${onboardingData.selectedGoal === goal.value
+                                                                    ? 'ring-2 ring-teal-500 bg-teal-50'
+                                                                    : 'hover:shadow-lg hover:bg-gray-50'
+                                                                }`}
+                                                            onClick={() => updateOnboardingData('selectedGoal', goal.value)}
+                                                        >
+                                                            <CardContent className="p-6">
+                                                                <div className={`w-12 h-12 rounded-full ${goal.color} flex items-center justify-center mb-4`}>
+                                                                    <IconComponent className="w-6 h-6" />
+                                                                </div>
+                                                                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                                                                    {goal.title}
+                                                                </h3>
+                                                                <p className="text-sm text-gray-600">
+                                                                    {goal.description}
+                                                                </p>
+                                                            </CardContent>
+                                                        </Card>
+                                                    </motion.div>
+                                                );
+                                            })
+                                        }
+                                    </div>
+                                </motion.div>
+                            )
+                        }
+                        {
+                            currentStep === 4 && (
+                                <motion.div
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: -20 }}
+                                >
+                                    <div className="text-center mb-8">
+                                        <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                                            How much time can you dedicate?
+                                        </h2>
+                                        <p className="text-gray-600">
+                                            We'll adjust your learning plan to fit your schedule
+                                        </p>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        {
+                                            [
+                                                {
+                                                    value: 'casual',
+                                                    title: 'Casual Learner',
+                                                    description: 'A few minutes here and there when I have time',
+                                                    time: '5-15 min/day',
+                                                    color: 'text-green-600 bg-green-50'
+                                                },
+                                                {
+                                                    value: 'regular',
+                                                    title: 'Regular Practice',
+                                                    description: 'Consistent daily practice with manageable sessions',
+                                                    time: '15-30 min/day',
+                                                    color: 'text-teal-600 bg-teal-50'
+                                                },
+                                                {
+                                                    value: 'serious',
+                                                    title: 'Serious Student',
+                                                    description: 'Dedicated learning with longer focused sessions',
+                                                    time: '30-60 min/day',
+                                                    color: 'text-emerald-600 bg-emerald-50'
+                                                },
+                                                {
+                                                    value: 'intensive',
+                                                    title: 'Intensive Learning',
+                                                    description: 'Immersive experience with maximum progress',
+                                                    time: '1+ hours/day',
+                                                    color: 'text-purple-600 bg-purple-50'
+                                                }
+                                            ].map((timeOption) => (
+                                                <motion.div
+                                                    key={timeOption.value}
+                                                    whileHover={{ scale: 1.02 }}
+                                                    whileTap={{ scale: 0.98 }}
                                                 >
-                                                    <CardContent className="p-6">
-                                                        <div className={`w-12 h-12 rounded-full ${goal.color} flex items-center justify-center mb-4`}>
-                                                            <IconComponent className="w-6 h-6" />
-                                                        </div>
-                                                        <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                                                            {goal.title}
-                                                        </h3>
-                                                        <p className="text-sm text-gray-600">
-                                                            {goal.description}
-                                                        </p>
-                                                    </CardContent>
-                                                </Card>
-                                            </motion.div>
-                                        );
-                                    })}
-                                </div>
-                            </motion.div>
-                        )}
-
-                        {/* Step 4: Time Commitment */}
-                        {currentStep === 4 && (
-                            <motion.div
-                                initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: -20 }}
-                            >
-                                <div className="text-center mb-8">
-                                    <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                                        How much time can you dedicate?
-                                    </h2>
-                                    <p className="text-gray-600">
-                                        We'll adjust your learning plan to fit your schedule
-                                    </p>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    {[
-                                        {
-                                            value: 'casual',
-                                            title: 'Casual Learner',
-                                            description: 'A few minutes here and there when I have time',
-                                            time: '5-15 min/day',
-                                            color: 'text-green-600 bg-green-50'
-                                        },
-                                        {
-                                            value: 'regular',
-                                            title: 'Regular Practice',
-                                            description: 'Consistent daily practice with manageable sessions',
-                                            time: '15-30 min/day',
-                                            color: 'text-teal-600 bg-teal-50'
-                                        },
-                                        {
-                                            value: 'serious',
-                                            title: 'Serious Student',
-                                            description: 'Dedicated learning with longer focused sessions',
-                                            time: '30-60 min/day',
-                                            color: 'text-emerald-600 bg-emerald-50'
-                                        },
-                                        {
-                                            value: 'intensive',
-                                            title: 'Intensive Learning',
-                                            description: 'Immersive experience with maximum progress',
-                                            time: '1+ hours/day',
-                                            color: 'text-purple-600 bg-purple-50'
+                                                    <Card
+                                                        className={`cursor-pointer transition-all duration-200 h-full ${onboardingData.selectedTime === timeOption.value
+                                                                ? 'ring-2 ring-teal-500 bg-teal-50'
+                                                                : 'hover:shadow-lg hover:bg-gray-50'
+                                                            }`}
+                                                        onClick={() => updateOnboardingData('selectedTime', timeOption.value)}
+                                                    >
+                                                        <CardContent className="p-6">
+                                                            <div className={`w-12 h-12 rounded-full ${timeOption.color} flex items-center justify-center mb-4`}>
+                                                                <Clock className="w-6 h-6" />
+                                                            </div>
+                                                            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                                                                {timeOption.title}
+                                                            </h3>
+                                                            <p className="text-sm text-gray-600 mb-2">
+                                                                {timeOption.description}
+                                                            </p>
+                                                            <Badge variant="outline" className="text-xs">
+                                                                {timeOption.time}
+                                                            </Badge>
+                                                        </CardContent>
+                                                    </Card>
+                                                </motion.div>
+                                            ))
                                         }
-                                    ].map((timeOption) => (
-                                        <motion.div
-                                            key={timeOption.value}
-                                            whileHover={{ scale: 1.02 }}
-                                            whileTap={{ scale: 0.98 }}
+                                    </div>
+                                </motion.div>
+                            )
+                        }
+                        {
+                            currentStep === 5 && (
+                                <motion.div
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: -20 }}
+                                >
+                                    <div className="text-center mb-8">
+                                        <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                                            Set your daily goal
+                                        </h2>
+                                        <p className="text-gray-600">
+                                            How many minutes per day would you like to practice?
+                                        </p>
+                                    </div>
+                                    <div className="max-w-md mx-auto">
+                                        <Label htmlFor="daily-minutes" className="text-base font-medium text-gray-700 mb-4 block">
+                                            Daily Practice Goal
+                                        </Label>
+                                        <Select
+                                            value={onboardingData.dailyMinutes.toString()}
+                                            onValueChange={(value) => updateOnboardingData('dailyMinutes', parseInt(value))}
                                         >
-                                            <Card
-                                                className={`cursor-pointer transition-all duration-200 h-full ${
-                                                    onboardingData.selectedTime === timeOption.value
-                                                        ? 'ring-2 ring-teal-500 bg-teal-50'
-                                                        : 'hover:shadow-lg hover:bg-gray-50'
-                                                }`}
-                                                onClick={() => updateOnboardingData('selectedTime', timeOption.value)}
-                                            >
-                                                <CardContent className="p-6">
-                                                    <div className={`w-12 h-12 rounded-full ${timeOption.color} flex items-center justify-center mb-4`}>
-                                                        <Clock className="w-6 h-6" />
+                                            <SelectTrigger className="h-12">
+                                                <SelectValue placeholder="Select daily minutes" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="10">10 minutes</SelectItem>
+                                                <SelectItem value="20">20 minutes</SelectItem>
+                                                <SelectItem value="30">30 minutes</SelectItem>
+                                                <SelectItem value="45">45 minutes</SelectItem>
+                                                <SelectItem value="60">60 minutes</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        {
+                                            onboardingData.dailyMinutes > 0 && (
+                                                <motion.div
+                                                    initial={{ opacity: 0, y: 10 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    className="mt-6 p-4 bg-teal-50 rounded-lg"
+                                                >
+                                                    <div className="flex items-center space-x-2 mb-2">
+                                                        <CheckCircle className="w-5 h-5 text-teal-600" />
+                                                        <span className="font-medium text-teal-900">
+                                                            Perfect! You're all set.
+                                                        </span>
                                                     </div>
-                                                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                                                        {timeOption.title}
-                                                    </h3>
-                                                    <p className="text-sm text-gray-600 mb-2">
-                                                        {timeOption.description}
+                                                    <p className="text-sm text-teal-700">
+                                                        With {onboardingData.dailyMinutes} minutes daily, you'll make great progress in {onboardingData.selectedLanguage}!
                                                     </p>
-                                                    <Badge variant="outline" className="text-xs">
-                                                        {timeOption.time}
-                                                    </Badge>
-                                                </CardContent>
-                                            </Card>
-                                        </motion.div>
-                                    ))}
-                                </div>
-                            </motion.div>
-                        )}
-
-                        {/* Step 5: Daily Minutes */}
-                        {currentStep === 5 && (
-                            <motion.div
-                                initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: -20 }}
-                            >
-                                <div className="text-center mb-8">
-                                    <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                                        Set your daily goal
-                                    </h2>
-                                    <p className="text-gray-600">
-                                        How many minutes per day would you like to practice?
-                                    </p>
-                                </div>
-
-                                <div className="max-w-md mx-auto">
-                                    <Label htmlFor="daily-minutes" className="text-base font-medium text-gray-700 mb-4 block">
-                                        Daily Practice Goal
-                                    </Label>
-                                    <Select
-                                        value={onboardingData.dailyMinutes.toString()}
-                                        onValueChange={(value) => updateOnboardingData('dailyMinutes', parseInt(value))}
-                                    >
-                                        <SelectTrigger className="h-12">
-                                            <SelectValue placeholder="Select daily minutes" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="10">10 minutes</SelectItem>
-                                            <SelectItem value="20">20 minutes</SelectItem>
-                                            <SelectItem value="30">30 minutes</SelectItem>
-                                            <SelectItem value="45">45 minutes</SelectItem>
-                                            <SelectItem value="60">60 minutes</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-
-                                    {onboardingData.dailyMinutes > 0 && (
-                                        <motion.div
-                                            initial={{ opacity: 0, y: 10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            className="mt-6 p-4 bg-teal-50 rounded-lg"
-                                        >
-                                            <div className="flex items-center space-x-2 mb-2">
-                                                <CheckCircle className="w-5 h-5 text-teal-600" />
-                                                <span className="font-medium text-teal-900">
-                                                    Perfect! You're all set.
-                                                </span>
-                                            </div>
-                                            <p className="text-sm text-teal-700">
-                                                With {onboardingData.dailyMinutes} minutes daily, you'll make great progress in {onboardingData.selectedLanguage}!
-                                            </p>
-                                        </motion.div>
-                                    )}
-                                </div>
-                            </motion.div>
-                        )}
-
-                        {/* Navigation */}
+                                                </motion.div>
+                                            )
+                                        }
+                                    </div>
+                                </motion.div>
+                            )
+                        }
                         <div className="flex justify-between items-center pt-8 border-t mt-8">
                             <Button
                                 variant="outline"
@@ -525,26 +520,27 @@ const OnboardingPage = () => {
                             >
                                 Previous
                             </Button>
-
-                            {currentStep < totalSteps ? (
-                                <Button
-                                    onClick={nextStep}
-                                    disabled={!isStepValid()}
-                                    className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white px-6"
-                                >
-                                    Next
-                                    <ArrowRight className="w-4 h-4 ml-2" />
-                                </Button>
-                            ) : (
-                                <Button
-                                    onClick={completeOnboarding}
-                                    disabled={!isStepValid() || isCompleting}
-                                    className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white px-8"
-                                >
-                                    {isCompleting ? 'Setting up...' : 'Complete Setup'}
-                                    <CheckCircle className="w-4 h-4 ml-2" />
-                                </Button>
-                            )}
+                            {
+                                currentStep < totalSteps ? (
+                                    <Button
+                                        onClick={nextStep}
+                                        disabled={!isStepValid()}
+                                        className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white px-6"
+                                    >
+                                        Next
+                                        <ArrowRight className="w-4 h-4 ml-2" />
+                                    </Button>
+                                ) : (
+                                    <Button
+                                        onClick={completeOnboarding}
+                                        disabled={!isStepValid() || isCompleting}
+                                        className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white px-8"
+                                    >
+                                        {isCompleting ? 'Setting up...' : 'Complete Setup'}
+                                        <CheckCircle className="w-4 h-4 ml-2" />
+                                    </Button>
+                                )
+                            }
                         </div>
                     </CardContent>
                 </Card>
