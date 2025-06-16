@@ -22,15 +22,13 @@ interface LessonComponentProps {
         duration: number;
     };
     onComplete: () => void;
-    language: string;
+    language?: string;
     moduleType?: string;
 }
 
 const LessonComponent: React.FC<LessonComponentProps> = ({
     section,
     onComplete,
-    language,
-    moduleType
 }) => {
     const [currentSlide, setCurrentSlide] = useState(0);
     const [completed, setCompleted] = useState(false);
@@ -66,7 +64,6 @@ const LessonComponent: React.FC<LessonComponentProps> = ({
 
     return (
         <div className="space-y-6">
-            {/* Header */}
             <div className="text-center">
                 <div className="text-4xl mb-2">📚</div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">
@@ -79,16 +76,12 @@ const LessonComponent: React.FC<LessonComponentProps> = ({
                     </Badge>
                 </div>
             </div>
-
-            {/* Progress Bar */}
             <div className="w-full bg-gray-200 rounded-full h-2">
-                <div 
+                <div
                     className="bg-gradient-to-r from-blue-500 to-indigo-600 h-2 rounded-full transition-all duration-300"
                     style={{ width: `${((currentSlide + 1) / slides.length) * 100}%` }}
                 />
             </div>
-
-            {/* Content Card */}
             <motion.div
                 key={currentSlide}
                 initial={{ opacity: 0, x: 20 }}
@@ -107,25 +100,26 @@ const LessonComponent: React.FC<LessonComponentProps> = ({
                             <div className="text-lg text-gray-700 leading-relaxed mb-6">
                                 {slides[currentSlide].content}
                             </div>
-                            
-                            {currentSlide === 0 && section.content.examples && (
-                                <div className="mt-6">
-                                    <h4 className="font-semibold text-gray-800 mb-3">Examples:</h4>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                        {section.content.examples.map((example, index) => (
-                                            <div key={index} className="bg-gray-50 p-3 rounded-lg">
-                                                <span className="font-medium">{example}</span>
-                                            </div>
-                                        ))}
+                            {
+                                currentSlide === 0 && section.content.examples && (
+                                    <div className="mt-6">
+                                        <h4 className="font-semibold text-gray-800 mb-3">Examples:</h4>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                            {
+                                                section.content.examples.map((example, index) => (
+                                                    <div key={index} className="bg-gray-50 p-3 rounded-lg">
+                                                        <span className="font-medium">{example}</span>
+                                                    </div>
+                                                ))
+                                            }
+                                        </div>
                                     </div>
-                                </div>
-                            )}
+                                )
+                            }
                         </div>
                     </CardContent>
                 </Card>
             </motion.div>
-
-            {/* Navigation */}
             <div className="flex justify-between items-center">
                 <Button
                     variant="outline"
@@ -134,43 +128,42 @@ const LessonComponent: React.FC<LessonComponentProps> = ({
                 >
                     Previous
                 </Button>
-
                 <div className="flex gap-2">
-                    {slides.map((_, index) => (
-                        <button
-                            key={index}
-                            className={`w-3 h-3 rounded-full transition-all ${
-                                index === currentSlide
-                                    ? 'bg-blue-500'
-                                    : index < currentSlide
-                                    ? 'bg-green-500'
-                                    : 'bg-gray-300'
-                            }`}
-                            onClick={() => setCurrentSlide(index)}
-                        />
-                    ))}
+                    {
+                        slides.map((_, index) => (
+                            <button
+                                key={index}
+                                className={`w-3 h-3 rounded-full transition-all ${index === currentSlide
+                                        ? 'bg-blue-500'
+                                        : index < currentSlide
+                                            ? 'bg-green-500'
+                                            : 'bg-gray-300'
+                                    }`}
+                                onClick={() => setCurrentSlide(index)}
+                            />
+                        ))
+                    }
                 </div>
-
-                {!completed ? (
-                    <Button
-                        onClick={handleNext}
-                        className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
-                    >
-                        {currentSlide === slides.length - 1 ? 'Finish' : 'Next'}
-                        <ArrowRight className="w-4 h-4 ml-2" />
-                    </Button>
-                ) : (
-                    <Button
-                        onClick={handleComplete}
-                        className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
-                    >
-                        <CheckCircle className="w-4 h-4 mr-2" />
-                        Complete
-                    </Button>
-                )}
+                {
+                    !completed ? (
+                        <Button
+                            onClick={handleNext}
+                            className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+                        >
+                            {currentSlide === slides.length - 1 ? 'Finish' : 'Next'}
+                            <ArrowRight className="w-4 h-4 ml-2" />
+                        </Button>
+                    ) : (
+                        <Button
+                            onClick={handleComplete}
+                            className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
+                        >
+                            <CheckCircle className="w-4 h-4 mr-2" />
+                            Complete
+                        </Button>
+                    )
+                }
             </div>
-
-            {/* Lesson Summary */}
             <Card className="bg-blue-50 border-blue-200">
                 <CardContent className="p-4">
                     <div className="flex items-center gap-2 mb-2">
@@ -178,9 +171,11 @@ const LessonComponent: React.FC<LessonComponentProps> = ({
                         <span className="font-medium text-blue-800">Lesson Summary</span>
                     </div>
                     <ul className="text-blue-700 text-sm space-y-1">
-                        {section.content.keyPoints.map((point, index) => (
-                            <li key={index}>• {point}</li>
-                        ))}
+                        {
+                            section.content.keyPoints.map((point, index) => (
+                                <li key={index}>• {point}</li>
+                            ))
+                        }
                     </ul>
                 </CardContent>
             </Card>

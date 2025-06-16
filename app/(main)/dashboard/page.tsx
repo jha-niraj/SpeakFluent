@@ -113,7 +113,7 @@ const Dashboard = () => {
                     ]);
 
                     setCredits(userCredits);
-                    
+
                     if (accessResult.success && accessResult.hasAccess !== undefined) {
                         setFeatureAccess({
                             hasAccess: accessResult.hasAccess,
@@ -311,20 +311,15 @@ const Dashboard = () => {
                         animate={{ opacity: 1, y: 0 }}
                         className="text-center mb-16"
                     >
-                        {/* Hero Icon */}
                         <div className="w-24 h-24 bg-gradient-to-br from-teal-500 via-emerald-600 to-green-500 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-2xl">
                             <Languages className="w-12 h-12 text-white" />
                         </div>
-
-                        {/* Welcome Message */}
                         <h1 className="text-5xl font-bold text-lack dark:text-white mb-6">
                             Welcome to <span className="bg-gradient-to-r from-teal-600 via-emerald-600 to-green-600 bg-clip-text text-transparent">SpeakFluent</span>! 🌍
                         </h1>
                         <p className="text-xl text-gray-700 dark:text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
                             Master any language with AI-powered conversations. Practice with intelligent tutors, get real-time feedback, and speak fluently with confidence.
                         </p>
-
-                        {/* Features Grid */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
@@ -340,7 +335,6 @@ const Dashboard = () => {
                                     Practice with intelligent AI tutors that adapt to your level and provide personalized feedback
                                 </p>
                             </motion.div>
-
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
@@ -355,7 +349,6 @@ const Dashboard = () => {
                                     Perfect your pronunciation with real-time analysis and accent coaching technology
                                 </p>
                             </motion.div>
-
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
@@ -371,29 +364,27 @@ const Dashboard = () => {
                                 </p>
                             </motion.div>
                         </div>
-
-                        {/* Languages Supported */}
                         <div className="mb-16">
                             <h3 className="text-2xl font-semibold text-black dark:text-white mb-8">Popular Languages</h3>
                             <div className="flex flex-wrap justify-center items-center gap-4">
-                                {[
-                                    { lang: "🇺🇸 English", color: "bg-blue-50 text-blue-700 border-blue-200" },
-                                    { lang: "🇪🇸 Spanish", color: "bg-red-50 text-red-700 border-red-200" },
-                                    { lang: "🇫🇷 French", color: "bg-teal-50 text-teal-700 border-teal-200" },
-                                    { lang: "🇩🇪 German", color: "bg-gray-50 text-gray-700 border-gray-200" },
-                                    { lang: "🇨🇳 Chinese", color: "bg-yellow-50 text-yellow-700 border-yellow-200" },
-                                    { lang: "🇯🇵 Japanese", color: "bg-emerald-50 text-emerald-700 border-emerald-200" },
-                                    { lang: "🇮🇹 Italian", color: "bg-green-50 text-green-700 border-green-200" },
-                                    { lang: "🇵🇹 Portuguese", color: "bg-cyan-50 text-cyan-700 border-cyan-200" }
-                                ].map((item, index) => (
-                                    <Badge key={index} variant="outline" className={`${item.color} px-4 py-2 text-sm font-medium`}>
-                                        {item.lang}
-                                    </Badge>
-                                ))}
+                                {
+                                    [
+                                        { lang: "🇺🇸 English", color: "bg-blue-50 text-blue-700 border-blue-200" },
+                                        { lang: "🇪🇸 Spanish", color: "bg-red-50 text-red-700 border-red-200" },
+                                        { lang: "🇫🇷 French", color: "bg-teal-50 text-teal-700 border-teal-200" },
+                                        { lang: "🇩🇪 German", color: "bg-gray-50 text-gray-700 border-gray-200" },
+                                        { lang: "🇨🇳 Chinese", color: "bg-yellow-50 text-yellow-700 border-yellow-200" },
+                                        { lang: "🇯🇵 Japanese", color: "bg-emerald-50 text-emerald-700 border-emerald-200" },
+                                        { lang: "🇮🇹 Italian", color: "bg-green-50 text-green-700 border-green-200" },
+                                        { lang: "🇵🇹 Portuguese", color: "bg-cyan-50 text-cyan-700 border-cyan-200" }
+                                    ].map((item, index) => (
+                                        <Badge key={index} variant="outline" className={`${item.color} px-4 py-2 text-sm font-medium`}>
+                                            {item.lang}
+                                        </Badge>
+                                    ))
+                                }
                             </div>
                         </div>
-
-                        {/* CTA */}
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -416,8 +407,6 @@ const Dashboard = () => {
                                 </Button>
                             </Link>
                         </motion.div>
-
-                        {/* Trust Indicators */}
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}

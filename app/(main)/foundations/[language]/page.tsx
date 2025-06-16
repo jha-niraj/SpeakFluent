@@ -17,7 +17,7 @@ import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 
 interface ModuleContent {
-    sections?: Array<{ title: string; duration: number; [key: string]: unknown }>;
+    sections?: Array<{ title: string; duration: number;[key: string]: unknown }>;
     totalDuration?: number;
     difficulty?: string;
     estimatedCompletionTime?: string;
@@ -69,6 +69,7 @@ interface FoundationData {
 
 const LanguageFoundationsPage = () => {
     const params = useParams();
+    // const router = useRouter();
     const { data: session, status } = useSession();
     const [isLoading, setIsLoading] = useState(true);
     const [foundationData, setFoundationData] = useState<FoundationData | null>(null);
@@ -85,10 +86,10 @@ const LanguageFoundationsPage = () => {
 
                     if (result.success && result.data) {
                         const data = result.data as FoundationData;
-                        
+
                         // Filter modules for the specific language
                         const languageModules = data.modules.filter(m => m.language === language);
-                        const languageProgress = data.moduleProgress.filter(p => 
+                        const languageProgress = data.moduleProgress.filter(p =>
                             languageModules.some(m => m.id === p.moduleId)
                         );
 
@@ -100,8 +101,8 @@ const LanguageFoundationsPage = () => {
                                 ...data.stats,
                                 totalModules: languageModules.length,
                                 completedModules: languageProgress.filter(p => p.status === 'COMPLETED').length,
-                                overallProgress: languageModules.length > 0 
-                                    ? Math.round((languageProgress.filter(p => p.status === 'COMPLETED').length / languageModules.length) * 100) 
+                                overallProgress: languageModules.length > 0
+                                    ? Math.round((languageProgress.filter(p => p.status === 'COMPLETED').length / languageModules.length) * 100)
                                     : 0
                             }
                         });
@@ -128,8 +129,6 @@ const LanguageFoundationsPage = () => {
             fetchLanguageModules();
         }
     }, [session, status, language]);
-
-    console.log(modules);
 
     const getLanguageFlag = (lang: string) => {
         const flags: Record<string, string> = {
@@ -251,13 +250,11 @@ const LanguageFoundationsPage = () => {
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-teal-50 to-emerald-50">
             <div className="max-w-6xl mx-auto p-6">
-                {/* Header */}
                 <div className="mb-8">
                     <Link href="/foundations" className="inline-flex items-center text-teal-600 hover:text-teal-700 mb-4">
                         <ArrowLeft className="w-4 h-4 mr-2" />
                         Back to All Languages
                     </Link>
-                    
                     <div className="flex items-center gap-4 mb-6">
                         <div className="text-5xl">{getLanguageFlag(language)}</div>
                         <div>
@@ -269,8 +266,6 @@ const LanguageFoundationsPage = () => {
                             </p>
                         </div>
                     </div>
-
-                    {/* Progress Overview */}
                     <Card className="bg-white/80 backdrop-blur-sm border-white/50">
                         <CardContent className="p-6">
                             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -295,10 +290,12 @@ const LanguageFoundationsPage = () => {
                                 </div>
                                 <div className="text-center">
                                     <div className="text-2xl font-bold text-yellow-600">
-                                        {modules.reduce((total, module) => {
-                                            const progress = getProgressForModule(module.id);
-                                            return total + (progress?.bestScore || 0);
-                                        }, 0)}
+                                        {
+                                            modules.reduce((total, module) => {
+                                                const progress = getProgressForModule(module.id);
+                                                return total + (progress?.bestScore || 0);
+                                            }, 0)
+                                        }
                                     </div>
                                     <div className="text-sm text-gray-600">Total Points</div>
                                 </div>
@@ -306,153 +303,156 @@ const LanguageFoundationsPage = () => {
                         </CardContent>
                     </Card>
                 </div>
-
-                {/* Modules Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {modules.map((module, index) => {
-                        const progress = getProgressForModule(module.id);
-                        const status = getModuleStatus(module, index);
-                        const isLocked = status === 'LOCKED';
-                        const isCompleted = status === 'COMPLETED';
+                    {
+                        modules.map((module, index) => {
+                            const progress = getProgressForModule(module.id);
+                            const status = getModuleStatus(module, index);
+                            const isLocked = status === 'LOCKED';
+                            const isCompleted = status === 'COMPLETED';
+                            // const isAvailable = status === 'AVAILABLE' || status === 'IN_PROGRESS';
 
-                        return (
-                            <motion.div
-                                key={module.id}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: index * 0.1 }}
-                            >
-                                <Card className={`relative overflow-hidden transition-all duration-300 ${
-                                    isLocked 
-                                        ? 'bg-gray-100 border-gray-200' 
-                                        : 'bg-white/80 backdrop-blur-sm border-white/50 hover:shadow-lg hover:scale-105'
-                                }`}>
-                                    {/* Module Header */}
-                                    <div className={`h-2 bg-gradient-to-r ${getModuleColor(module.moduleType)}`} />
-                                    
-                                    <CardHeader className="pb-3">
-                                        <div className="flex items-start justify-between">
-                                            <div className="flex items-center gap-3">
-                                                <div className="text-2xl">
-                                                    {getModuleIcon(module.moduleType)}
-                                                </div>
-                                                <div>
-                                                    <CardTitle className={`text-lg ${isLocked ? 'text-gray-500' : 'text-gray-900'}`}>
-                                                        {module.title}
-                                                    </CardTitle>
-                                                    <div className="flex items-center gap-2 mt-1">
-                                                        <Badge variant={isCompleted ? 'default' : 'secondary'} className="text-xs">
-                                                            Module {module.orderIndex}
-                                                        </Badge>
-                                                        {module.content?.difficulty && (
-                                                            <Badge variant="outline" className="text-xs">
-                                                                {module.content.difficulty}
+                            return (
+                                <motion.div
+                                    key={module.id}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: index * 0.1 }}
+                                >
+                                    <Card className={`relative overflow-hidden transition-all duration-300 ${isLocked
+                                            ? 'bg-gray-100 border-gray-200'
+                                            : 'bg-white/80 backdrop-blur-sm border-white/50 hover:shadow-lg hover:scale-105'
+                                        }`}>
+                                        <div className={`h-2 bg-gradient-to-r ${getModuleColor(module.moduleType)}`} />
+                                        <CardHeader className="pb-3">
+                                            <div className="flex items-start justify-between">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="text-2xl">
+                                                        {getModuleIcon(module.moduleType)}
+                                                    </div>
+                                                    <div>
+                                                        <CardTitle className={`text-lg ${isLocked ? 'text-gray-500' : 'text-gray-900'}`}>
+                                                            {module.title}
+                                                        </CardTitle>
+                                                        <div className="flex items-center gap-2 mt-1">
+                                                            <Badge variant={isCompleted ? 'default' : 'secondary'} className="text-xs">
+                                                                Module {module.orderIndex}
                                                             </Badge>
-                                                        )}
+                                                            {
+                                                                module.content?.difficulty && (
+                                                                    <Badge variant="outline" className="text-xs">
+                                                                        {module.content.difficulty}
+                                                                    </Badge>
+                                                                )
+                                                            }
+                                                        </div>
                                                     </div>
                                                 </div>
+                                                {isLocked && <Lock className="w-5 h-5 text-gray-400" />}
+                                                {isCompleted && <CheckCircle className="w-5 h-5 text-green-500" />}
                                             </div>
-                                            
-                                            {isLocked && <Lock className="w-5 h-5 text-gray-400" />}
-                                            {isCompleted && <CheckCircle className="w-5 h-5 text-green-500" />}
-                                        </div>
-                                    </CardHeader>
-
-                                    <CardContent className="pt-0">
-                                        <CardDescription className={`mb-4 ${isLocked ? 'text-gray-400' : 'text-gray-600'}`}>
-                                            {module.description}
-                                        </CardDescription>
-
-                                        {/* Module Stats */}
-                                        <div className="space-y-3 mb-4">
-                                            {module.content?.totalDuration && (
+                                        </CardHeader>
+                                        <CardContent className="pt-0">
+                                            <CardDescription className={`mb-4 ${isLocked ? 'text-gray-400' : 'text-gray-600'}`}>
+                                                {module.description}
+                                            </CardDescription>
+                                            <div className="space-y-3 mb-4">
+                                                {
+                                                    module.content?.totalDuration && (
+                                                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                                                            <Clock className="w-4 h-4" />
+                                                            {formatDuration(module.content.totalDuration)}
+                                                            {
+                                                                module.content.estimatedCompletionTime && (
+                                                                    <span className="text-gray-500">
+                                                                        ({module.content.estimatedCompletionTime})
+                                                                    </span>
+                                                                )
+                                                            }
+                                                        </div>
+                                                    )
+                                                }
                                                 <div className="flex items-center gap-2 text-sm text-gray-600">
-                                                    <Clock className="w-4 h-4" />
-                                                    {formatDuration(module.content.totalDuration)}
-                                                    {module.content.estimatedCompletionTime && (
-                                                        <span className="text-gray-500">
-                                                            ({module.content.estimatedCompletionTime})
-                                                        </span>
-                                                    )}
+                                                    <Award className="w-4 h-4" />
+                                                    {module.creditsReward} credits reward
                                                 </div>
-                                            )}
-                                            
-                                            <div className="flex items-center gap-2 text-sm text-gray-600">
-                                                <Award className="w-4 h-4" />
-                                                {module.creditsReward} credits reward
-                                            </div>
-
-                                            <div className="flex items-center gap-2 text-sm text-gray-600">
-                                                <Target className="w-4 h-4" />
-                                                {module.requiredScore}% required to pass
-                                            </div>
-
-                                            {module.content?.sections && (
                                                 <div className="flex items-center gap-2 text-sm text-gray-600">
-                                                    <BookOpenText className="w-4 h-4" />
-                                                    {module.content.sections.length} sections
+                                                    <Target className="w-4 h-4" />
+                                                    {module.requiredScore}% required to pass
                                                 </div>
-                                            )}
-                                        </div>
-
-                                        {/* Progress Bar */}
-                                        {progress && (
-                                            <div className="mb-4">
-                                                <div className="flex justify-between text-sm mb-1">
-                                                    <span className="text-gray-600">Progress</span>
-                                                    <span className="font-medium">{progress.progressPercent}%</span>
-                                                </div>
-                                                <Progress value={progress.progressPercent} />
-                                                {progress.bestScore && (
-                                                    <div className="flex items-center gap-1 mt-1 text-sm text-yellow-600">
-                                                        <Star className="w-3 h-3" />
-                                                        Best Score: {progress.bestScore}%
+                                                {
+                                                    module.content?.sections && (
+                                                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                                                            <BookOpenText className="w-4 h-4" />
+                                                            {module.content.sections.length} sections
+                                                        </div>
+                                                    )
+                                                }
+                                            </div>
+                                            {
+                                                progress && (
+                                                    <div className="mb-4">
+                                                        <div className="flex justify-between text-sm mb-1">
+                                                            <span className="text-gray-600">Progress</span>
+                                                            <span className="font-medium">{progress.progressPercent}%</span>
+                                                        </div>
+                                                        <Progress value={progress.progressPercent} />
+                                                        {
+                                                            progress.bestScore && (
+                                                                <div className="flex items-center gap-1 mt-1 text-sm text-yellow-600">
+                                                                    <Star className="w-3 h-3" />
+                                                                    Best Score: {progress.bestScore}%
+                                                                </div>
+                                                            )
+                                                        }
                                                     </div>
-                                                )}
+                                                )
+                                            }
+                                            <div className="mt-4">
+                                                {
+                                                    isLocked ? (
+                                                        <Button disabled className="w-full">
+                                                            <Lock className="w-4 h-4 mr-2" />
+                                                            Locked
+                                                        </Button>
+                                                    ) : (
+                                                        <Link href={`/foundations/${language}/${getModuleSlug(module.moduleType)}`}>
+                                                            <Button
+                                                                className={`w-full bg-gradient-to-r ${getModuleColor(module.moduleType)} hover:opacity-90`}
+                                                            >
+                                                                {
+                                                                    isCompleted ? (
+                                                                        <>
+                                                                            <Trophy className="w-4 h-4 mr-2" />
+                                                                            Review Module
+                                                                        </>
+                                                                    ) : progress ? (
+                                                                        <>
+                                                                            <Play className="w-4 h-4 mr-2" />
+                                                                            Continue
+                                                                        </>
+                                                                    ) : (
+                                                                        <>
+                                                                            <Play className="w-4 h-4 mr-2" />
+                                                                            Start Module
+                                                                        </>
+                                                                    )
+                                                                }
+                                                            </Button>
+                                                        </Link>
+                                                    )
+                                                }
                                             </div>
-                                        )}
-
-                                        {/* Action Button */}
-                                        <div className="mt-4">
-                                            {isLocked ? (
-                                                <Button disabled className="w-full">
-                                                    <Lock className="w-4 h-4 mr-2" />
-                                                    Locked
-                                                </Button>
-                                            ) : (
-                                                <Link href={`/foundations/${language}/${getModuleSlug(module.moduleType)}`}>
-                                                    <Button 
-                                                        className={`w-full bg-gradient-to-r ${getModuleColor(module.moduleType)} hover:opacity-90`}
-                                                    >
-                                                        {isCompleted ? (
-                                                            <>
-                                                                <Trophy className="w-4 h-4 mr-2" />
-                                                                Review Module
-                                                            </>
-                                                        ) : progress ? (
-                                                            <>
-                                                                <Play className="w-4 h-4 mr-2" />
-                                                                Continue
-                                                            </>
-                                                        ) : (
-                                                            <>
-                                                                <Play className="w-4 h-4 mr-2" />
-                                                                Start Module
-                                                            </>
-                                                        )}
-                                                    </Button>
-                                                </Link>
-                                            )}
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            </motion.div>
-                        );
-                    })}
+                                        </CardContent>
+                                    </Card>
+                                </motion.div>
+                            );
+                        })
+                    }
                 </div>
             </div>
         </div>
     );
 };
 
-export default LanguageFoundationsPage; 
+export default LanguageFoundationsPage;

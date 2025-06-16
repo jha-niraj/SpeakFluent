@@ -141,8 +141,8 @@ const ProgressPage = () => {
 
     // If no data or user hasn't started learning yet
     if (!progressData || (
-        progressData.statistics.totalModules === 0 && 
-        progressData.statistics.totalMilestones === 0 && 
+        progressData.statistics.totalModules === 0 &&
+        progressData.statistics.totalMilestones === 0 &&
         progressData.statistics.totalAchievements === 0 &&
         progressData.conversationSessions.length === 0
     )) {
@@ -154,7 +154,6 @@ const ProgressPage = () => {
                         animate={{ opacity: 1, y: 0 }}
                         className="text-center py-20"
                     >
-                        {/* Hero Icon */}
                         <motion.div
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
@@ -163,8 +162,6 @@ const ProgressPage = () => {
                         >
                             <Target className="w-16 h-16 text-white" />
                         </motion.div>
-
-                        {/* Title */}
                         <motion.h1
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -173,8 +170,6 @@ const ProgressPage = () => {
                         >
                             Your Learning Journey Awaits! 🚀
                         </motion.h1>
-
-                        {/* Description */}
                         <motion.p
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -183,15 +178,12 @@ const ProgressPage = () => {
                         >
                             You haven&apos;t started your language learning adventure yet. Begin with foundation modules or jump into conversations to start tracking your amazing progress!
                         </motion.p>
-
-                        {/* Action Cards */}
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.5 }}
                             className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12 max-w-4xl mx-auto"
                         >
-                            {/* Foundation Card */}
                             <Card className="group hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 bg-white/80 backdrop-blur-sm border-teal-100">
                                 <CardContent className="p-8 text-center">
                                     <div className="w-20 h-20 bg-gradient-to-br from-teal-500 to-emerald-600 rounded-3xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
@@ -209,8 +201,6 @@ const ProgressPage = () => {
                                     </Link>
                                 </CardContent>
                             </Card>
-
-                            {/* Conversation Card */}
                             <Card className="group hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 bg-white/80 backdrop-blur-sm border-emerald-100">
                                 <CardContent className="p-8 text-center">
                                     <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 to-green-600 rounded-3xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
@@ -229,8 +219,6 @@ const ProgressPage = () => {
                                 </CardContent>
                             </Card>
                         </motion.div>
-
-                        {/* Features Preview */}
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -280,7 +268,6 @@ const ProgressPage = () => {
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-teal-50 to-emerald-50 p-6">
             <div className="max-w-7xl mx-auto space-y-8">
-                {/* Header */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -293,12 +280,8 @@ const ProgressPage = () => {
                         Track your journey to fluency and celebrate your achievements
                     </p>
                 </motion.div>
-
-                {/* Main Layout - Split into columns */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Left Column - Progress Overview (1/3) */}
                     <div className="lg:col-span-1 space-y-6">
-                        {/* Quick Stats */}
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -316,7 +299,6 @@ const ProgressPage = () => {
                                     </div>
                                 </CardContent>
                             </Card>
-
                             <div className="grid grid-cols-1 gap-4">
                                 <Card className="bg-white/80 backdrop-blur-sm border border-teal-100">
                                     <CardContent className="p-4">
@@ -329,7 +311,6 @@ const ProgressPage = () => {
                                         </div>
                                     </CardContent>
                                 </Card>
-
                                 <Card className="bg-white/80 backdrop-blur-sm border border-teal-100">
                                     <CardContent className="p-4">
                                         <div className="flex items-center justify-between">
@@ -341,7 +322,6 @@ const ProgressPage = () => {
                                         </div>
                                     </CardContent>
                                 </Card>
-
                                 <Card className="bg-white/80 backdrop-blur-sm border border-teal-100">
                                     <CardContent className="p-4">
                                         <div className="flex items-center justify-between">
@@ -355,8 +335,6 @@ const ProgressPage = () => {
                                 </Card>
                             </div>
                         </motion.div>
-
-                        {/* Foundation Progress */}
                         <Card className="bg-white/80 backdrop-blur-sm border border-teal-100">
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
@@ -375,19 +353,18 @@ const ProgressPage = () => {
                                     </span>
                                 </div>
                                 <Progress value={statistics.overallProgress} className="h-2" />
-                                
-                                {statistics.completedModules < statistics.totalModules && (
-                                    <Link href="/foundations">
-                                        <Button className="w-full bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700">
-                                            Continue Learning
-                                            <ArrowRight className="w-4 h-4 ml-2" />
-                                        </Button>
-                                    </Link>
-                                )}
+                                {
+                                    statistics.completedModules < statistics.totalModules && (
+                                        <Link href="/foundations">
+                                            <Button className="w-full bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700">
+                                                Continue Learning
+                                                <ArrowRight className="w-4 h-4 ml-2" />
+                                            </Button>
+                                        </Link>
+                                    )
+                                }
                             </CardContent>
                         </Card>
-
-                        {/* Weekly Activity Summary */}
                         <Card className="bg-white/80 backdrop-blur-sm border border-teal-100">
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
@@ -425,22 +402,16 @@ const ProgressPage = () => {
                             </CardContent>
                         </Card>
                     </div>
-
-                    {/* Right Column - Streak Calendar (2/3) */}
                     <div className="lg:col-span-2">
                         <StreakCalendar />
                     </div>
                 </div>
-
-                {/* Detailed Tabs Below */}
                 <Tabs defaultValue="modules" className="space-y-6">
                     <TabsList className="grid w-full grid-cols-3">
                         <TabsTrigger value="modules">Modules</TabsTrigger>
                         <TabsTrigger value="milestones">Milestones</TabsTrigger>
                         <TabsTrigger value="achievements">Achievements</TabsTrigger>
                     </TabsList>
-
-                    {/* Modules Tab */}
                     <TabsContent value="modules" className="space-y-6">
                         <Card className="bg-white/80 backdrop-blur-sm border border-teal-100">
                             <CardHeader>
@@ -451,47 +422,50 @@ const ProgressPage = () => {
                             </CardHeader>
                             <CardContent>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {moduleProgress.map((module: ModuleProgress) => (
-                                        <div key={module.id} className="border border-teal-100 rounded-lg p-4">
-                                            <div className="flex items-center justify-between mb-3">
-                                                <h3 className="font-medium text-gray-800">
-                                                    {module.module.title}
-                                                </h3>
-                                                <Badge variant={module.status === 'COMPLETED' ? 'default' : 'secondary'}>
-                                                    {module.status}
-                                                </Badge>
-                                            </div>
-                                            <div className="space-y-2">
-                                                <div className="flex items-center justify-between text-sm">
-                                                    <span>Progress</span>
-                                                    <span>{module.progressPercent}%</span>
+                                    {
+                                        moduleProgress.map((module: ModuleProgress) => (
+                                            <div key={module.id} className="border border-teal-100 rounded-lg p-4">
+                                                <div className="flex items-center justify-between mb-3">
+                                                    <h3 className="font-medium text-gray-800">
+                                                        {module.module.title}
+                                                    </h3>
+                                                    <Badge variant={module.status === 'COMPLETED' ? 'default' : 'secondary'}>
+                                                        {module.status}
+                                                    </Badge>
                                                 </div>
-                                                <Progress value={module.progressPercent} className="h-2" />
-                                                {module.bestScore && (
+                                                <div className="space-y-2">
                                                     <div className="flex items-center justify-between text-sm">
-                                                        <span>Best Score</span>
-                                                        <span className="text-teal-600 font-medium">{module.bestScore}%</span>
+                                                        <span>Progress</span>
+                                                        <span>{module.progressPercent}%</span>
                                                     </div>
-                                                )}
+                                                    <Progress value={module.progressPercent} className="h-2" />
+                                                    {
+                                                        module.bestScore && (
+                                                            <div className="flex items-center justify-between text-sm">
+                                                                <span>Best Score</span>
+                                                                <span className="text-teal-600 font-medium">{module.bestScore}%</span>
+                                                            </div>
+                                                        )
+                                                    }
+                                                </div>
                                             </div>
-                                        </div>
-                                    ))}
+                                        ))
+                                    }
                                 </div>
-                                
-                                {moduleProgress.length === 0 && (
-                                    <div className="text-center py-8">
-                                        <BookOpen className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                                        <p className="text-gray-600">No modules started yet</p>
-                                        <Link href="/foundations">
-                                            <Button className="mt-4">Start Your First Module</Button>
-                                        </Link>
-                                    </div>
-                                )}
+                                {
+                                    moduleProgress.length === 0 && (
+                                        <div className="text-center py-8">
+                                            <BookOpen className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                                            <p className="text-gray-600">No modules started yet</p>
+                                            <Link href="/foundations">
+                                                <Button className="mt-4">Start Your First Module</Button>
+                                            </Link>
+                                        </div>
+                                    )
+                                }
                             </CardContent>
                         </Card>
                     </TabsContent>
-
-                    {/* Milestones Tab */}
                     <TabsContent value="milestones" className="space-y-6">
                         <Card className="bg-white/80 backdrop-blur-sm border border-teal-100">
                             <CardHeader>
@@ -502,62 +476,65 @@ const ProgressPage = () => {
                             </CardHeader>
                             <CardContent>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                    {milestones.map((milestone: Milestone) => (
-                                        <motion.div
-                                            key={milestone.id}
-                                            initial={{ opacity: 0, scale: 0.9 }}
-                                            animate={{ opacity: 1, scale: 1 }}
-                                            className={`border rounded-lg p-4 ${
-                                                milestone.achieved 
-                                                    ? 'border-teal-200 bg-teal-50' 
-                                                    : 'border-gray-200 bg-gray-50'
-                                            }`}
-                                        >
-                                            <div className="flex items-center gap-3 mb-3">
-                                                {milestone.achieved ? (
-                                                    <CheckCircle className="w-6 h-6 text-teal-600" />
-                                                ) : (
-                                                    <Lock className="w-6 h-6 text-gray-400" />
-                                                )}
-                                                <div>
-                                                    <h3 className="font-medium text-gray-800">
-                                                        {milestone.milestone}
-                                                    </h3>
-                                                    <p className="text-xs text-gray-600">
-                                                        {milestone.milestoneType.replace(/_/g, ' ')}
-                                                    </p>
+                                    {
+                                        milestones.map((milestone: Milestone) => (
+                                            <motion.div
+                                                key={milestone.id}
+                                                initial={{ opacity: 0, scale: 0.9 }}
+                                                animate={{ opacity: 1, scale: 1 }}
+                                                className={`border rounded-lg p-4 ${milestone.achieved
+                                                        ? 'border-teal-200 bg-teal-50'
+                                                        : 'border-gray-200 bg-gray-50'
+                                                    }`}
+                                            >
+                                                <div className="flex items-center gap-3 mb-3">
+                                                    {
+                                                        milestone.achieved ? (
+                                                            <CheckCircle className="w-6 h-6 text-teal-600" />
+                                                        ) : (
+                                                            <Lock className="w-6 h-6 text-gray-400" />
+                                                        )
+                                                    }
+                                                    <div>
+                                                        <h3 className="font-medium text-gray-800">
+                                                            {milestone.milestone}
+                                                        </h3>
+                                                        <p className="text-xs text-gray-600">
+                                                            {milestone.milestoneType.replace(/_/g, ' ')}
+                                                        </p>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            
-                                            <div className="flex items-center justify-between">
-                                                <div className="flex items-center gap-1">
-                                                    <Coins className="w-4 h-4 text-teal-600" />
-                                                    <span className="text-sm font-medium text-teal-600">
-                                                        {milestone.creditsAwarded} credits
-                                                    </span>
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex items-center gap-1">
+                                                        <Coins className="w-4 h-4 text-teal-600" />
+                                                        <span className="text-sm font-medium text-teal-600">
+                                                            {milestone.creditsAwarded} credits
+                                                        </span>
+                                                    </div>
+                                                    {
+                                                        milestone.achievedAt && (
+                                                            <span className="text-xs text-gray-500">
+                                                                {new Date(milestone.achievedAt).toLocaleDateString()}
+                                                            </span>
+                                                        )
+                                                    }
                                                 </div>
-                                                {milestone.achievedAt && (
-                                                    <span className="text-xs text-gray-500">
-                                                        {new Date(milestone.achievedAt).toLocaleDateString()}
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </motion.div>
-                                    ))}
+                                            </motion.div>
+                                        ))
+                                    }
                                 </div>
-                                
-                                {milestones.length === 0 && (
-                                    <div className="text-center py-8">
-                                        <Target className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                                        <p className="text-gray-600">No milestones yet</p>
-                                        <p className="text-sm text-gray-500">Start learning to unlock your first milestone</p>
-                                    </div>
-                                )}
+                                {
+                                    milestones.length === 0 && (
+                                        <div className="text-center py-8">
+                                            <Target className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                                            <p className="text-gray-600">No milestones yet</p>
+                                            <p className="text-sm text-gray-500">Start learning to unlock your first milestone</p>
+                                        </div>
+                                    )
+                                }
                             </CardContent>
                         </Card>
                     </TabsContent>
-
-                    {/* Achievements Tab */}
                     <TabsContent value="achievements" className="space-y-6">
                         <Card className="bg-white/80 backdrop-blur-sm border border-teal-100">
                             <CardHeader>
@@ -568,43 +545,47 @@ const ProgressPage = () => {
                             </CardHeader>
                             <CardContent>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                    {achievements.map((achievement: Achievement) => (
-                                        <motion.div
-                                            key={achievement.id}
-                                            initial={{ opacity: 0, scale: 0.9 }}
-                                            animate={{ opacity: 1, scale: 1 }}
-                                            className="border border-teal-200 bg-gradient-to-br from-teal-50 to-emerald-50 rounded-lg p-4"
-                                        >
-                                            <div className="text-center mb-3">
-                                                <div className="text-3xl mb-2">{achievement.badgeIcon}</div>
-                                                <h3 className="font-bold text-gray-800">{achievement.title}</h3>
-                                                <p className="text-sm text-gray-600">{achievement.description}</p>
-                                            </div>
-                                            
-                                            <div className="flex items-center justify-between">
-                                                {achievement.creditsAwarded > 0 && (
-                                                    <div className="flex items-center gap-1">
-                                                        <Coins className="w-4 h-4 text-teal-600" />
-                                                        <span className="text-sm font-medium text-teal-600">
-                                                            {achievement.creditsAwarded} credits
-                                                        </span>
-                                                    </div>
-                                                )}
-                                                <span className="text-xs text-gray-500">
-                                                    {new Date(achievement.unlockedAt).toLocaleDateString()}
-                                                </span>
-                                            </div>
-                                        </motion.div>
-                                    ))}
+                                    {
+                                        achievements.map((achievement: Achievement) => (
+                                            <motion.div
+                                                key={achievement.id}
+                                                initial={{ opacity: 0, scale: 0.9 }}
+                                                animate={{ opacity: 1, scale: 1 }}
+                                                className="border border-teal-200 bg-gradient-to-br from-teal-50 to-emerald-50 rounded-lg p-4"
+                                            >
+                                                <div className="text-center mb-3">
+                                                    <div className="text-3xl mb-2">{achievement.badgeIcon}</div>
+                                                    <h3 className="font-bold text-gray-800">{achievement.title}</h3>
+                                                    <p className="text-sm text-gray-600">{achievement.description}</p>
+                                                </div>
+                                                <div className="flex items-center justify-between">
+                                                    {
+                                                        achievement.creditsAwarded > 0 && (
+                                                            <div className="flex items-center gap-1">
+                                                                <Coins className="w-4 h-4 text-teal-600" />
+                                                                <span className="text-sm font-medium text-teal-600">
+                                                                    {achievement.creditsAwarded} credits
+                                                                </span>
+                                                            </div>
+                                                        )
+                                                    }
+                                                    <span className="text-xs text-gray-500">
+                                                        {new Date(achievement.unlockedAt).toLocaleDateString()}
+                                                    </span>
+                                                </div>
+                                            </motion.div>
+                                        ))
+                                    }
                                 </div>
-                                
-                                {achievements.length === 0 && (
-                                    <div className="text-center py-8">
-                                        <Trophy className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                                        <p className="text-gray-600">No achievements yet</p>
-                                        <p className="text-sm text-gray-500">Keep learning to unlock your first achievement</p>
-                                    </div>
-                                )}
+                                {
+                                    achievements.length === 0 && (
+                                        <div className="text-center py-8">
+                                            <Trophy className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                                            <p className="text-gray-600">No achievements yet</p>
+                                            <p className="text-sm text-gray-500">Keep learning to unlock your first achievement</p>
+                                        </div>
+                                    )
+                                }
                             </CardContent>
                         </Card>
                     </TabsContent>

@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import {
-    Volume2, VolumeX, CheckCircle, RotateCcw,
-    ArrowLeft, ArrowRight, Play, Pause, Eye, EyeOff
+    Volume2, VolumeX, CheckCircle,
+    ArrowLeft, ArrowRight, Eye, EyeOff
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
@@ -70,7 +70,7 @@ const InteractiveLessonComponent: React.FC<InteractiveLessonComponentProps> = ({
     const [showTransliteration, setShowTransliteration] = useState(true);
     const [completedLetters, setCompletedLetters] = useState<Set<number>>(new Set());
     const [isPlaying, setIsPlaying] = useState(false);
-    const audioRef = useRef<HTMLAudioElement>(null);
+    // const audioRef = useRef<HTMLAudioElement>(null);
 
     // Get the letters array from content
     const letters: Character[] = (section.content.letters || section.content.characters || section.content.vowels || []) as Character[];
@@ -98,11 +98,11 @@ const InteractiveLessonComponent: React.FC<InteractiveLessonComponentProps> = ({
         if (isPlaying) return;
 
         console.log(character);
-        
+
         setIsPlaying(true);
         const textToSpeak = character.sound;
         const languageCode = getLanguageCode(language);
-        
+
         try {
             // Try ElevenLabs API first
             const response = await fetch('/api/text-to-speech', {
@@ -113,12 +113,12 @@ const InteractiveLessonComponent: React.FC<InteractiveLessonComponentProps> = ({
                     languageCode
                 })
             });
-            
+
             if (response.ok && response.headers.get('content-type')?.includes('audio')) {
                 // ElevenLabs returned audio
                 const audioBlob = await response.blob();
                 const audioUrl = URL.createObjectURL(audioBlob);
-                
+
                 const audio = new Audio(audioUrl);
                 audio.onended = () => {
                     setIsPlaying(false);
@@ -130,15 +130,15 @@ const InteractiveLessonComponent: React.FC<InteractiveLessonComponentProps> = ({
                     // Fallback to Web Speech API
                     playWebSpeechFallback(textToSpeak, languageCode);
                 };
-                
+
                 await audio.play();
                 toast.success('Audio played');
-                
+
             } else {
                 // API returned fallback message, use Web Speech API
                 playWebSpeechFallback(textToSpeak, languageCode);
             }
-            
+
         } catch (error) {
             console.error('Error with TTS API:', error);
             setIsPlaying(false);
@@ -164,11 +164,11 @@ const InteractiveLessonComponent: React.FC<InteractiveLessonComponentProps> = ({
 
             // Try to find a better voice for the language
             const voices = speechSynthesis.getVoices();
-            const preferredVoice = voices.find(voice => 
-                voice.lang.startsWith(languageCode.split('-')[0]) && 
+            const preferredVoice = voices.find(voice =>
+                voice.lang.startsWith(languageCode.split('-')[0]) &&
                 (voice.name.includes('Google') || voice.name.includes('Microsoft'))
             );
-            
+
             if (preferredVoice) {
                 utterance.voice = preferredVoice;
             }
@@ -181,7 +181,7 @@ const InteractiveLessonComponent: React.FC<InteractiveLessonComponentProps> = ({
 
             speechSynthesis.speak(utterance);
             toast.success('Audio played');
-            
+
         } catch (error) {
             console.error('Web Speech API error:', error);
             setIsPlaying(false);
@@ -253,7 +253,6 @@ const InteractiveLessonComponent: React.FC<InteractiveLessonComponentProps> = ({
 
     return (
         <div className="space-y-6">
-            {/* Progress Header */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <Badge variant="outline">Interactive Lesson</Badge>
@@ -266,8 +265,6 @@ const InteractiveLessonComponent: React.FC<InteractiveLessonComponentProps> = ({
                     <Progress value={progressPercent} className="w-24" />
                 </div>
             </div>
-
-            {/* Main Character Display */}
             <Card className="bg-gradient-to-br from-teal-50 to-emerald-50 border-teal-200">
                 <CardContent className="p-8">
                     <AnimatePresence mode="wait">
@@ -279,24 +276,21 @@ const InteractiveLessonComponent: React.FC<InteractiveLessonComponentProps> = ({
                             transition={{ duration: 0.3 }}
                             className="text-center space-y-6"
                         >
-                            {/* Character Display */}
                             <div className="space-y-4">
                                 <div className="text-8xl font-bold text-teal-700 mb-4">
                                     {getCharacterDisplay(currentLetter)}
                                 </div>
-
-                                {showTransliteration && (
-                                    <div className="text-2xl text-teal-600 font-medium">
-                                        [{getRomanization(currentLetter)}]
-                                    </div>
-                                )}
-
+                                {
+                                    showTransliteration && (
+                                        <div className="text-2xl text-teal-600 font-medium">
+                                            [{getRomanization(currentLetter)}]
+                                        </div>
+                                    )
+                                }
                                 <div className="text-lg text-gray-700">
                                     Sound: <span className="font-medium">{currentLetter.sound}</span>
                                 </div>
                             </div>
-
-                            {/* Audio Controls */}
                             <div className="flex justify-center gap-3">
                                 <Button
                                     variant="outline"
@@ -305,79 +299,84 @@ const InteractiveLessonComponent: React.FC<InteractiveLessonComponentProps> = ({
                                     disabled={isPlaying}
                                     className="border-teal-300 text-teal-700 hover:bg-teal-50"
                                 >
-                                    {isPlaying ? (
-                                        <>
-                                            <VolumeX className="w-5 h-5 mr-2" />
-                                            Playing...
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Volume2 className="w-5 h-5 mr-2" />
-                                            Listen
-                                        </>
-                                    )}
+                                    {
+                                        isPlaying ? (
+                                            <>
+                                                <VolumeX className="w-5 h-5 mr-2" />
+                                                Playing...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Volume2 className="w-5 h-5 mr-2" />
+                                                Listen
+                                            </>
+                                        )
+                                    }
                                 </Button>
-
                                 <Button
                                     variant="outline"
                                     size="lg"
                                     onClick={() => setShowTransliteration(!showTransliteration)}
                                     className="border-emerald-300 text-emerald-700 hover:bg-emerald-50"
                                 >
-                                    {showTransliteration ? (
-                                        <>
-                                            <EyeOff className="w-5 h-5 mr-2" />
-                                            Hide
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Eye className="w-5 h-5 mr-2" />
-                                            Show
-                                        </>
-                                    )}
+                                    {
+                                        showTransliteration ? (
+                                            <>
+                                                <EyeOff className="w-5 h-5 mr-2" />
+                                                Hide
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Eye className="w-5 h-5 mr-2" />
+                                                Show
+                                            </>
+                                        )
+                                    }
                                 </Button>
-
-                                {!completedLetters.has(currentIndex) && (
-                                    <Button
-                                        onClick={markLetterAsLearned}
-                                        size="lg"
-                                        className="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700"
-                                    >
-                                        <CheckCircle className="w-5 h-5 mr-2" />
-                                        Got it!
-                                    </Button>
-                                )}
-
-                                {completedLetters.has(currentIndex) && (
-                                    <Badge variant="default" className="px-4 py-2">
-                                        <CheckCircle className="w-4 h-4 mr-2" />
-                                        Learned
-                                    </Badge>
-                                )}
+                                {
+                                    !completedLetters.has(currentIndex) && (
+                                        <Button
+                                            onClick={markLetterAsLearned}
+                                            size="lg"
+                                            className="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700"
+                                        >
+                                            <CheckCircle className="w-5 h-5 mr-2" />
+                                            Got it!
+                                        </Button>
+                                    )
+                                }
+                                {
+                                    completedLetters.has(currentIndex) && (
+                                        <Badge variant="default" className="px-4 py-2">
+                                            <CheckCircle className="w-4 h-4 mr-2" />
+                                            Learned
+                                        </Badge>
+                                    )
+                                }
                             </div>
-
-                            {/* Examples (for Cyrillic only) */}
-                            {isCyrillicLetter(currentLetter) && (
-                                <div className="bg-white rounded-lg p-4 border border-teal-200">
-                                    <h4 className="font-medium text-gray-800 mb-2">Examples:</h4>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        {getExamples(currentLetter).map((example: string, index: number) => (
-                                            <div
-                                                key={index}
-                                                className="text-center p-2 bg-teal-50 rounded border border-teal-100"
-                                            >
-                                                <div className="font-bold text-teal-700">{example}</div>
-                                            </div>
-                                        ))}
+                            {
+                                isCyrillicLetter(currentLetter) && (
+                                    <div className="bg-white rounded-lg p-4 border border-teal-200">
+                                        <h4 className="font-medium text-gray-800 mb-2">Examples:</h4>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            {
+                                                getExamples(currentLetter).map((example: string, index: number) => (
+                                                    <div
+                                                        key={index}
+                                                        className="text-center p-2 bg-teal-50 rounded border border-teal-100"
+                                                    >
+                                                        <div className="font-bold text-teal-700">{example}</div>
+                                                    </div>
+                                                ))
+                                            }
+                                        </div>
                                     </div>
-                                </div>
-                            )}
+                                )
+                            }
                         </motion.div>
                     </AnimatePresence>
                 </CardContent>
             </Card>
-
-            {/* Navigation */}
             <div className="flex items-center justify-between">
                 <Button
                     variant="outline"
@@ -387,66 +386,67 @@ const InteractiveLessonComponent: React.FC<InteractiveLessonComponentProps> = ({
                     <ArrowLeft className="w-4 h-4 mr-2" />
                     Previous
                 </Button>
-
-                {/* Character Grid */}
                 <div className="flex gap-2 max-w-md overflow-x-auto">
-                    {letters.map((letter, index) => (
-                        <button
-                            key={index}
-                            className={`w-8 h-8 rounded-full text-xs font-medium transition-all ${index === currentIndex
+                    {
+                        letters.map((letter, index) => (
+                            <button
+                                key={index}
+                                className={`w-8 h-8 rounded-full text-xs font-medium transition-all ${index === currentIndex
                                     ? 'bg-teal-500 text-white'
                                     : completedLetters.has(index)
                                         ? 'bg-green-500 text-white'
                                         : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                                }`}
-                            onClick={() => navigateToLetter(index)}
-                        >
-                            {getCharacterDisplay(letter)}
-                        </button>
-                    ))}
+                                    }`}
+                                onClick={() => navigateToLetter(index)}
+                            >
+                                {getCharacterDisplay(letter)}
+                            </button>
+                        ))
+                    }
                 </div>
-
-                {currentIndex < letters.length - 1 ? (
-                    <Button
-                        onClick={() => navigateToLetter(currentIndex + 1)}
-                        className="bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700"
-                    >
-                        Next
-                        <ArrowRight className="w-4 h-4 ml-2" />
-                    </Button>
-                ) : (
-                    <Button
-                        onClick={onComplete}
-                        className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
-                        disabled={!completedLetters.has(currentIndex)}
-                    >
-                        Complete
-                        <CheckCircle className="w-4 h-4 ml-2" />
-                    </Button>
-                )}
+                {
+                    currentIndex < letters.length - 1 ? (
+                        <Button
+                            onClick={() => navigateToLetter(currentIndex + 1)}
+                            className="bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700"
+                        >
+                            Next
+                            <ArrowRight className="w-4 h-4 ml-2" />
+                        </Button>
+                    ) : (
+                        <Button
+                            onClick={onComplete}
+                            className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
+                            disabled={!completedLetters.has(currentIndex)}
+                        >
+                            Complete
+                            <CheckCircle className="w-4 h-4 ml-2" />
+                        </Button>
+                    )
+                }
             </div>
-
-            {/* Summary */}
             <Card className="bg-white/50 backdrop-blur-sm">
                 <CardHeader>
                     <CardTitle className="text-lg">Character Grid</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <div className="grid grid-cols-6 md:grid-cols-10 gap-3">
-                        {letters.map((letter, index) => (
-                            <button
-                                key={index}
-                                className={`aspect-square rounded-lg border-2 text-lg font-bold transition-all ${completedLetters.has(index)
+                        {
+                            letters.map((letter, index) => (
+                                <button
+                                    key={index}
+                                    className={`aspect-square rounded-lg border-2 text-lg font-bold transition-all ${completedLetters.has(index)
                                         ? 'bg-green-500 text-white'
                                         : index === currentIndex
                                             ? 'bg-teal-500 text-white'
                                             : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-teal-300'
-                                    }`}
-                                onClick={() => navigateToLetter(index)}
-                            >
-                                {getCharacterDisplay(letter)}
-                            </button>
-                        ))}
+                                        }`}
+                                    onClick={() => navigateToLetter(index)}
+                                >
+                                    {getCharacterDisplay(letter)}
+                                </button>
+                            ))
+                        }
                     </div>
                 </CardContent>
             </Card>

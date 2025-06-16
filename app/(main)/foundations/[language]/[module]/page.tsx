@@ -67,6 +67,7 @@ const ModulePage = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [module, setModule] = useState<FoundationModule | null>(null);
     const [moduleProgress, setModuleProgress] = useState<ModuleProgress | null>(null);
+    console.log('moduleProgress', moduleProgress);
     const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
     const [sectionProgress, setSectionProgress] = useState<Record<number, boolean>>({});
     const [totalTimeSpent, setTotalTimeSpent] = useState(0);
@@ -90,18 +91,18 @@ const ModulePage = () => {
                     if (result.success && result.data) {
                         const moduleData = result.data.module;
                         const progressData = result.data.progress;
-                        
+
                         const moduleWithTypedContent: FoundationModule = {
                             ...moduleData,
                             content: moduleData.content as unknown as ModuleContent
                         };
                         setModule(moduleWithTypedContent);
                         setModuleProgress(progressData as ModuleProgress);
-                        
+
                         // Restore progress from database
                         if (progressData) {
                             setTotalTimeSpent(progressData.timeSpent || 0);
-                            
+
                             // Parse completed sections
                             let completedSectionsData: Record<number, boolean> = {};
                             if (progressData.completedSections) {
@@ -116,8 +117,9 @@ const ModulePage = () => {
                                 }
                             }
                             setSectionProgress(completedSectionsData);
-                            
+
                             // Determine current section to resume from
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
                             const contentSections = (moduleData.content as any)?.sections || [];
                             if (progressData.status === 'COMPLETED') {
                                 // Module is completed, start from the last section
@@ -125,16 +127,19 @@ const ModulePage = () => {
                             } else if (progressData.currentSection) {
                                 // Resume from saved section
                                 const sectionId = parseInt(progressData.currentSection);
+                                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                 const sectionIndex = contentSections.findIndex((s: any) => s.id === sectionId);
                                 if (sectionIndex !== -1) {
                                     setCurrentSectionIndex(sectionIndex + 1);
                                 } else {
                                     // Find the next incomplete section
+                                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                     const nextIncompleteIndex = contentSections.findIndex((s: any) => !completedSectionsData[s.id]);
                                     setCurrentSectionIndex(nextIncompleteIndex >= 0 ? nextIncompleteIndex : 0);
                                 }
                             } else {
                                 // Find the first incomplete section
+                                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                 const nextIncompleteIndex = contentSections.findIndex((s: any) => !completedSectionsData[s.id]);
                                 setCurrentSectionIndex(nextIncompleteIndex >= 0 ? nextIncompleteIndex + 1 : 0);
                             }
@@ -170,27 +175,27 @@ const ModulePage = () => {
                 setTotalTimeSpent(prev => prev + timeInSection);
             }
         };
-    }, [currentSectionIndex]);
+    }, [currentSectionIndex, sectionStartTime]);
 
     const handleSectionComplete = async (sectionId: number) => {
         const newSectionProgress = { ...sectionProgress, [sectionId]: true };
         setSectionProgress(newSectionProgress);
-        
+
         // Calculate progress percentage
         const completedSections = Object.keys(newSectionProgress).length;
         const totalSections = module?.content.sections.length || 1;
         const progressPercent = Math.round((completedSections / totalSections) * 100);
-        
+
         // Prepare completed sections for database
         const completedSectionIds = Object.keys(newSectionProgress).map(key => parseInt(key));
         const completedSectionsJson = JSON.stringify(completedSectionIds);
-        
+
         // Update progress in database
         if (module) {
             try {
-                const newTimeSpent = totalTimeSpent + (sectionStartTime ? 
+                const newTimeSpent = totalTimeSpent + (sectionStartTime ?
                     Math.floor((new Date().getTime() - sectionStartTime.getTime()) / 1000) : 0);
-                
+
                 await updateModuleProgress(module.id, {
                     progressPercent,
                     currentSection: sectionId.toString(),
@@ -198,7 +203,7 @@ const ModulePage = () => {
                     status: progressPercent === 100 ? 'COMPLETED' : 'IN_PROGRESS',
                     completedSections: completedSectionsJson
                 });
-                
+
                 // Auto-advance to next incomplete section
                 if (progressPercent < 100) {
                     const nextIncompleteSection = module.content.sections.find(section => !newSectionProgress[section.id]);
@@ -316,16 +321,14 @@ const ModulePage = () => {
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-teal-50 to-emerald-50">
             <div className="max-w-7xl mx-auto p-6">
-                {/* Header */}
                 <div className="mb-6">
-                    <Link 
-                        href={`/foundations/${language}`} 
+                    <Link
+                        href={`/foundations/${language}`}
                         className="inline-flex items-center text-teal-600 hover:text-teal-700 mb-4"
                     >
                         <ArrowLeft className="w-4 h-4 mr-2" />
                         Back to {formatLanguageName(language)} Modules
                     </Link>
-                    
                     <div className="flex items-center gap-4 mb-4">
                         <div className="text-4xl">{getLanguageFlag(language)}</div>
                         <div>
@@ -337,8 +340,6 @@ const ModulePage = () => {
                             </p>
                         </div>
                     </div>
-
-                    {/* Progress Header */}
                     <Card className="bg-white/80 backdrop-blur-sm border-white/50">
                         <CardContent className="p-4">
                             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -371,10 +372,7 @@ const ModulePage = () => {
                         </CardContent>
                     </Card>
                 </div>
-
-                {/* Main Content */}
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                    {/* Section Navigation Sidebar */}
                     <div className="lg:col-span-1">
                         <Card className="bg-white/80 backdrop-blur-sm border-white/50 sticky top-6">
                             <CardHeader className="pb-3">
@@ -382,45 +380,46 @@ const ModulePage = () => {
                             </CardHeader>
                             <CardContent className="pt-0">
                                 <div className="space-y-2">
-                                    {module.content.sections.map((section, index) => (
-                                        <div
-                                            key={section.id}
-                                            className={`p-3 rounded-lg cursor-pointer transition-all ${
-                                                index === currentSectionIndex
-                                                    ? 'bg-teal-500 text-white'
-                                                    : sectionProgress[section.id]
-                                                    ? 'bg-green-100 text-green-800 hover:bg-green-200'
-                                                    : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
-                                            }`}
-                                            onClick={() => navigateToSection(index)}
-                                        >
-                                            <div className="flex items-center gap-2">
-                                                <div className="flex-shrink-0">
-                                                    {sectionProgress[section.id] ? (
-                                                        <CheckCircle className="w-4 h-4" />
-                                                    ) : index === currentSectionIndex ? (
-                                                        <Play className="w-4 h-4" />
-                                                    ) : (
-                                                        <div className="w-4 h-4 rounded-full border-2 border-current" />
-                                                    )}
-                                                </div>
-                                                <div className="min-w-0 flex-1">
-                                                    <div className="font-medium text-sm truncate">
-                                                        {section.title}
+                                    {
+                                        module.content.sections.map((section, index) => (
+                                            <div
+                                                key={section.id}
+                                                className={`p-3 rounded-lg cursor-pointer transition-all ${index === currentSectionIndex
+                                                        ? 'bg-teal-500 text-white'
+                                                        : sectionProgress[section.id]
+                                                            ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                                                            : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                                                    }`}
+                                                onClick={() => navigateToSection(index)}
+                                            >
+                                                <div className="flex items-center gap-2">
+                                                    <div className="flex-shrink-0">
+                                                        {
+                                                            sectionProgress[section.id] ? (
+                                                                <CheckCircle className="w-4 h-4" />
+                                                            ) : index === currentSectionIndex ? (
+                                                                <Play className="w-4 h-4" />
+                                                            ) : (
+                                                                <div className="w-4 h-4 rounded-full border-2 border-current" />
+                                                            )
+                                                        }
                                                     </div>
-                                                    <div className="text-xs opacity-75">
-                                                        {section.duration}m • {section.type.replace('-', ' ')}
+                                                    <div className="min-w-0 flex-1">
+                                                        <div className="font-medium text-sm truncate">
+                                                            {section.title}
+                                                        </div>
+                                                        <div className="text-xs opacity-75">
+                                                            {section.duration}m • {section.type.replace('-', ' ')}
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    ))}
+                                        ))
+                                    }
                                 </div>
                             </CardContent>
                         </Card>
                     </div>
-
-                    {/* Main Content Area */}
                     <div className="lg:col-span-3">
                         <Card className="bg-white/80 backdrop-blur-sm border-white/50 min-h-[600px]">
                             <CardHeader className="border-b border-gray-100">
@@ -459,7 +458,6 @@ const ModulePage = () => {
                                     </div>
                                 </div>
                             </CardHeader>
-                            
                             <CardContent className="p-6">
                                 <AnimatePresence mode="wait">
                                     <motion.div
@@ -474,46 +472,46 @@ const ModulePage = () => {
                                 </AnimatePresence>
                             </CardContent>
                         </Card>
-
-                        {/* Navigation Footer */}
                         <div className="flex justify-between items-center mt-6">
                             <div>
-                                {currentSectionIndex > 0 && (
-                                    <Button
-                                        variant="outline"
-                                        onClick={() => navigateToSection(currentSectionIndex - 1)}
-                                        className="border-teal-200 text-teal-700 hover:bg-teal-50"
-                                    >
-                                        <ArrowLeft className="w-4 h-4 mr-2" />
-                                        Previous Section
-                                    </Button>
-                                )}
+                                {
+                                    currentSectionIndex > 0 && (
+                                        <Button
+                                            variant="outline"
+                                            onClick={() => navigateToSection(currentSectionIndex - 1)}
+                                            className="border-teal-200 text-teal-700 hover:bg-teal-50"
+                                        >
+                                            <ArrowLeft className="w-4 h-4 mr-2" />
+                                            Previous Section
+                                        </Button>
+                                    )
+                                }
                             </div>
-                            
                             <div className="text-center">
                                 <p className="text-sm text-gray-600">
                                     Section {currentSectionIndex + 1} of {totalSections}
                                 </p>
                             </div>
-                            
                             <div>
-                                {currentSectionIndex < module.content.sections.length - 1 ? (
-                                    <Button
-                                        onClick={() => navigateToSection(currentSectionIndex + 1)}
-                                        className="bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700"
-                                        disabled={!sectionProgress[currentSection?.id]}
-                                    >
-                                        Next Section
-                                        <ArrowRight className="w-4 h-4 ml-2" />
-                                    </Button>
-                                ) : sectionProgress[currentSection?.id] ? (
-                                    <Button
-                                        className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
-                                    >
-                                        <Trophy className="w-4 h-4 mr-2" />
-                                        Module Complete!
-                                    </Button>
-                                ) : null}
+                                {
+                                    currentSectionIndex < module.content.sections.length - 1 ? (
+                                        <Button
+                                            onClick={() => navigateToSection(currentSectionIndex + 1)}
+                                            className="bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700"
+                                            disabled={!sectionProgress[currentSection?.id]}
+                                        >
+                                            Next Section
+                                            <ArrowRight className="w-4 h-4 ml-2" />
+                                        </Button>
+                                    ) : sectionProgress[currentSection?.id] ? (
+                                        <Button
+                                            className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
+                                        >
+                                            <Trophy className="w-4 h-4 mr-2" />
+                                            Module Complete!
+                                        </Button>
+                                    ) : null
+                                }
                             </div>
                         </div>
                     </div>

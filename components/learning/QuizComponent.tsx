@@ -1,14 +1,13 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
-import { 
-    CheckCircle, X, Clock, Volume2, Trophy,
-    RotateCcw, AlertCircle, Star, ArrowRight
+import {
+    CheckCircle, Clock, Volume2, Trophy,
+    RotateCcw, AlertCircle, ArrowRight
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
@@ -34,14 +33,13 @@ interface QuizComponentProps {
         duration: number;
     };
     onComplete: () => void;
-    language: string;
+    language?: string;
     moduleId?: string;
 }
 
 const QuizComponent: React.FC<QuizComponentProps> = ({
     section,
     onComplete,
-    language,
     moduleId
 }) => {
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -61,39 +59,9 @@ const QuizComponent: React.FC<QuizComponentProps> = ({
     const totalQuestions = section.content.questions.length;
     const isLastQuestion = currentQuestionIndex === totalQuestions - 1;
 
-    // Timer effect
-    useEffect(() => {
-        if (!showResults && timeLeft > 0) {
-            const timer = setInterval(() => {
-                setTimeLeft(prev => prev - 1);
-            }, 1000);
-            return () => clearInterval(timer);
-        } else if (timeLeft === 0 && !showResults) {
-            handleQuizComplete();
-        }
-    }, [timeLeft, showResults]);
-
-    const handleAnswerSelect = (answer: number) => {
-        setSelectedAnswers({ ...selectedAnswers, [currentQuestionIndex]: answer });
-    };
-
-    const handleNextQuestion = () => {
-        if (isLastQuestion) {
-            handleQuizComplete();
-        } else {
-            setCurrentQuestionIndex(prev => prev + 1);
-        }
-    };
-
-    const handlePreviousQuestion = () => {
-        if (currentQuestionIndex > 0) {
-            setCurrentQuestionIndex(prev => prev - 1);
-        }
-    };
-
-    const handleQuizComplete = async () => {
+    const handleQuizComplete = useCallback(async () => {
         // Calculate results
-        const correctCount = section.content.questions.filter((question, index) => 
+        const correctCount = section.content.questions.filter((question, index) =>
             selectedAnswers[index] === question.correct
         ).length;
         const totalQuestions = section.content.questions.length;
@@ -140,18 +108,47 @@ const QuizComponent: React.FC<QuizComponentProps> = ({
                 toast.error('Failed to submit quiz results');
             }
         }
+    }, [moduleId, selectedAnswers, section.content.questions, section.content.passingScore, startTime, onComplete]);
+
+    // Timer effect
+    useEffect(() => {
+        if (!showResults && timeLeft > 0) {
+            const timer = setInterval(() => {
+                setTimeLeft(prev => prev - 1);
+            }, 1000);
+            return () => clearInterval(timer);
+        } else if (timeLeft === 0 && !showResults) {
+            handleQuizComplete();
+        }
+    }, [timeLeft, showResults, handleQuizComplete]);
+
+    const handleAnswerSelect = (answer: number) => {
+        setSelectedAnswers({ ...selectedAnswers, [currentQuestionIndex]: answer });
     };
 
-    const playAudio = (audioFile: string) => {
-        // In a real implementation, you would play the actual audio file
-        if ('speechSynthesis' in window) {
-            const utterance = new SpeechSynthesisUtterance('Audio sample');
-            utterance.lang = language === 'russian' ? 'ru-RU' : 
-                            language === 'japanese' ? 'ja-JP' : 
-                            language === 'korean' ? 'ko-KR' : 'en-US';
-            speechSynthesis.speak(utterance);
+    const handleNextQuestion = () => {
+        if (isLastQuestion) {
+            handleQuizComplete();
+        } else {
+            setCurrentQuestionIndex(prev => prev + 1);
         }
     };
+
+    const handlePreviousQuestion = () => {
+        if (currentQuestionIndex > 0) {
+            setCurrentQuestionIndex(prev => prev - 1);
+        }
+    };
+
+    // const playAudio = (_audioFile: string) => {
+    //     if ('speechSynthesis' in window) {
+    //         const utterance = new SpeechSynthesisUtterance('Audio sample');
+    //         utterance.lang = language === 'russian' ? 'ru-RU' :
+    //             language === 'japanese' ? 'ja-JP' :
+    //                 language === 'korean' ? 'ko-KR' : 'en-US';
+    //         speechSynthesis.speak(utterance);
+    //     }
+    // };
 
     const restartQuiz = () => {
         setCurrentQuestionIndex(0);
@@ -183,7 +180,6 @@ const QuizComponent: React.FC<QuizComponentProps> = ({
                         Score: {results.score}% ({results.correctAnswers}/{results.totalQuestions})
                     </div>
                 </div>
-
                 <Card className={`border-2 ${results.passed ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
                     <CardContent className="p-6">
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
@@ -214,20 +210,20 @@ const QuizComponent: React.FC<QuizComponentProps> = ({
                                 </div>
                             </div>
                         </div>
-
-                        {!results.passed && (
-                            <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                                <div className="flex items-center gap-2 text-yellow-800">
-                                    <AlertCircle className="w-5 h-5" />
-                                    <span className="font-medium">
-                                        You need {section.content.passingScore}% to pass this quiz.
-                                    </span>
+                        {
+                            !results.passed && (
+                                <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                                    <div className="flex items-center gap-2 text-yellow-800">
+                                        <AlertCircle className="w-5 h-5" />
+                                        <span className="font-medium">
+                                            You need {section.content.passingScore}% to pass this quiz.
+                                        </span>
+                                    </div>
                                 </div>
-                            </div>
-                        )}
+                            )
+                        }
                     </CardContent>
                 </Card>
-
                 <div className="flex justify-center gap-4">
                     <Button
                         onClick={restartQuiz}
@@ -237,15 +233,17 @@ const QuizComponent: React.FC<QuizComponentProps> = ({
                         <RotateCcw className="w-4 h-4 mr-2" />
                         Retake Quiz
                     </Button>
-                    {results.passed && (
-                        <Button
-                            onClick={onComplete}
-                            className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
-                        >
-                            <Trophy className="w-4 h-4 mr-2" />
-                            Continue
-                        </Button>
-                    )}
+                    {
+                        results.passed && (
+                            <Button
+                                onClick={onComplete}
+                                className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
+                            >
+                                <Trophy className="w-4 h-4 mr-2" />
+                                Continue
+                            </Button>
+                        )
+                    }
                 </div>
             </div>
         );
@@ -253,7 +251,6 @@ const QuizComponent: React.FC<QuizComponentProps> = ({
 
     return (
         <div className="space-y-6">
-            {/* Header */}
             <div className="text-center">
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">
                     {section.title}
@@ -264,7 +261,6 @@ const QuizComponent: React.FC<QuizComponentProps> = ({
                         Question {currentQuestionIndex + 1} of {totalQuestions}
                     </Badge>
                 </div>
-                
                 <div className="flex items-center justify-center gap-4 mb-4">
                     <div className="flex items-center gap-2">
                         <Clock className="w-4 h-4 text-gray-600" />
@@ -279,11 +275,8 @@ const QuizComponent: React.FC<QuizComponentProps> = ({
                         </span>
                     </div>
                 </div>
-
                 <Progress value={(currentQuestionIndex / totalQuestions) * 100} className="w-full max-w-md mx-auto" />
             </div>
-
-            {/* Question Card */}
             <Card className="border-2 border-teal-200 shadow-lg">
                 <CardHeader className="bg-gradient-to-br from-teal-50 to-emerald-50">
                     <CardTitle className="text-center text-xl">
@@ -299,82 +292,86 @@ const QuizComponent: React.FC<QuizComponentProps> = ({
                             exit={{ opacity: 0, x: -20 }}
                             transition={{ duration: 0.3 }}
                         >
-                            {/* Question Content */}
-                            {currentQuestion.type === 'multiple-choice' && (
-                                <div className="space-y-3">
-                                    {currentQuestion.options.map((option, index) => (
-                                        <button
-                                            key={index}
-                                            className={`w-full p-4 text-left rounded-lg border-2 transition-all ${
-                                                selectedAnswers[currentQuestionIndex] === index
-                                                    ? 'border-teal-500 bg-teal-50 text-teal-700'
-                                                    : 'border-gray-200 hover:border-teal-300 hover:bg-teal-50'
-                                            }`}
-                                            onClick={() => handleAnswerSelect(index)}
-                                        >
-                                            <div className="flex items-center gap-3">
-                                                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                                                    selectedAnswers[currentQuestionIndex] === index
-                                                        ? 'border-teal-500 bg-teal-500'
-                                                        : 'border-gray-300'
-                                                }`}>
-                                                    {selectedAnswers[currentQuestionIndex] === index && (
-                                                        <CheckCircle className="w-4 h-4 text-white" />
-                                                    )}
-                                                </div>
-                                                <span className="font-medium">{option}</span>
-                                            </div>
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
-
-                            {currentQuestion.type === 'audio-recognition' && (
-                                <div className="space-y-4">
-                                    <div className="text-center">
-                                        <Button
-                                            size="lg"
-                                            variant="outline"
-                                            className="border-blue-300 text-blue-700 hover:bg-blue-50"
-                                        >
-                                            <Volume2 className="w-5 h-5 mr-2" />
-                                            Play Audio
-                                        </Button>
-                                    </div>
+                            {
+                                currentQuestion.type === 'multiple-choice' && (
                                     <div className="space-y-3">
-                                        {currentQuestion.options.map((option, index) => (
-                                            <button
-                                                key={index}
-                                                className={`w-full p-4 text-left rounded-lg border-2 transition-all ${
-                                                    selectedAnswers[currentQuestionIndex] === index
+                                        {
+                                            currentQuestion.options.map((option, index) => (
+                                                <button
+                                                    key={index}
+                                                    className={`w-full p-4 text-left rounded-lg border-2 transition-all ${selectedAnswers[currentQuestionIndex] === index
                                                         ? 'border-teal-500 bg-teal-50 text-teal-700'
                                                         : 'border-gray-200 hover:border-teal-300 hover:bg-teal-50'
-                                                }`}
-                                                onClick={() => handleAnswerSelect(index)}
-                                            >
-                                                <div className="flex items-center gap-3">
-                                                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                                                        selectedAnswers[currentQuestionIndex] === index
+                                                        }`}
+                                                    onClick={() => handleAnswerSelect(index)}
+                                                >
+                                                    <div className="flex items-center gap-3">
+                                                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${selectedAnswers[currentQuestionIndex] === index
                                                             ? 'border-teal-500 bg-teal-500'
                                                             : 'border-gray-300'
-                                                    }`}>
-                                                        {selectedAnswers[currentQuestionIndex] === index && (
-                                                            <CheckCircle className="w-4 h-4 text-white" />
-                                                        )}
+                                                            }`}>
+                                                            {
+                                                                selectedAnswers[currentQuestionIndex] === index && (
+                                                                    <CheckCircle className="w-4 h-4 text-white" />
+                                                                )
+                                                            }
+                                                        </div>
+                                                        <span className="font-medium">{option}</span>
                                                     </div>
-                                                    <span className="font-medium">{option}</span>
-                                                </div>
-                                            </button>
-                                        ))}
+                                                </button>
+                                            ))
+                                        }
                                     </div>
-                                </div>
-                            )}
+                                )
+                            }
+                            {
+                                currentQuestion.type === 'audio-recognition' && (
+                                    <div className="space-y-4">
+                                        <div className="text-center">
+                                            <Button
+                                                size="lg"
+                                                variant="outline"
+                                                className="border-blue-300 text-blue-700 hover:bg-blue-50"
+                                            >
+                                                <Volume2 className="w-5 h-5 mr-2" />
+                                                Play Audio
+                                            </Button>
+                                        </div>
+                                        <div className="space-y-3">
+                                            {
+                                                currentQuestion.options.map((option, index) => (
+                                                    <button
+                                                        key={index}
+                                                        className={`w-full p-4 text-left rounded-lg border-2 transition-all ${selectedAnswers[currentQuestionIndex] === index
+                                                            ? 'border-teal-500 bg-teal-50 text-teal-700'
+                                                            : 'border-gray-200 hover:border-teal-300 hover:bg-teal-50'
+                                                            }`}
+                                                        onClick={() => handleAnswerSelect(index)}
+                                                    >
+                                                        <div className="flex items-center gap-3">
+                                                            <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${selectedAnswers[currentQuestionIndex] === index
+                                                                ? 'border-teal-500 bg-teal-500'
+                                                                : 'border-gray-300'
+                                                                }`}>
+                                                                {
+                                                                    selectedAnswers[currentQuestionIndex] === index && (
+                                                                        <CheckCircle className="w-4 h-4 text-white" />
+                                                                    )
+                                                                }
+                                                            </div>
+                                                            <span className="font-medium">{option}</span>
+                                                        </div>
+                                                    </button>
+                                                ))
+                                            }
+                                        </div>
+                                    </div>
+                                )
+                            }
                         </motion.div>
                     </AnimatePresence>
                 </CardContent>
             </Card>
-
-            {/* Navigation */}
             <div className="flex justify-between items-center">
                 <Button
                     variant="outline"
@@ -383,7 +380,6 @@ const QuizComponent: React.FC<QuizComponentProps> = ({
                 >
                     Previous
                 </Button>
-
                 <div className="text-center">
                     <p className="text-sm text-gray-600">
                         Question {currentQuestionIndex + 1} of {totalQuestions}
@@ -392,7 +388,6 @@ const QuizComponent: React.FC<QuizComponentProps> = ({
                         Time remaining: {formatTime(timeLeft)}
                     </p>
                 </div>
-
                 <Button
                     onClick={handleNextQuestion}
                     disabled={!canProceed}

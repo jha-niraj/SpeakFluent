@@ -15,6 +15,8 @@ export function AuthRedirect({ children }: { children: React.ReactNode }) {
     const [isChecking, setIsChecking] = useState(true);
     const [userDetails, setUserDetails] = useState<User | null>(null);
 
+    console.log('userDetails', userDetails);
+
     useEffect(() => {
         async function checkOnboardingStatus() {
             if (status === 'loading') return;

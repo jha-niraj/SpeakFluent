@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
+import {
     GamepadIcon, Trophy, RotateCcw, CheckCircle,
     Timer, Star
 } from 'lucide-react';
@@ -94,36 +94,36 @@ const GameComponent: React.FC<GameComponentProps> = ({
     };
 
     const initializeLetterMatch = () => {
-        const letters = currentLevelData.letters === 'all' 
-            ? getAllLettersForLanguage() 
+        const letters = currentLevelData.letters === 'all'
+            ? getAllLettersForLanguage()
             : currentLevelData.letters as string[];
-        
+
         const pairs = letters.slice(0, 8).flatMap(letter => [
             { id: Math.random(), type: 'cyrillic', value: letter, matched: false },
             { id: Math.random(), type: 'latin', value: getLatinEquivalent(letter), matched: false }
         ]);
-        
+
         setGameData(shuffleArray(pairs));
     };
 
     const initializeMemoryGame = () => {
-        const letters = currentLevelData.letters === 'all' 
-            ? getAllLettersForLanguage() 
+        const letters = currentLevelData.letters === 'all'
+            ? getAllLettersForLanguage()
             : currentLevelData.letters as string[];
-        
+
         const cards = letters.slice(0, 6).flatMap(letter => [
             { id: Math.random(), value: letter, type: 'letter', matched: false },
             { id: Math.random(), value: letter, type: 'letter', matched: false }
         ]);
-        
+
         setGameData(shuffleArray(cards));
     };
 
     const initializeSpeedTyping = () => {
-        const letters = currentLevelData.letters === 'all' 
-            ? getAllLettersForLanguage() 
+        const letters = currentLevelData.letters === 'all'
+            ? getAllLettersForLanguage()
             : currentLevelData.letters as string[];
-        
+
         setGameData(shuffleArray(letters.slice(0, 10)));
     };
 
@@ -177,7 +177,7 @@ const GameComponent: React.FC<GameComponentProps> = ({
                     setMatchedPairs(prev => new Set([...prev, first, second]));
                     setScore(prev => prev + 10);
                     setSelectedCards([]);
-                    
+
                     if (matchedPairs.size + 2 === gameData.length) {
                         setTimeout(() => completeLevel(), 500);
                     }
@@ -198,18 +198,18 @@ const GameComponent: React.FC<GameComponentProps> = ({
                 const [first, second] = newSelected;
                 const firstCard = gameData[first];
                 const secondCard = gameData[second];
-                
+
                 // Check if they match (cyrillic with its latin equivalent)
-                const isMatch = (firstCard.type === 'cyrillic' && secondCard.type === 'latin' && 
-                               getLatinEquivalent(firstCard.value) === secondCard.value) ||
-                              (firstCard.type === 'latin' && secondCard.type === 'cyrillic' && 
-                               firstCard.value === getLatinEquivalent(secondCard.value));
+                const isMatch = (firstCard.type === 'cyrillic' && secondCard.type === 'latin' &&
+                    getLatinEquivalent(firstCard.value) === secondCard.value) ||
+                    (firstCard.type === 'latin' && secondCard.type === 'cyrillic' &&
+                        firstCard.value === getLatinEquivalent(secondCard.value));
 
                 if (isMatch) {
                     setMatchedPairs(prev => new Set([...prev, first, second]));
                     setScore(prev => prev + 15);
                     setSelectedCards([]);
-                    
+
                     if (matchedPairs.size + 2 === gameData.length) {
                         setTimeout(() => completeLevel(), 500);
                     }
@@ -224,7 +224,7 @@ const GameComponent: React.FC<GameComponentProps> = ({
         setIsTimerActive(false);
         const timeBonus = Math.max(0, timeLeft * 2);
         setScore(prev => prev + timeBonus);
-        
+
         if (currentLevel < section.content.levels.length - 1) {
             toast.success(`Level ${currentLevel + 1} completed! +${timeBonus} time bonus`);
             setTimeout(() => {
@@ -268,29 +268,30 @@ const GameComponent: React.FC<GameComponentProps> = ({
                         Test your knowledge with fun interactive games!
                     </p>
                 </div>
-
-                {/* Game Levels */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {section.content.levels.map((level, index) => (
-                        <Card key={index} className="border-2 border-teal-200 hover:border-teal-400 transition-colors">
-                            <CardContent className="p-6 text-center">
-                                <div className="text-3xl mb-2">
-                                    {index === 0 ? '🌟' : index === 1 ? '⚡' : '🏆'}
-                                </div>
-                                <h3 className="font-bold text-lg mb-2">{level.name}</h3>
-                                <div className="flex justify-center gap-1 mb-3">
-                                    {Array.from({ length: level.difficulty }, (_, i) => (
-                                        <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                                    ))}
-                                </div>
-                                <Badge variant="outline" className="mb-3">
-                                    {Array.isArray(level.letters) ? level.letters.length : 'All'} letters
-                                </Badge>
-                            </CardContent>
-                        </Card>
-                    ))}
+                    {
+                        section.content.levels.map((level, index) => (
+                            <Card key={index} className="border-2 border-teal-200 hover:border-teal-400 transition-colors">
+                                <CardContent className="p-6 text-center">
+                                    <div className="text-3xl mb-2">
+                                        {index === 0 ? '🌟' : index === 1 ? '⚡' : '🏆'}
+                                    </div>
+                                    <h3 className="font-bold text-lg mb-2">{level.name}</h3>
+                                    <div className="flex justify-center gap-1 mb-3">
+                                        {
+                                            Array.from({ length: level.difficulty }, (_, i) => (
+                                                <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                                            ))
+                                        }
+                                    </div>
+                                    <Badge variant="outline" className="mb-3">
+                                        {Array.isArray(level.letters) ? level.letters.length : 'All'} letters
+                                    </Badge>
+                                </CardContent>
+                            </Card>
+                        ))
+                    }
                 </div>
-
                 <div className="text-center">
                     <Button
                         size="lg"
@@ -315,7 +316,6 @@ const GameComponent: React.FC<GameComponentProps> = ({
                 <div className="text-xl text-gray-600 mb-6">
                     Final Score: <span className="font-bold text-green-600">{score}</span>
                 </div>
-
                 <Card className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
                     <CardContent className="p-6">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
@@ -334,7 +334,6 @@ const GameComponent: React.FC<GameComponentProps> = ({
                         </div>
                     </CardContent>
                 </Card>
-
                 <div className="flex justify-center gap-4">
                     <Button
                         variant="outline"
@@ -355,10 +354,8 @@ const GameComponent: React.FC<GameComponentProps> = ({
         );
     }
 
-    // Playing state
     return (
         <div className="space-y-6">
-            {/* Game Header */}
             <div className="flex justify-between items-center">
                 <div>
                     <h2 className="text-xl font-bold text-gray-900">
@@ -379,47 +376,47 @@ const GameComponent: React.FC<GameComponentProps> = ({
                     </div>
                 </div>
             </div>
-
-            {/* Game Board */}
             <Card className="border-2 border-teal-200">
                 <CardContent className="p-6">
                     <div className="grid grid-cols-4 md:grid-cols-6 gap-3">
-                        {gameData.map((item, index) => (
-                            <motion.button
-                                key={item.id || index}
-                                className={`
+                        {
+                            gameData.map((item, index) => (
+                                <motion.button
+                                    key={item.id || index}
+                                    className={`
                                     aspect-square rounded-lg text-lg font-bold transition-all duration-200
-                                    ${matchedPairs.has(index) 
-                                        ? 'bg-green-500 text-white' 
-                                        : selectedCards.includes(index)
-                                        ? 'bg-blue-500 text-white'
-                                        : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-teal-300 hover:bg-teal-50'
-                                    }
+                                    ${matchedPairs.has(index)
+                                            ? 'bg-green-500 text-white'
+                                            : selectedCards.includes(index)
+                                                ? 'bg-blue-500 text-white'
+                                                : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-teal-300 hover:bg-teal-50'
+                                        }
                                 `}
-                                onClick={() => handleCardClick(index)}
-                                disabled={matchedPairs.has(index) || selectedCards.includes(index)}
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                            >
-                                {selectedCards.includes(index) || matchedPairs.has(index) 
-                                    ? item.value 
-                                    : '?'
-                                }
-                            </motion.button>
-                        ))}
+                                    onClick={() => handleCardClick(index)}
+                                    disabled={matchedPairs.has(index) || selectedCards.includes(index)}
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                >
+                                    {
+                                        selectedCards.includes(index) || matchedPairs.has(index)
+                                            ? item.value
+                                            : '?'
+                                    }
+                                </motion.button>
+                            ))
+                        }
                     </div>
                 </CardContent>
             </Card>
-
-            {/* Game Instructions */}
             <Card className="bg-blue-50 border-blue-200">
                 <CardContent className="p-4">
                     <p className="text-blue-800 text-sm">
-                        {section.content.gameType === 'letter-match' 
-                            ? 'Match each Cyrillic letter with its Latin equivalent!'
-                            : section.content.gameType === 'memory-game'
-                            ? 'Find matching pairs by remembering card positions!'
-                            : 'Complete the challenge as quickly as possible!'
+                        {
+                            section.content.gameType === 'letter-match'
+                                ? 'Match each Cyrillic letter with its Latin equivalent!'
+                                : section.content.gameType === 'memory-game'
+                                    ? 'Find matching pairs by remembering card positions!'
+                                    : 'Complete the challenge as quickly as possible!'
                         }
                     </p>
                 </CardContent>

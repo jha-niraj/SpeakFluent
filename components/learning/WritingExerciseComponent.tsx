@@ -1,15 +1,13 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { 
+import {
     PenTool, RotateCcw, CheckCircle, Volume2,
-    ArrowRight, ArrowLeft, Target, Eye
+    ArrowRight, ArrowLeft, Target
 } from 'lucide-react';
-import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 
 interface WritingExercise {
@@ -19,10 +17,10 @@ interface WritingExercise {
     audio?: boolean;
 }
 
-interface WritingExerciseContent {
-    exercises: WritingExercise[];
-    description?: string;
-}
+// interface WritingExerciseContent {
+//     exercises: WritingExercise[];
+//     description?: string;
+// }
 
 interface WritingExerciseComponentProps {
     section: {
@@ -43,9 +41,7 @@ const WritingExerciseComponent: React.FC<WritingExerciseComponentProps> = ({
     language
 }) => {
     const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
-    const [userInput, setUserInput] = useState('');
     const [completedExercises, setCompletedExercises] = useState<Set<number>>(new Set());
-    const [showSolution, setShowSolution] = useState(false);
     const [currentItemIndex, setCurrentItemIndex] = useState(0);
     const [isDrawing, setIsDrawing] = useState(false);
     const [showGuide, setShowGuide] = useState(true);
@@ -56,29 +52,15 @@ const WritingExerciseComponent: React.FC<WritingExerciseComponentProps> = ({
     const currentItems = currentExercise.letters || currentExercise.words || [];
     const currentItem = currentItems[currentItemIndex];
 
-    useEffect(() => {
-        const canvas = canvasRef.current;
-        if (canvas) {
-            const ctx = canvas.getContext('2d');
-            if (ctx) {
-                setCanvasContext(ctx);
-                setupCanvas(ctx);
-            }
-        }
-    }, [currentExerciseIndex, currentItemIndex]);
-
-    const setupCanvas = (ctx: CanvasRenderingContext2D) => {
+    const setupCanvas = useCallback((ctx: CanvasRenderingContext2D) => {
         const canvas = canvasRef.current;
         if (!canvas) return;
 
-        // Set canvas size
         canvas.width = 400;
         canvas.height = 200;
 
-        // Clear canvas
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // Set drawing style
         ctx.lineWidth = 3;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
@@ -92,7 +74,18 @@ const WritingExerciseComponent: React.FC<WritingExerciseComponentProps> = ({
         if (currentExercise.type === 'trace' && currentItem) {
             drawTemplate(ctx, currentItem);
         }
-    };
+    }, [currentExercise, currentItem, showGuide]);
+
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+                setCanvasContext(ctx);
+                setupCanvas(ctx);
+            }
+        }
+    }, [currentExerciseIndex, currentItemIndex, setupCanvas]);
 
     const drawGuideLines = (ctx: CanvasRenderingContext2D) => {
         const canvas = canvasRef.current;
@@ -180,7 +173,7 @@ const WritingExerciseComponent: React.FC<WritingExerciseComponentProps> = ({
         } else {
             // Mark exercise as completed
             setCompletedExercises(prev => new Set([...prev, currentExerciseIndex]));
-            
+
             if (currentExerciseIndex < section.content.exercises.length - 1) {
                 setCurrentExerciseIndex(prev => prev + 1);
                 setCurrentItemIndex(0);
@@ -206,9 +199,9 @@ const WritingExerciseComponent: React.FC<WritingExerciseComponentProps> = ({
     const playAudio = (text: string) => {
         if ('speechSynthesis' in window) {
             const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = language === 'russian' ? 'ru-RU' : 
-                            language === 'japanese' ? 'ja-JP' : 
-                            language === 'korean' ? 'ko-KR' : 'en-US';
+            utterance.lang = language === 'russian' ? 'ru-RU' :
+                language === 'japanese' ? 'ja-JP' :
+                    language === 'korean' ? 'ko-KR' : 'en-US';
             utterance.rate = 0.8;
             speechSynthesis.speak(utterance);
         }
@@ -242,7 +235,6 @@ const WritingExerciseComponent: React.FC<WritingExerciseComponentProps> = ({
 
     return (
         <div className="space-y-6">
-            {/* Exercise Header */}
             <div className="text-center">
                 <div className="text-4xl mb-2">
                     {getExerciseIcon(currentExercise.type)}
@@ -262,39 +254,34 @@ const WritingExerciseComponent: React.FC<WritingExerciseComponentProps> = ({
                     {getExerciseInstructions(currentExercise.type)}
                 </p>
             </div>
-
-            {/* Progress Bar */}
             <div className="w-full bg-gray-200 rounded-full h-2">
-                <div 
+                <div
                     className="bg-gradient-to-r from-purple-500 to-pink-600 h-2 rounded-full transition-all duration-300"
-                    style={{ 
-                        width: `${((currentExerciseIndex * currentItems.length + currentItemIndex + 1) / 
-                                  (section.content.exercises.reduce((acc, ex) => acc + (ex.letters?.length || ex.words?.length || 0), 0))) * 100}%` 
+                    style={{
+                        width: `${((currentExerciseIndex * currentItems.length + currentItemIndex + 1) /
+                            (section.content.exercises.reduce((acc, ex) => acc + (ex.letters?.length || ex.words?.length || 0), 0))) * 100}%`
                     }}
                 />
             </div>
-
-            {/* Current Item Display */}
             <Card className="border-2 border-purple-200">
                 <CardHeader className="text-center">
                     <CardTitle className="text-4xl font-bold text-purple-600 mb-4">
                         {currentItem}
                     </CardTitle>
-                    
-                    {currentExercise.audio && (
-                        <Button
-                            variant="outline"
-                            onClick={() => playAudio(currentItem)}
-                            className="mx-auto"
-                        >
-                            <Volume2 className="w-4 h-4 mr-2" />
-                            Listen
-                        </Button>
-                    )}
+                    {
+                        currentExercise.audio && (
+                            <Button
+                                variant="outline"
+                                onClick={() => playAudio(currentItem)}
+                                className="mx-auto"
+                            >
+                                <Volume2 className="w-4 h-4 mr-2" />
+                                Listen
+                            </Button>
+                        )
+                    }
                 </CardHeader>
             </Card>
-
-            {/* Writing Canvas */}
             <Card className="border-2 border-gray-200">
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle className="flex items-center gap-2">
@@ -330,8 +317,6 @@ const WritingExerciseComponent: React.FC<WritingExerciseComponentProps> = ({
                     />
                 </CardContent>
             </Card>
-
-            {/* Instructions */}
             <Card className="bg-purple-50 border-purple-200">
                 <CardContent className="p-4">
                     <div className="flex items-center gap-2 mb-2">
@@ -342,17 +327,19 @@ const WritingExerciseComponent: React.FC<WritingExerciseComponentProps> = ({
                         <li>• Take your time to form each stroke carefully</li>
                         <li>• Follow the guide lines to maintain proper size</li>
                         <li>• Practice each letter multiple times for muscle memory</li>
-                        {currentExercise.type === 'trace' && (
-                            <li>• Trace directly over the gray template</li>
-                        )}
-                        {currentExercise.type === 'dictation' && currentExercise.audio && (
-                            <li>• Click the Listen button to hear the pronunciation</li>
-                        )}
+                        {
+                            currentExercise.type === 'trace' && (
+                                <li>• Trace directly over the gray template</li>
+                            )
+                        }
+                        {
+                            currentExercise.type === 'dictation' && currentExercise.audio && (
+                                <li>• Click the Listen button to hear the pronunciation</li>
+                            )
+                        }
                     </ul>
                 </CardContent>
             </Card>
-
-            {/* Navigation */}
             <div className="flex justify-between items-center">
                 <Button
                     variant="outline"
@@ -362,7 +349,6 @@ const WritingExerciseComponent: React.FC<WritingExerciseComponentProps> = ({
                     <ArrowLeft className="w-4 h-4 mr-2" />
                     Previous
                 </Button>
-
                 <div className="text-center">
                     <div className="text-sm text-gray-600">
                         Exercise {currentExerciseIndex + 1} of {section.content.exercises.length}
@@ -371,55 +357,55 @@ const WritingExerciseComponent: React.FC<WritingExerciseComponentProps> = ({
                         Item {currentItemIndex + 1} of {currentItems.length}
                     </div>
                 </div>
-
                 <Button
                     onClick={nextItem}
                     className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700"
                 >
-                    {currentItemIndex === currentItems.length - 1 && 
-                     currentExerciseIndex === section.content.exercises.length - 1 ? (
-                        <>
-                            <CheckCircle className="w-4 h-4 mr-2" />
-                            Complete
-                        </>
-                    ) : (
-                        <>
-                            Next
-                            <ArrowRight className="w-4 h-4 ml-2" />
-                        </>
-                    )}
+                    {
+                        currentItemIndex === currentItems.length - 1 &&
+                            currentExerciseIndex === section.content.exercises.length - 1 ? (
+                            <>
+                                <CheckCircle className="w-4 h-4 mr-2" />
+                                Complete
+                            </>
+                        ) : (
+                            <>
+                                Next
+                                <ArrowRight className="w-4 h-4 ml-2" />
+                            </>
+                        )
+                    }
                 </Button>
             </div>
-
-            {/* Exercise Overview */}
             <Card className="bg-slate-50 border-slate-200">
                 <CardHeader>
                     <CardTitle className="text-lg">Exercise Progress</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {section.content.exercises.map((exercise, index) => (
-                            <div
-                                key={index}
-                                className={`p-3 rounded-lg text-center ${
-                                    completedExercises.has(index)
+                        {
+                            section.content.exercises.map((exercise, index) => (
+                                <div
+                                    key={index}
+                                    className={`p-3 rounded-lg text-center ${completedExercises.has(index)
                                         ? 'bg-green-500 text-white'
                                         : index === currentExerciseIndex
-                                        ? 'bg-purple-500 text-white'
-                                        : 'bg-white border-2 border-gray-200'
-                                }`}
-                            >
-                                <div className="text-2xl mb-1">
-                                    {getExerciseIcon(exercise.type)}
+                                            ? 'bg-purple-500 text-white'
+                                            : 'bg-white border-2 border-gray-200'
+                                        }`}
+                                >
+                                    <div className="text-2xl mb-1">
+                                        {getExerciseIcon(exercise.type)}
+                                    </div>
+                                    <div className="font-medium text-sm">
+                                        {exercise.type.charAt(0).toUpperCase() + exercise.type.slice(1)}
+                                    </div>
+                                    <div className="text-xs opacity-75">
+                                        {exercise.letters?.length || exercise.words?.length || 0} items
+                                    </div>
                                 </div>
-                                <div className="font-medium text-sm">
-                                    {exercise.type.charAt(0).toUpperCase() + exercise.type.slice(1)}
-                                </div>
-                                <div className="text-xs opacity-75">
-                                    {exercise.letters?.length || exercise.words?.length || 0} items
-                                </div>
-                            </div>
-                        ))}
+                            ))
+                        }
                     </div>
                 </CardContent>
             </Card>

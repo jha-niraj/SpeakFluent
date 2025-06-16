@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
+import {
     Flame, TrendingUp, Calendar, ChevronLeft, ChevronRight,
     MessageSquare, BookOpen, Clock, Coins, Trophy
 } from 'lucide-react';
@@ -23,12 +23,34 @@ interface DayActivity {
     } | null;
 }
 
+interface Activity {
+    id: string;
+    createdAt: Date;
+    userId: string;
+    updatedAt: Date;
+    moduleProgress: number;
+    date: Date;
+    hasActivity: boolean;
+    conversationCount: number;
+    totalTimeSpent: number;
+    creditsEarned: number;
+}
+
+interface StreakReward {
+    id: string;
+    createdAt: Date;
+    userId: string;
+    creditsAwarded: number;
+    streakDays: number;
+    awardedAt: Date;
+}
+
 interface StreakData {
     currentStreak: number;
     longestStreak: number;
     lastActivityDate: Date | null;
-    activities: any[];
-    streakRewards: any[];
+    activities: Activity[];
+    streakRewards: StreakReward[];
     nextMilestone: number | undefined;
 }
 
@@ -52,35 +74,35 @@ const StreakCalendar: React.FC<StreakCalendarProps> = ({ className = "" }) => {
     const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
     useEffect(() => {
+        const fetchCalendarData = async () => {
+            try {
+                const result = await getStreakCalendar(currentYear, currentMonth);
+                if (result.success && result.data) {
+                    setCalendarData(result.data.calendar);
+                }
+            } catch (error) {
+                console.error('Error fetching calendar:', error);
+                toast.error('Failed to load calendar data');
+            }
+        };
+
+        const fetchStreakData = async () => {
+            try {
+                const result = await getUserStreakData();
+                if (result.success && result.data) {
+                    setStreakData(result.data as StreakData);
+                }
+            } catch (error) {
+                console.error('Error fetching streak data:', error);
+                toast.error('Failed to load streak data');
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
         fetchCalendarData();
         fetchStreakData();
     }, [currentMonth, currentYear]);
-
-    const fetchCalendarData = async () => {
-        try {
-            const result = await getStreakCalendar(currentYear, currentMonth);
-            if (result.success && result.data) {
-                setCalendarData(result.data.calendar);
-            }
-        } catch (error) {
-            console.error('Error fetching calendar:', error);
-            toast.error('Failed to load calendar data');
-        }
-    };
-
-    const fetchStreakData = async () => {
-        try {
-            const result = await getUserStreakData();
-            if (result.success && result.data) {
-                setStreakData(result.data as StreakData);
-            }
-        } catch (error) {
-            console.error('Error fetching streak data:', error);
-            toast.error('Failed to load streak data');
-        } finally {
-            setIsLoading(false);
-        }
-    };
 
     const navigateMonth = (direction: 'prev' | 'next') => {
         if (direction === 'prev') {
@@ -102,10 +124,10 @@ const StreakCalendar: React.FC<StreakCalendarProps> = ({ className = "" }) => {
 
     const getActivityIntensity = (activity: DayActivity['activity']) => {
         if (!activity) return 0;
-        
+
         // Calculate intensity based on total activity
         const totalActivity = activity.conversationCount + activity.moduleProgress + Math.floor(activity.totalTimeSpent / 10);
-        
+
         if (totalActivity === 0) return 0;
         if (totalActivity <= 2) return 1;
         if (totalActivity <= 5) return 2;
@@ -131,7 +153,7 @@ const StreakCalendar: React.FC<StreakCalendarProps> = ({ className = "" }) => {
         const daysInMonth = lastDay.getDate();
 
         const grid = [];
-        
+
         // Add empty cells for days before the first day of the month
         for (let i = 0; i < startingDayOfWeek; i++) {
             grid.push(null);
@@ -167,9 +189,11 @@ const StreakCalendar: React.FC<StreakCalendarProps> = ({ className = "" }) => {
                         <div className="animate-pulse space-y-4">
                             <div className="h-6 bg-gray-200 rounded w-1/3"></div>
                             <div className="grid grid-cols-7 gap-2">
-                                {Array.from({ length: 35 }).map((_, i) => (
-                                    <div key={i} className="h-8 bg-gray-200 rounded"></div>
-                                ))}
+                                {
+                                    Array.from({ length: 35 }).map((_, i) => (
+                                        <div key={i} className="h-8 bg-gray-200 rounded"></div>
+                                    ))
+                                }
                             </div>
                         </div>
                     </CardContent>
@@ -182,7 +206,6 @@ const StreakCalendar: React.FC<StreakCalendarProps> = ({ className = "" }) => {
 
     return (
         <div className={`${className} space-y-6`}>
-            {/* Streak Overview */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <Card className="bg-gradient-to-br from-orange-500 to-red-600 text-white border-0">
                     <CardContent className="p-6">
@@ -196,7 +219,6 @@ const StreakCalendar: React.FC<StreakCalendarProps> = ({ className = "" }) => {
                         </div>
                     </CardContent>
                 </Card>
-
                 <Card className="bg-white/80 backdrop-blur-sm border border-teal-100">
                     <CardContent className="p-6">
                         <div className="flex items-center justify-between">
@@ -209,7 +231,6 @@ const StreakCalendar: React.FC<StreakCalendarProps> = ({ className = "" }) => {
                         </div>
                     </CardContent>
                 </Card>
-
                 <Card className="bg-white/80 backdrop-blur-sm border border-teal-100">
                     <CardContent className="p-6">
                         <div className="flex items-center justify-between">
@@ -225,8 +246,6 @@ const StreakCalendar: React.FC<StreakCalendarProps> = ({ className = "" }) => {
                     </CardContent>
                 </Card>
             </div>
-
-            {/* Calendar */}
             <Card className="bg-white/80 backdrop-blur-sm border border-teal-100">
                 <CardHeader>
                     <div className="flex items-center justify-between">
@@ -248,16 +267,15 @@ const StreakCalendar: React.FC<StreakCalendarProps> = ({ className = "" }) => {
                     </div>
                 </CardHeader>
                 <CardContent className="p-6">
-                    {/* Day headers */}
                     <div className="grid grid-cols-7 gap-1 mb-2">
-                        {dayNames.map(day => (
-                            <div key={day} className="text-center text-xs font-medium text-gray-500 py-2">
-                                {day}
-                            </div>
-                        ))}
+                        {
+                            dayNames.map(day => (
+                                <div key={day} className="text-center text-xs font-medium text-gray-500 py-2">
+                                    {day}
+                                </div>
+                            ))
+                        }
                     </div>
-
-                    {/* Calendar grid */}
                     <div className="grid grid-cols-7 gap-1">
                         {calendarGrid.map((dayData, index) => {
                             if (!dayData) {
@@ -286,20 +304,21 @@ const StreakCalendar: React.FC<StreakCalendarProps> = ({ className = "" }) => {
                                     {new Date(dayData.date).getDate()}
                                 </motion.button>
                             );
-                        })}
+                        })
+                        }
                     </div>
-
-                    {/* Legend */}
                     <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
                         <div className="flex items-center gap-2 text-sm text-gray-600">
                             <span>Less</span>
                             <div className="flex gap-1">
-                                {[0, 1, 2, 3, 4].map(intensity => (
-                                    <div
-                                        key={intensity}
-                                        className={`w-3 h-3 rounded border ${getIntensityColor(intensity)}`}
-                                    />
-                                ))}
+                                {
+                                    [0, 1, 2, 3, 4].map(intensity => (
+                                        <div
+                                            key={intensity}
+                                            className={`w-3 h-3 rounded border ${getIntensityColor(intensity)}`}
+                                        />
+                                    ))
+                                }
                             </div>
                             <span>More</span>
                         </div>
@@ -309,103 +328,107 @@ const StreakCalendar: React.FC<StreakCalendarProps> = ({ className = "" }) => {
                     </div>
                 </CardContent>
             </Card>
-
-            {/* Selected Day Details */}
             <AnimatePresence>
-                {selectedDay && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                    >
-                        <Card className="bg-white/80 backdrop-blur-sm border border-teal-100">
-                            <CardHeader>
-                                <CardTitle className="text-lg">
-                                    {formatDate(selectedDay.date)}
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="p-6">
-                                {selectedDay.hasActivity && selectedDay.activity ? (
-                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                        <div className="flex items-center gap-2">
-                                            <MessageSquare className="w-4 h-4 text-teal-600" />
-                                            <div>
-                                                <p className="text-sm text-gray-600">Conversations</p>
-                                                <p className="font-bold text-teal-600">
-                                                    {selectedDay.activity.conversationCount}
+                {
+                    selectedDay && (
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20 }}
+                        >
+                            <Card className="bg-white/80 backdrop-blur-sm border border-teal-100">
+                                <CardHeader>
+                                    <CardTitle className="text-lg">
+                                        {formatDate(selectedDay.date)}
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent className="p-6">
+                                    {
+                                        selectedDay.hasActivity && selectedDay.activity ? (
+                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                                <div className="flex items-center gap-2">
+                                                    <MessageSquare className="w-4 h-4 text-teal-600" />
+                                                    <div>
+                                                        <p className="text-sm text-gray-600">Conversations</p>
+                                                        <p className="font-bold text-teal-600">
+                                                            {selectedDay.activity.conversationCount}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <BookOpen className="w-4 h-4 text-emerald-600" />
+                                                    <div>
+                                                        <p className="text-sm text-gray-600">Module Progress</p>
+                                                        <p className="font-bold text-emerald-600">
+                                                            {selectedDay.activity.moduleProgress}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <Clock className="w-4 h-4 text-blue-600" />
+                                                    <div>
+                                                        <p className="text-sm text-gray-600">Time Spent</p>
+                                                        <p className="font-bold text-blue-600">
+                                                            {Math.round(selectedDay.activity.totalTimeSpent / 60)}m
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <Coins className="w-4 h-4 text-yellow-600" />
+                                                    <div>
+                                                        <p className="text-sm text-gray-600">Credits Earned</p>
+                                                        <p className="font-bold text-yellow-600">
+                                                            {selectedDay.activity.creditsEarned}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="text-center py-8">
+                                                <div className="text-gray-400 mb-2">📅</div>
+                                                <p className="text-gray-600">No learning activity on this day</p>
+                                                <p className="text-sm text-gray-500 mt-1">
+                                                    Start a conversation or complete a module to build your streak!
                                                 </p>
                                             </div>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <BookOpen className="w-4 h-4 text-emerald-600" />
-                                            <div>
-                                                <p className="text-sm text-gray-600">Module Progress</p>
-                                                <p className="font-bold text-emerald-600">
-                                                    {selectedDay.activity.moduleProgress}
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <Clock className="w-4 h-4 text-blue-600" />
-                                            <div>
-                                                <p className="text-sm text-gray-600">Time Spent</p>
-                                                <p className="font-bold text-blue-600">
-                                                    {Math.round(selectedDay.activity.totalTimeSpent / 60)}m
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <Coins className="w-4 h-4 text-yellow-600" />
-                                            <div>
-                                                <p className="text-sm text-gray-600">Credits Earned</p>
-                                                <p className="font-bold text-yellow-600">
-                                                    {selectedDay.activity.creditsEarned}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <div className="text-center py-8">
-                                        <div className="text-gray-400 mb-2">📅</div>
-                                        <p className="text-gray-600">No learning activity on this day</p>
-                                        <p className="text-sm text-gray-500 mt-1">
-                                            Start a conversation or complete a module to build your streak!
-                                        </p>
-                                    </div>
-                                )}
-                            </CardContent>
-                        </Card>
-                    </motion.div>
-                )}
+                                        )
+                                    }
+                                </CardContent>
+                            </Card>
+                        </motion.div>
+                    )
+                }
             </AnimatePresence>
-
-            {/* Streak Rewards */}
-            {streakData?.streakRewards && streakData.streakRewards.length > 0 && (
-                <Card className="bg-white/80 backdrop-blur-sm border border-teal-100">
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <Trophy className="w-5 h-5 text-yellow-600" />
-                            Streak Rewards Earned
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                            {streakData.streakRewards.map((reward: any) => (
-                                <div key={reward.id} className="bg-gradient-to-br from-yellow-50 to-orange-50 border border-yellow-200 rounded-lg p-4">
-                                    <div className="text-center">
-                                        <div className="text-2xl mb-2">🏆</div>
-                                        <p className="font-bold text-gray-800">{reward.streakDays} Days</p>
-                                        <p className="text-sm text-gray-600 mb-2">Streak Reward</p>
-                                        <Badge variant="outline" className="bg-yellow-100 text-yellow-800">
-                                            +{reward.creditsAwarded} credits
-                                        </Badge>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </CardContent>
-                </Card>
-            )}
+            {
+                streakData?.streakRewards && streakData.streakRewards.length > 0 && (
+                    <Card className="bg-white/80 backdrop-blur-sm border border-teal-100">
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <Trophy className="w-5 h-5 text-yellow-600" />
+                                Streak Rewards Earned
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                {
+                                    streakData.streakRewards.map((reward: StreakReward) => (
+                                        <div key={reward.id} className="bg-gradient-to-br from-yellow-50 to-orange-50 border border-yellow-200 rounded-lg p-4">
+                                            <div className="text-center">
+                                                <div className="text-2xl mb-2">🏆</div>
+                                                <p className="font-bold text-gray-800">{reward.streakDays} Days</p>
+                                                <p className="text-sm text-gray-600 mb-2">Streak Reward</p>
+                                                <Badge variant="outline" className="bg-yellow-100 text-yellow-800">
+                                                    +{reward.creditsAwarded} credits
+                                                </Badge>
+                                            </div>
+                                        </div>
+                                    ))
+                                }
+                            </div>
+                        </CardContent>
+                    </Card>
+                )
+            }
         </div>
     );
 };
