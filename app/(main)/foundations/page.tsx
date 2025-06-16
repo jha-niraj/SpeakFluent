@@ -15,6 +15,7 @@ import { getUserFoundationProgress, initializeFoundationModules } from '@/action
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import SmoothScroll from '@/components/smoothscroll';
+import { useRouter } from 'next/navigation';
 // import { getUserCredits } from '@/actions/credits.action';
 // import { checkFeatureAccess } from '@/actions/foundations.action';
 
@@ -68,6 +69,7 @@ interface FoundationData {
 
 const FoundationsPage = () => {
     const { data: session, status } = useSession();
+    const router = useRouter();
     const [isLoading, setIsLoading] = useState(true);
     const [foundationData, setFoundationData] = useState<FoundationData | null>(null);
     const [modules, setModules] = useState<FoundationModule[]>([]);
@@ -190,6 +192,8 @@ const FoundationsPage = () => {
         };
         return flags[language] || '🌍';
     };
+
+    console.log(modules);
 
     if (status === 'loading' || isLoading) {
         return (
@@ -422,6 +426,7 @@ const FoundationsPage = () => {
                                                 </div>
                                                 <Button
                                                     disabled={isLocked}
+                                                    onClick={() => router.push(`/foundations/${module.language}`)}
                                                     className={`w-full ${isLocked
                                                         ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                                                         : isCompleted

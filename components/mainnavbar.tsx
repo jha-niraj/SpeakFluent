@@ -18,7 +18,6 @@ import { fetchCredits } from "@/actions/credits.action"
 
 const MainNavbar = ({ isCollapsed }: { isCollapsed: boolean }) => {
     const { data: session, status } = useSession();
-    console.log(session);
     const { theme, setTheme } = useTheme()
     const [scrolled, setScrolled] = useState(false)
     const pathname = usePathname()
@@ -85,8 +84,6 @@ const MainNavbar = ({ isCollapsed }: { isCollapsed: boolean }) => {
             console.error("Sign out error:", error)
         }
     }
-
-    console.log(session?.user?.image);
 
     return (
         <nav

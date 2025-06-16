@@ -3,7 +3,35 @@
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { ModuleType, ModuleStatus, FeatureAccessLevel } from '@prisma/client'
+import type { JsonValue } from '@prisma/client/runtime/library'
 import { revalidatePath } from 'next/cache'
+import { unstable_cache } from 'next/cache'
+import { recordDailyActivity } from './streak.action'
+
+interface QuizAnswer {
+    questionIndex: number;
+    userAnswer: number | string;
+    correct: number | string;
+    isCorrect: boolean;
+}
+
+// Cache foundation modules for 7 days
+const getCachedFoundationModules = unstable_cache(
+    async (language: string) => {
+        return await prisma.foundationModule.findMany({
+            where: {
+                language: language,
+                isActive: true
+            },
+            orderBy: { orderIndex: 'asc' }
+        })
+    },
+    ['foundation-modules'],
+    {
+        tags: ['foundation-modules'],
+        revalidate: 604800 // 7 days
+    }
+)
 
 // Get user's selected language and foundation progress
 export async function getUserFoundationProgress() {
@@ -27,14 +55,8 @@ export async function getUserFoundationProgress() {
             return { success: false, error: 'No language selected. Please complete onboarding.' }
         }
 
-        // Get foundation modules for the selected language
-        const modules = await prisma.foundationModule.findMany({
-            where: {
-                language: user.selectedLanguage,
-                isActive: true
-            },
-            orderBy: { orderIndex: 'asc' }
-        })
+        // Get cached foundation modules for the selected language
+        const modules = await getCachedFoundationModules(user.selectedLanguage)
 
         // Get user's progress for these modules
         const moduleProgress = await prisma.moduleProgress.findMany({
@@ -76,6 +98,46 @@ export async function getUserFoundationProgress() {
     }
 }
 
+// Get specific module with detailed content
+export async function getModuleDetails(language: string, moduleType: string) {
+    try {
+        const session = await auth()
+        if (!session?.user?.id) {
+            return { success: false, error: 'Not authenticated' }
+        }
+
+        const module = await prisma.foundationModule.findFirst({
+            where: {
+                language: language,
+                moduleType: moduleType as ModuleType,
+                isActive: true
+            }
+        })
+
+        if (!module) {
+            return { success: false, error: 'Module not found' }
+        }
+
+        const progress = await prisma.moduleProgress.findFirst({
+            where: {
+                userId: session.user.id,
+                moduleId: module.id
+            }
+        })
+
+        return {
+            success: true,
+            data: {
+                module,
+                progress
+            }
+        }
+    } catch (error) {
+        console.error('Error fetching module details:', error)
+        return { success: false, error: 'Failed to fetch module details' }
+    }
+}
+
 // Update user's language preference
 export async function updateLanguagePreference(language: string) {
     try {
@@ -100,6 +162,162 @@ export async function updateLanguagePreference(language: string) {
     }
 }
 
+// Update module progress
+export async function updateModuleProgress(moduleId: string, progressData: {
+    status?: ModuleStatus
+    progressPercent?: number
+    currentSection?: string
+    timeSpent?: number
+    bestScore?: number
+    completedSections?: string
+}) {
+    try {
+        const session = await auth()
+        if (!session?.user?.id) {
+            return { success: false, error: 'Not authenticated' }
+        }
+
+        const module = await prisma.foundationModule.findUnique({
+            where: { id: moduleId }
+        })
+
+        if (!module) {
+            return { success: false, error: 'Module not found' }
+        }
+
+        interface ProgressUpdateData {
+            status?: ModuleStatus;
+            progressPercent?: number;
+            currentSection?: string;
+            timeSpent?: number;
+            bestScore?: number;
+            completedSections?: string;
+            lastAccessedAt: Date;
+            updatedAt: Date;
+            completedAt?: Date;
+        }
+
+        const updateData: ProgressUpdateData = {
+            ...progressData,
+            lastAccessedAt: new Date(),
+            updatedAt: new Date()
+        }
+
+        if (progressData.status === 'COMPLETED') {
+            updateData.completedAt = new Date()
+        }
+
+        await prisma.moduleProgress.upsert({
+            where: {
+                userId_moduleId: {
+                    userId: session.user.id,
+                    moduleId: moduleId
+                }
+            },
+            update: updateData,
+            create: {
+                userId: session.user.id,
+                moduleId: moduleId,
+                language: module.language,
+                ...updateData
+            }
+        })
+
+        // Record daily activity for streak tracking
+        try {
+            await recordDailyActivity({
+                moduleProgress: 1,
+                timeSpent: progressData.timeSpent || 0,
+                creditsEarned: progressData.status === 'COMPLETED' ? module.creditsReward : 0
+            })
+        } catch (error) {
+            console.error('Error recording daily activity:', error)
+            // Don't fail the main operation if activity recording fails
+        }
+
+        revalidatePath('/foundations')
+        return { success: true }
+    } catch (error) {
+        console.error('Error updating module progress:', error)
+        return { success: false, error: 'Failed to update progress' }
+    }
+}
+
+// Submit quiz attempt
+export async function submitQuizAttempt(moduleId: string, quizData: {
+    quizType: string
+    score: number
+    totalQuestions: number
+    correctAnswers: number
+    timeSpent: number
+    answers: QuizAnswer[]
+}) {
+    try {
+        const session = await auth()
+        if (!session?.user?.id) {
+            return { success: false, error: 'Not authenticated' }
+        }
+
+        const module = await prisma.foundationModule.findUnique({
+            where: { id: moduleId }
+        })
+
+        if (!module) {
+            return { success: false, error: 'Module not found' }
+        }
+
+        const passed = quizData.score >= module.requiredScore
+
+        await prisma.quizAttempt.create({
+            data: {
+                userId: session.user.id,
+                moduleId: moduleId,
+                language: module.language,
+                quizType: 'MULTIPLE_CHOICE' as any,
+                score: quizData.score,
+                totalQuestions: quizData.totalQuestions,
+                correctAnswers: quizData.correctAnswers,
+                timeSpent: quizData.timeSpent,
+                answers: JSON.parse(JSON.stringify(quizData.answers)),
+                passed
+            }
+        })
+
+        // Update module progress if quiz passed
+        if (passed) {
+            await updateModuleProgress(moduleId, {
+                status: 'COMPLETED',
+                progressPercent: 100,
+                bestScore: quizData.score
+            })
+
+            // Award credits
+            await prisma.user.update({
+                where: { id: session.user.id },
+                data: {
+                    credits: { increment: module.creditsReward }
+                }
+            })
+        }
+
+        // Record daily activity for quiz completion
+        try {
+            await recordDailyActivity({
+                timeSpent: quizData.timeSpent,
+                creditsEarned: passed ? module.creditsReward : 0
+            })
+        } catch (error) {
+            console.error('Error recording daily activity:', error)
+            // Don't fail the main operation if activity recording fails
+        }
+
+        return { success: true, passed, creditsAwarded: passed ? module.creditsReward : 0 }
+    } catch (error) {
+        console.error('Error submitting quiz attempt:', error)
+        return { success: false, error: 'Failed to submit quiz' }
+    }
+}
+
 // Check if user has access to major features
 export async function checkFeatureAccess() {
     try {
@@ -118,12 +336,7 @@ export async function checkFeatureAccess() {
         }
 
         // Check foundation module completion
-        const foundationModules = await prisma.foundationModule.findMany({
-            where: {
-                language: user.selectedLanguage,
-                isActive: true
-            }
-        })
+        const foundationModules = await getCachedFoundationModules(user.selectedLanguage)
 
         const completedModules = await prisma.moduleProgress.count({
             where: {
@@ -173,7 +386,10 @@ export async function initializeFoundationModules(language: string) {
 
         // Create modules
         await prisma.foundationModule.createMany({
-            data: moduleTemplates
+            data: moduleTemplates.map(template => ({
+                ...template,
+                content: JSON.parse(JSON.stringify(template.content))
+            }))
         })
 
         return { success: true, message: 'Foundation modules initialized' }
@@ -297,34 +513,304 @@ function getModuleDescription(language: string, moduleType: ModuleType): string 
     return descriptions[language]?.[moduleType] || `Learn ${moduleType} for ${language}`
 }
 
-function getModuleContent(language: string, moduleType: ModuleType): any {
-    // This would contain the actual module content structure
-    // For now, returning a basic structure
+interface ModuleContentStructure {
+    sections: Array<{
+        id: number;
+        title: string;
+        type: string;
+        content: Record<string, unknown>;
+        duration: number;
+    }>;
+    totalDuration: number;
+    difficulty: string;
+    estimatedCompletionTime?: string;
+}
+
+function getModuleContent(language: string, moduleType: ModuleType): ModuleContentStructure {
+    // Return detailed content based on language and module type
+    if (language === 'russian' && moduleType === ModuleType.SCRIPT_WRITING) {
+        return getRussianCyrillicContent()
+    } else if (language === 'japanese' && moduleType === ModuleType.SCRIPT_WRITING) {
+        return getJapaneseScriptContent()
+    } else if (language === 'korean' && moduleType === ModuleType.SCRIPT_WRITING) {
+        return getKoreanHangulContent()
+    }
+    
+    // Return basic structure for other modules
     return {
         sections: [
             {
                 id: 1,
                 title: 'Introduction',
                 type: 'lesson',
-                content: `Introduction to ${moduleType} in ${language}`,
+                content: {
+                    overview: 'Introduction to ${moduleType} in ${language}',
+                    keyPoints: [
+                        'Cyrillic has 33 letters',
+                        'Some letters look like Latin but sound different',
+                        'Each letter has uppercase and lowercase forms',
+                        'Used in Russian, Bulgarian, Serbian, and other languages'
+                    ]
+                },
                 duration: 10
             },
             {
                 id: 2,
                 title: 'Practice Exercises',
                 type: 'exercise',
-                content: 'Interactive practice exercises',
+                content: {
+                    description: 'Interactive practice exercises',
+                    exercises: []
+                },
                 duration: 20
             },
             {
                 id: 3,
                 title: 'Assessment',
                 type: 'quiz',
-                content: 'Module assessment quiz',
+                content: {
+                    description: 'Module assessment quiz',
+                    questions: [],
+                    passingScore: 70
+                },
                 duration: 15
             }
         ],
         totalDuration: 45,
+        difficulty: 'beginner'
+    }
+}
+
+function getRussianCyrillicContent() {
+    return {
+        sections: [
+            {
+                id: 1,
+                title: 'Introduction to Cyrillic',
+                type: 'lesson',
+                content: {
+                    overview: 'Learn about the history and structure of the Cyrillic alphabet',
+                    keyPoints: [
+                        'Cyrillic has 33 letters',
+                        'Some letters look like Latin but sound different',
+                        'Each letter has uppercase and lowercase forms',
+                        'Used in Russian, Bulgarian, Serbian, and other languages'
+                    ]
+                },
+                duration: 10
+            },
+            {
+                id: 2,
+                title: 'Vowels (Гласные)',
+                type: 'interactive-lesson',
+                content: {
+                    letters: [
+                        { cyrillic: 'А', latin: 'A', sound: 'ah', examples: ['мама', 'папа'] },
+                        { cyrillic: 'Е', latin: 'E', sound: 'yeh', examples: ['лето', 'мне'] },
+                        { cyrillic: 'Ё', latin: 'Yo', sound: 'yo', examples: ['ёлка', 'всё'] },
+                        { cyrillic: 'И', latin: 'I', sound: 'ee', examples: ['мир', 'они'] },
+                        { cyrillic: 'О', latin: 'O', sound: 'oh', examples: ['дом', 'окно'] },
+                        { cyrillic: 'У', latin: 'U', sound: 'oo', examples: ['утро', 'рука'] },
+                        { cyrillic: 'Ы', latin: 'Y', sound: 'ih', examples: ['сын', 'мы'] },
+                        { cyrillic: 'Э', latin: 'E', sound: 'eh', examples: ['это', 'эхо'] },
+                        { cyrillic: 'Ю', latin: 'Yu', sound: 'yoo', examples: ['юг', 'люди'] },
+                        { cyrillic: 'Я', latin: 'Ya', sound: 'yah', examples: ['я', 'моя'] }
+                    ]
+                },
+                duration: 25
+            },
+            {
+                id: 3,
+                title: 'Consonants (Согласные) - Part 1',
+                type: 'interactive-lesson',
+                content: {
+                    letters: [
+                        { cyrillic: 'Б', latin: 'B', sound: 'b', examples: ['брат', 'хлеб'] },
+                        { cyrillic: 'В', latin: 'V', sound: 'v', examples: ['вода', 'дерево'] },
+                        { cyrillic: 'Г', latin: 'G', sound: 'g', examples: ['город', 'друг'] },
+                        { cyrillic: 'Д', latin: 'D', sound: 'd', examples: ['дом', 'сад'] },
+                        { cyrillic: 'Ж', latin: 'Zh', sound: 'zh', examples: ['жизнь', 'муж'] },
+                        { cyrillic: 'З', latin: 'Z', sound: 'z', examples: ['зима', 'глаз'] },
+                        { cyrillic: 'К', latin: 'K', sound: 'k', examples: ['кот', 'рука'] },
+                        { cyrillic: 'Л', latin: 'L', sound: 'l', examples: ['лето', 'стол'] }
+                    ]
+                },
+                duration: 25
+            },
+            {
+                id: 4,
+                title: 'Consonants (Согласные) - Part 2',
+                type: 'interactive-lesson',
+                content: {
+                    letters: [
+                        { cyrillic: 'М', latin: 'M', sound: 'm', examples: ['мама', 'дом'] },
+                        { cyrillic: 'Н', latin: 'N', sound: 'n', examples: ['нос', 'окно'] },
+                        { cyrillic: 'П', latin: 'P', sound: 'p', examples: ['папа', 'суп'] },
+                        { cyrillic: 'Р', latin: 'R', sound: 'r', examples: ['рука', 'мир'] },
+                        { cyrillic: 'С', latin: 'S', sound: 's', examples: ['сын', 'лес'] },
+                        { cyrillic: 'Т', latin: 'T', sound: 't', examples: ['тут', 'кот'] },
+                        { cyrillic: 'Ф', latin: 'F', sound: 'f', examples: ['фото', 'граф'] },
+                        { cyrillic: 'Х', latin: 'Kh', sound: 'kh', examples: ['хлеб', 'тих'] }
+                    ]
+                },
+                duration: 25
+            },
+            {
+                id: 5,
+                title: 'Special Letters & Sounds',
+                type: 'interactive-lesson',
+                content: {
+                    letters: [
+                        { cyrillic: 'Ц', latin: 'Ts', sound: 'ts', examples: ['цвет', 'отец'] },
+                        { cyrillic: 'Ч', latin: 'Ch', sound: 'ch', examples: ['час', 'ночь'] },
+                        { cyrillic: 'Ш', latin: 'Sh', sound: 'sh', examples: ['школа', 'наш'] },
+                        { cyrillic: 'Щ', latin: 'Shch', sound: 'shch', examples: ['щука', 'площадь'] },
+                        { cyrillic: 'Ъ', latin: 'Hard sign', sound: '', examples: ['объект', 'съел'] },
+                        { cyrillic: 'Ь', latin: 'Soft sign', sound: '', examples: ['день', 'мать'] }
+                    ]
+                },
+                duration: 20
+            },
+            {
+                id: 6,
+                title: 'Writing Practice',
+                type: 'writing-exercise',
+                content: {
+                    exercises: [
+                        { type: 'trace', letters: ['А', 'Б', 'В', 'Г', 'Д'] },
+                        { type: 'copy', words: ['мама', 'папа', 'дом', 'кот'] },
+                        { type: 'dictation', audio: true, words: ['вода', 'хлеб', 'рука', 'лето'] }
+                    ]
+                },
+                duration: 30
+            },
+            {
+                id: 7,
+                title: 'Letter Recognition Game',
+                type: 'game',
+                content: {
+                    gameType: 'letter-match',
+                    levels: [
+                        { name: 'Vowels', letters: ['А', 'Е', 'И', 'О', 'У'] },
+                        { name: 'Common Consonants', letters: ['Б', 'В', 'Г', 'Д', 'М', 'Н', 'П', 'Р', 'С', 'Т'] },
+                        { name: 'All Letters', letters: 'all' }
+                    ]
+                },
+                duration: 20
+            },
+            {
+                id: 8,
+                title: 'Final Assessment',
+                type: 'quiz',
+                content: {
+                    questions: [
+                        {
+                            type: 'multiple-choice',
+                            question: 'Which letter makes the "ah" sound?',
+                            options: ['А', 'Е', 'И', 'О'],
+                            correct: 0
+                        },
+                        {
+                            type: 'audio-recognition',
+                            question: 'Select the letter you hear',
+                            audio: 'russian-letter-b.mp3',
+                            options: ['Б', 'В', 'П', 'Ф'],
+                            correct: 0
+                        },
+                        {
+                            type: 'writing',
+                            question: 'Write the word "мама" in Cyrillic',
+                            correct: 'мама'
+                        }
+                    ],
+                    passingScore: 85
+                },
+                duration: 15
+            }
+        ],
+        totalDuration: 170,
+        difficulty: 'beginner',
+        estimatedCompletionTime: '3-4 hours'
+    }
+}
+
+function getJapaneseScriptContent() {
+    return {
+        sections: [
+            {
+                id: 1,
+                title: 'Introduction to Japanese Writing',
+                type: 'lesson',
+                content: {
+                    overview: 'Learn about the three Japanese writing systems',
+                    keyPoints: [
+                        'Hiragana: 46 basic characters for native Japanese words',
+                        'Katakana: 46 characters for foreign words',
+                        'Kanji: Chinese characters for meaning',
+                        'All three are used together in modern Japanese'
+                    ]
+                },
+                duration: 10
+            },
+            {
+                id: 2,
+                title: 'Hiragana - Basic Vowels',
+                type: 'interactive-lesson',
+                content: {
+                    characters: [
+                        { hiragana: 'あ', romaji: 'a', sound: 'ah' },
+                        { hiragana: 'い', romaji: 'i', sound: 'ee' },
+                        { hiragana: 'う', romaji: 'u', sound: 'oo' },
+                        { hiragana: 'え', romaji: 'e', sound: 'eh' },
+                        { hiragana: 'お', romaji: 'o', sound: 'oh' }
+                    ]
+                },
+                duration: 20
+            }
+            // More sections would follow...
+        ],
+        totalDuration: 200,
+        difficulty: 'beginner'
+    }
+}
+
+function getKoreanHangulContent() {
+    return {
+        sections: [
+            {
+                id: 1,
+                title: 'Introduction to Hangul',
+                type: 'lesson',
+                content: {
+                    overview: 'Learn about the Korean writing system',
+                    keyPoints: [
+                        'Hangul has 24 basic letters (14 consonants, 10 vowels)',
+                        'Letters combine to form syllable blocks',
+                        'Each block represents one syllable',
+                        'Created by King Sejong in 1443'
+                    ]
+                },
+                duration: 10
+            },
+            {
+                id: 2,
+                title: 'Basic Vowels',
+                type: 'interactive-lesson',
+                content: {
+                    vowels: [
+                        { hangul: 'ㅏ', romaji: 'a', sound: 'ah' },
+                        { hangul: 'ㅓ', romaji: 'eo', sound: 'uh' },
+                        { hangul: 'ㅗ', romaji: 'o', sound: 'oh' },
+                        { hangul: 'ㅜ', romaji: 'u', sound: 'oo' },
+                        { hangul: 'ㅡ', romaji: 'eu', sound: 'eu' },
+                        { hangul: 'ㅣ', romaji: 'i', sound: 'ee' }
+                    ]
+                },
+                duration: 20
+            }
+            // More sections would follow...
+        ],
+        totalDuration: 180,
         difficulty: 'beginner'
     }
 } 

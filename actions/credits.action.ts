@@ -246,6 +246,38 @@ export async function addCredits(userId: string, amount: number, description: st
 			where: { id: userId },
 			select: { credits: true }
 		})
+
+		if (!user) {
+			return { success: false, error: 'User not found' }
+		}
+
+		// Add credits and create transaction
+		await prisma.$transaction(async (tx) => {
+			// Update user credits
+			await tx.user.update({
+				where: { id: userId },
+				data: {
+					credits: {
+						increment: amount
+					}
+				}
+			})
+
+			// Create credit transaction record
+			await tx.creditTransaction.create({
+				data: {
+					userId: userId,
+					type: TransactionType.PURCHASE, // Using PURCHASE for streak rewards
+					status: TransactionStatus.COMPLETED,
+					amount: amount,
+					description: description
+				}
+			})
+		})
+
+		revalidatePath('/dashboard')
+		revalidatePath('/progress')
+		return { success: true }
 	} catch (error) {
 		console.error('Error adding credits:', error)
 		return { success: false, error: 'Failed to add credits' }

@@ -106,6 +106,8 @@ model User {
     userStats            UserStats?
     milestones           UserMilestone[]
     achievements         UserAchievement[]
+    dailyActivities      DailyActivity[]
+    streakRewards        StreakReward[]
 
     @@index([email])
 }
@@ -227,6 +229,7 @@ model ModuleProgress {
     currentSection   String?
     timeSpent        Int          @default(0)
     bestScore        Int?
+    completedSections String?     // JSON string of completed section IDs
     completedAt      DateTime?
     lastAccessedAt   DateTime?
     createdAt        DateTime     @default(now())
@@ -333,4 +336,38 @@ model UserAchievement {
 
     @@index([userId])
     @@index([achievementType])
+}
+
+model DailyActivity {
+    id                String   @id @default(cuid())
+    userId            String
+    date              DateTime @db.Date
+    hasActivity       Boolean  @default(false)
+    conversationCount Int      @default(0)
+    moduleProgress    Int      @default(0) // Number of modules worked on
+    totalTimeSpent    Int      @default(0) // In minutes
+    creditsEarned     Int      @default(0)
+    createdAt         DateTime @default(now())
+    updatedAt         DateTime @updatedAt
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@unique([userId, date])
+    @@index([userId])
+    @@index([date])
+    @@index([hasActivity])
+}
+
+model StreakReward {
+    id          String   @id @default(cuid())
+    userId      String
+    streakDays  Int      // Days in streak when reward was earned
+    creditsAwarded Int
+    awardedAt   DateTime @default(now())
+    createdAt   DateTime @default(now())
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([userId])
+    @@index([streakDays])
 }

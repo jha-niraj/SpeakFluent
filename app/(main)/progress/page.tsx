@@ -11,10 +11,11 @@ import {
     TrendingUp, CheckCircle, Lock, ArrowRight,
     Coins, Calendar
 } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { toast } from 'sonner'
 import { getUserProgress, getProgressAnalytics } from '@/actions/progress.action'
 import { getUserCredits } from '@/actions/credits.action'
+import StreakCalendar from '@/components/streak/StreakCalendar'
 import Link from 'next/link'
 
 interface UserStats {
@@ -274,7 +275,7 @@ const ProgressPage = () => {
         )
     }
 
-    const { statistics, moduleProgress, milestones, achievements, conversationSessions } = progressData
+    const { statistics, moduleProgress, milestones, achievements } = progressData
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-teal-50 to-emerald-50 p-6">
@@ -293,178 +294,151 @@ const ProgressPage = () => {
                     </p>
                 </motion.div>
 
-                {/* Quick Stats */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="grid grid-cols-1 md:grid-cols-4 gap-6"
-                >
-                    <Card className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white border-0">
-                        <CardContent className="p-6">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-teal-100 text-sm font-medium">Overall Progress</p>
-                                    <p className="text-3xl font-bold">{statistics.overallProgress}%</p>
-                                </div>
-                                <TrendingUp className="w-8 h-8 text-teal-200" />
-                            </div>
-                        </CardContent>
-                    </Card>
+                {/* Main Layout - Split into columns */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    {/* Left Column - Progress Overview (1/3) */}
+                    <div className="lg:col-span-1 space-y-6">
+                        {/* Quick Stats */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.1 }}
+                            className="space-y-4"
+                        >
+                            <Card className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white border-0">
+                                <CardContent className="p-6">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <p className="text-teal-100 text-sm font-medium">Overall Progress</p>
+                                            <p className="text-3xl font-bold">{statistics.overallProgress}%</p>
+                                        </div>
+                                        <TrendingUp className="w-8 h-8 text-teal-200" />
+                                    </div>
+                                </CardContent>
+                            </Card>
 
-                    <Card className="bg-white/80 backdrop-blur-sm border border-teal-100">
-                        <CardContent className="p-6">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-gray-600 text-sm font-medium">Credits Earned</p>
-                                    <p className="text-3xl font-bold text-teal-600">{statistics.totalCreditsEarned}</p>
-                                </div>
-                                <Coins className="w-8 h-8 text-teal-500" />
-                            </div>
-                        </CardContent>
-                    </Card>
+                            <div className="grid grid-cols-1 gap-4">
+                                <Card className="bg-white/80 backdrop-blur-sm border border-teal-100">
+                                    <CardContent className="p-4">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <p className="text-gray-600 text-sm font-medium">Credits Earned</p>
+                                                <p className="text-2xl font-bold text-teal-600">{statistics.totalCreditsEarned}</p>
+                                            </div>
+                                            <Coins className="w-6 h-6 text-teal-500" />
+                                        </div>
+                                    </CardContent>
+                                </Card>
 
-                    <Card className="bg-white/80 backdrop-blur-sm border border-teal-100">
-                        <CardContent className="p-6">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-gray-600 text-sm font-medium">Milestones</p>
-                                    <p className="text-3xl font-bold text-teal-600">{statistics.totalMilestones}</p>
-                                </div>
-                                <Target className="w-8 h-8 text-teal-500" />
-                            </div>
-                        </CardContent>
-                    </Card>
+                                <Card className="bg-white/80 backdrop-blur-sm border border-teal-100">
+                                    <CardContent className="p-4">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <p className="text-gray-600 text-sm font-medium">Milestones</p>
+                                                <p className="text-2xl font-bold text-teal-600">{statistics.totalMilestones}</p>
+                                            </div>
+                                            <Target className="w-6 h-6 text-teal-500" />
+                                        </div>
+                                    </CardContent>
+                                </Card>
 
-                    <Card className="bg-white/80 backdrop-blur-sm border border-teal-100">
-                        <CardContent className="p-6">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-gray-600 text-sm font-medium">Achievements</p>
-                                    <p className="text-3xl font-bold text-teal-600">{statistics.totalAchievements}</p>
-                                </div>
-                                <Trophy className="w-8 h-8 text-teal-500" />
+                                <Card className="bg-white/80 backdrop-blur-sm border border-teal-100">
+                                    <CardContent className="p-4">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <p className="text-gray-600 text-sm font-medium">Achievements</p>
+                                                <p className="text-2xl font-bold text-teal-600">{statistics.totalAchievements}</p>
+                                            </div>
+                                            <Trophy className="w-6 h-6 text-teal-500" />
+                                        </div>
+                                    </CardContent>
+                                </Card>
                             </div>
-                        </CardContent>
-                    </Card>
-                </motion.div>
+                        </motion.div>
 
-                {/* Main Content */}
-                <Tabs defaultValue="overview" className="space-y-6">
-                    <TabsList className="grid w-full grid-cols-4">
-                        <TabsTrigger value="overview">Overview</TabsTrigger>
+                        {/* Foundation Progress */}
+                        <Card className="bg-white/80 backdrop-blur-sm border border-teal-100">
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2">
+                                    <BookOpen className="w-5 h-5 text-teal-600" />
+                                    Foundation Modules
+                                </CardTitle>
+                                <CardDescription>
+                                    Complete foundation modules to unlock major features
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-sm font-medium">Progress</span>
+                                    <span className="text-sm text-gray-600">
+                                        {statistics.completedModules} of {statistics.totalModules}
+                                    </span>
+                                </div>
+                                <Progress value={statistics.overallProgress} className="h-2" />
+                                
+                                {statistics.completedModules < statistics.totalModules && (
+                                    <Link href="/foundations">
+                                        <Button className="w-full bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700">
+                                            Continue Learning
+                                            <ArrowRight className="w-4 h-4 ml-2" />
+                                        </Button>
+                                    </Link>
+                                )}
+                            </CardContent>
+                        </Card>
+
+                        {/* Weekly Activity Summary */}
+                        <Card className="bg-white/80 backdrop-blur-sm border border-teal-100">
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2">
+                                    <Calendar className="w-5 h-5 text-teal-600" />
+                                    This Week
+                                </CardTitle>
+                                <CardDescription>
+                                    Your learning activity this week
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <MessageSquare className="w-4 h-4 text-teal-500" />
+                                        <span className="text-sm">Conversations</span>
+                                    </div>
+                                    <Badge variant="secondary">{statistics.weeklyConversations}</Badge>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <Target className="w-4 h-4 text-teal-500" />
+                                        <span className="text-sm">Milestones</span>
+                                    </div>
+                                    <Badge variant="secondary">{statistics.weeklyMilestones}</Badge>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <Flame className="w-4 h-4 text-orange-500" />
+                                        <span className="text-sm">Current Streak</span>
+                                    </div>
+                                    <Badge variant="secondary">
+                                        {progressData.userStats?.currentStreak || 0} days
+                                    </Badge>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+
+                    {/* Right Column - Streak Calendar (2/3) */}
+                    <div className="lg:col-span-2">
+                        <StreakCalendar />
+                    </div>
+                </div>
+
+                {/* Detailed Tabs Below */}
+                <Tabs defaultValue="modules" className="space-y-6">
+                    <TabsList className="grid w-full grid-cols-3">
                         <TabsTrigger value="modules">Modules</TabsTrigger>
                         <TabsTrigger value="milestones">Milestones</TabsTrigger>
                         <TabsTrigger value="achievements">Achievements</TabsTrigger>
                     </TabsList>
-
-                    {/* Overview Tab */}
-                    <TabsContent value="overview" className="space-y-6">
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            {/* Foundation Progress */}
-                            <Card className="bg-white/80 backdrop-blur-sm border border-teal-100">
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2">
-                                        <BookOpen className="w-5 h-5 text-teal-600" />
-                                        Foundation Modules
-                                    </CardTitle>
-                                    <CardDescription>
-                                        Complete foundation modules to unlock major features
-                                    </CardDescription>
-                                </CardHeader>
-                                <CardContent className="space-y-4">
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm font-medium">Progress</span>
-                                        <span className="text-sm text-gray-600">
-                                            {statistics.completedModules} of {statistics.totalModules}
-                                        </span>
-                                    </div>
-                                    <Progress value={statistics.overallProgress} className="h-2" />
-                                    
-                                    {statistics.completedModules < statistics.totalModules && (
-                                        <Link href="/foundations">
-                                            <Button className="w-full bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700">
-                                                Continue Learning
-                                                <ArrowRight className="w-4 h-4 ml-2" />
-                                            </Button>
-                                        </Link>
-                                    )}
-                                </CardContent>
-                            </Card>
-
-                            {/* Weekly Activity */}
-                            <Card className="bg-white/80 backdrop-blur-sm border border-teal-100">
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2">
-                                        <Calendar className="w-5 h-5 text-teal-600" />
-                                        This Week
-                                    </CardTitle>
-                                    <CardDescription>
-                                        Your learning activity this week
-                                    </CardDescription>
-                                </CardHeader>
-                                <CardContent className="space-y-4">
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-2">
-                                            <MessageSquare className="w-4 h-4 text-teal-500" />
-                                            <span className="text-sm">Conversations</span>
-                                        </div>
-                                        <Badge variant="secondary">{statistics.weeklyConversations}</Badge>
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-2">
-                                            <Target className="w-4 h-4 text-teal-500" />
-                                            <span className="text-sm">Milestones</span>
-                                        </div>
-                                        <Badge variant="secondary">{statistics.weeklyMilestones}</Badge>
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-2">
-                                            <Flame className="w-4 h-4 text-orange-500" />
-                                            <span className="text-sm">Current Streak</span>
-                                        </div>
-                                        <Badge variant="secondary">
-                                            {progressData.userStats?.currentStreak || 0} days
-                                        </Badge>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </div>
-
-                        {/* Recent Activity */}
-                        <Card className="bg-white/80 backdrop-blur-sm border border-teal-100">
-                            <CardHeader>
-                                <CardTitle>Recent Activity</CardTitle>
-                                <CardDescription>
-                                    Your latest learning sessions and achievements
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="space-y-4 max-h-80 overflow-y-auto">
-                                    <AnimatePresence>
-                                        {conversationSessions.slice(0, 5).map((session: ConversationSession) => (
-                                            <div key={session.id} className="flex items-center justify-between p-3 bg-teal-50 rounded-lg">
-                                                <div className="flex items-center gap-3">
-                                                    <MessageSquare className="w-4 h-4 text-teal-600" />
-                                                    <div>
-                                                        <p className="text-sm font-medium">
-                                                            {session.language} Conversation
-                                                        </p>
-                                                        <p className="text-xs text-gray-600">
-                                                            {new Date(session.createdAt).toLocaleDateString()}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                                <Badge variant="outline">
-                                                    {session.duration ? `${Math.round(session.duration / 60)}min` : 'Completed'}
-                                                </Badge>
-                                            </div>
-                                        ))}
-                                    </AnimatePresence>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </TabsContent>
 
                     {/* Modules Tab */}
                     <TabsContent value="modules" className="space-y-6">

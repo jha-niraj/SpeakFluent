@@ -4,7 +4,16 @@ import { prisma } from '@/lib/prisma'
 import { auth } from '@/auth'
 import { addCredits } from './credits.action';
 
-export async function checkAndAwardMilestones(userId: string, milestoneType: string, language?: string, metadata?: any) {
+interface MilestoneMetadata {
+    score?: number;
+    timeSpent?: number;
+    language?: string;
+    moduleId?: string;
+    conversationId?: string;
+    [key: string]: unknown;
+}
+
+export async function checkAndAwardMilestones(userId: string, milestoneType: string, language?: string, metadata?: MilestoneMetadata) {
     try {
         // Check if milestone already achieved
         const existingMilestone = await prisma.userMilestone.findUnique({
@@ -52,7 +61,7 @@ export async function checkAndAwardMilestones(userId: string, milestoneType: str
                 achieved: true,
                 achievedAt: new Date(),
                 creditsAwarded: reward.credits,
-                metadata
+                metadata: metadata ? JSON.parse(JSON.stringify(metadata)) : null
             },
             create: {
                 userId,
@@ -62,7 +71,7 @@ export async function checkAndAwardMilestones(userId: string, milestoneType: str
                 creditsAwarded: reward.credits,
                 achieved: true,
                 achievedAt: new Date(),
-                metadata
+                metadata: metadata ? JSON.parse(JSON.stringify(metadata)) : null
             }
         });
 
