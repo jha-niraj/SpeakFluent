@@ -60,7 +60,6 @@ const ConversationPage = () => {
     const router = useRouter()
     const intervalRef = useRef<NodeJS.Timeout | null>(null)
 
-    // ElevenLabs Conversation Hook
     const conversation = useConversation({
         onConnect: () => {
             console.log('Connected to ElevenLabs')
@@ -88,7 +87,6 @@ const ConversationPage = () => {
         }
     })
 
-    // Available languages
     const languages = [
         { value: 'english', label: 'English 🇺🇸', flag: '🇺🇸' },
         { value: 'spanish', label: 'Spanish 🇪🇸', flag: '🇪🇸' },
@@ -100,7 +98,6 @@ const ConversationPage = () => {
         { value: 'russian', label: 'Russian 🇷🇺', flag: '🇷🇺' }
     ]
 
-    // Conversation topics
     const topics = [
         { value: 'general', label: 'General Conversation', icon: MessageSquare },
         { value: 'travel', label: 'Travel & Tourism', icon: Globe },

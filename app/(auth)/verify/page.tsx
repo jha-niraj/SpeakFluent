@@ -21,7 +21,6 @@ export default function VerifyPage() {
     const [timer, setTimer] = useState(30)
     const [canResend, setCanResend] = useState(false)
 
-    // Create refs for each input
     const inputRefs = [
         useRef<HTMLInputElement>(null),
         useRef<HTMLInputElement>(null),
@@ -34,17 +33,15 @@ export default function VerifyPage() {
     const [code, setCode] = useState(["", "", "", "", "", ""])
 
     useEffect(() => {
-        // Get user data from sessionStorage
         const storedEmail = sessionStorage.getItem('verifyEmail')
         const storedName = sessionStorage.getItem('verifyName')
         const storedPassword = sessionStorage.getItem('verifyPassword')
-        
+
         if (storedEmail && storedName && storedPassword) {
             setEmail(storedEmail)
             setUserName(storedName)
             setUserPassword(storedPassword)
         } else {
-            // If no user data found, redirect to signup
             router.push('/signup')
         }
     }, [router])
@@ -61,19 +58,16 @@ export default function VerifyPage() {
     }, [timer, canResend])
 
     const handleInputChange = (index: number, value: string) => {
-        // Only allow numbers
         if (value && !/^\d+$/.test(value)) return
 
         const newCode = [...code]
         newCode[index] = value
         setCode(newCode)
 
-        // Auto-focus next input
         if (value && index < 5) {
             inputRefs[index + 1].current?.focus()
         }
 
-        // Auto-submit when all 6 digits are entered
         if (value && index === 5) {
             const fullCode = [...newCode]
             fullCode[index] = value
@@ -84,7 +78,6 @@ export default function VerifyPage() {
     }
 
     const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-        // Handle backspace
         if (e.key === "Backspace" && !code[index] && index > 0) {
             inputRefs[index - 1].current?.focus()
         }
@@ -94,15 +87,12 @@ export default function VerifyPage() {
         e.preventDefault()
         const pastedData = e.clipboardData.getData("text/plain").trim()
 
-        // Check if pasted content is a 6-digit number
         if (/^\d{6}$/.test(pastedData)) {
             const digits = pastedData.split("")
             setCode(digits)
 
-            // Focus the last input
             inputRefs[5].current?.focus()
 
-            // Auto-submit
             handleSubmit(null, pastedData)
         }
     }
@@ -132,9 +122,9 @@ export default function VerifyPage() {
 
     const handleSubmit = async (e: React.FormEvent | null, otpCode?: string) => {
         if (e) e.preventDefault()
-        
+
         const codeToVerify = otpCode || code.join("")
-        
+
         if (codeToVerify.length !== 6) {
             toast.error("Please enter the complete 6-digit code")
             return
@@ -150,17 +140,15 @@ export default function VerifyPage() {
 
         try {
             const result = await verifyOTP(email, codeToVerify)
-            
+
             if (result.success) {
                 setIsVerified(true)
                 toast.success(result.message)
-                
-                // Clear user data from sessionStorage
+
                 sessionStorage.removeItem('verifyEmail')
                 sessionStorage.removeItem('verifyName')
                 sessionStorage.removeItem('verifyPassword')
-                
-                // Sign in the user automatically
+
                 const signInResult = await signIn("credentials", {
                     email: email,
                     password: userPassword,
@@ -168,7 +156,6 @@ export default function VerifyPage() {
                 })
 
                 if (signInResult?.ok) {
-                    // Redirect to onboarding after successful sign in
                     setTimeout(() => {
                         router.push("/onboarding")
                     }, 2000)
@@ -180,7 +167,6 @@ export default function VerifyPage() {
                 }
             } else {
                 toast.error(result.error || "Invalid verification code")
-                // Clear the code inputs on error
                 setCode(["", "", "", "", "", ""])
                 inputRefs[0].current?.focus()
             }
@@ -227,7 +213,6 @@ export default function VerifyPage() {
         <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-teal-50 to-emerald-50 px-4 py-12 sm:px-6 lg:px-8">
             <div className="absolute top-0 left-0 w-64 h-64 bg-gradient-to-br from-teal-500/10 to-emerald-500/10 rounded-br-full"></div>
             <div className="absolute bottom-0 right-0 w-64 h-64 bg-gradient-to-tl from-teal-500/10 to-emerald-500/10 rounded-tl-full"></div>
-            
             <Card className="w-full max-w-md bg-white/90 backdrop-blur-sm shadow-xl border-0 relative">
                 <CardHeader className="space-y-4">
                     <div className="flex items-center justify-center">
@@ -245,26 +230,26 @@ export default function VerifyPage() {
                         </CardDescription>
                     </div>
                 </CardHeader>
-
                 <form onSubmit={handleSubmit}>
                     <CardContent className="space-y-6">
                         <div className="flex justify-center space-x-2">
-                            {code.map((digit, index) => (
-                                <Input
-                                    key={index}
-                                    ref={inputRefs[index]}
-                                    type="text"
-                                    maxLength={1}
-                                    value={digit}
-                                    onChange={(e) => handleInputChange(index, e.target.value)}
-                                    onKeyDown={(e) => handleKeyDown(index, e)}
-                                    onPaste={index === 0 ? handlePaste : undefined}
-                                    className="w-12 h-12 text-center text-lg font-bold rounded-lg border-gray-200 focus:border-teal-300 focus:ring-teal-200"
-                                    disabled={isLoading}
-                                />
-                            ))}
+                            {
+                                code.map((digit, index) => (
+                                    <Input
+                                        key={index}
+                                        ref={inputRefs[index]}
+                                        type="text"
+                                        maxLength={1}
+                                        value={digit}
+                                        onChange={(e) => handleInputChange(index, e.target.value)}
+                                        onKeyDown={(e) => handleKeyDown(index, e)}
+                                        onPaste={index === 0 ? handlePaste : undefined}
+                                        className="w-12 h-12 text-center text-lg font-bold rounded-lg border-gray-200 focus:border-teal-300 focus:ring-teal-200"
+                                        disabled={isLoading}
+                                    />
+                                ))
+                            }
                         </div>
-
                         <div className="text-center space-y-4">
                             <p className="text-sm text-gray-600">
                                 Didn&apos;t receive the code?
@@ -281,7 +266,6 @@ export default function VerifyPage() {
                             </Button>
                         </div>
                     </CardContent>
-
                     <CardFooter className="flex flex-col space-y-4">
                         <Button
                             type="submit"

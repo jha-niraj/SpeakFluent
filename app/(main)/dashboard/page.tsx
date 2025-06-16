@@ -529,8 +529,6 @@ const Dashboard = () => {
                                     🌍 Global Platform • 100+ Languages
                                 </Badge>
                             </div>
-
-                            {/* Weekly Goals Button */}
                             <Button
                                 onClick={() => setShowGoalsDialog(true)}
                                 className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white px-6 py-3 rounded-xl font-medium hover:shadow-lg hover:scale-105 transition-all duration-300"
@@ -540,50 +538,47 @@ const Dashboard = () => {
                             </Button>
                         </motion.div>
                     </div>
-
-                    {/* Stats Grid */}
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-                        {statsData.map((stat, index) => {
-                            const IconComponent = stat.icon;
-                            return (
-                                <motion.div
-                                    key={index}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: index * 0.1 }}
-                                >
-                                    <Card className="relative overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-white/90 backdrop-blur-sm">
-                                        <CardHeader className="pb-3 p-6">
-                                            <div className="flex items-center justify-between">
-                                                <div className={`p-3 rounded-2xl ${stat.bgColor}`}>
-                                                    <IconComponent className={`h-6 w-6 ${stat.color}`} />
-                                                </div>
-                                                <div className="text-right">
-                                                    <div className={`text-sm font-medium ${stat.change.includes('+') ? 'text-emerald-600' : stat.change === 'Low' ? 'text-red-600' : 'text-blue-600'}`}>
-                                                        {stat.change.includes('+') && <TrendingUp className="w-4 h-4 inline mr-1" />}
-                                                        {stat.change}
+                        {
+                            statsData.map((stat, index) => {
+                                const IconComponent = stat.icon;
+                                return (
+                                    <motion.div
+                                        key={index}
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: index * 0.1 }}
+                                    >
+                                        <Card className="relative overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-white/90 backdrop-blur-sm">
+                                            <CardHeader className="pb-3 p-6">
+                                                <div className="flex items-center justify-between">
+                                                    <div className={`p-3 rounded-2xl ${stat.bgColor}`}>
+                                                        <IconComponent className={`h-6 w-6 ${stat.color}`} />
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <div className={`text-sm font-medium ${stat.change.includes('+') ? 'text-emerald-600' : stat.change === 'Low' ? 'text-red-600' : 'text-blue-600'}`}>
+                                                            {stat.change.includes('+') && <TrendingUp className="w-4 h-4 inline mr-1" />}
+                                                            {stat.change}
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </CardHeader>
-                                        <CardContent className="p-6 pt-0">
-                                            <div className="space-y-2">
-                                                <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
-                                                <p className="text-lg font-semibold text-gray-900">{stat.title}</p>
-                                                <p className="text-sm text-gray-500">{stat.description}</p>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                </motion.div>
-                            );
-                        })}
+                                            </CardHeader>
+                                            <CardContent className="p-6 pt-0">
+                                                <div className="space-y-2">
+                                                    <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
+                                                    <p className="text-lg font-semibold text-gray-900">{stat.title}</p>
+                                                    <p className="text-sm text-gray-500">{stat.description}</p>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
+                                );
+                            })
+                        }
                     </div>
-
-                    {/* Quick Actions */}
                     <div className="mb-12">
                         <h3 className="text-2xl font-bold text-gray-900 mb-6">Learning Path</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            {/* Foundation Features Card */}
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
@@ -633,8 +628,6 @@ const Dashboard = () => {
                                     </Card>
                                 </Link>
                             </motion.div>
-
-                            {/* Major Features Card */}
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
@@ -673,9 +666,10 @@ const Dashboard = () => {
                                         <h4 className="text-2xl font-bold text-gray-900 mb-4">Major Features</h4>
                                         <p className={`mb-6 leading-relaxed ${featureAccess?.hasAccess ? 'text-gray-600' : 'text-gray-500'
                                             }`}>
-                                            {featureAccess?.hasAccess
-                                                ? 'Access advanced AI conversations, voice coaching, and interactive scenarios.'
-                                                : 'Complete foundation modules to unlock AI conversations and advanced features.'
+                                            {
+                                                featureAccess?.hasAccess
+                                                    ? 'Access advanced AI conversations, voice coaching, and interactive scenarios.'
+                                                    : 'Complete foundation modules to unlock AI conversations and advanced features.'
                                             }
                                         </p>
                                         <div className="space-y-3">
@@ -700,30 +694,30 @@ const Dashboard = () => {
                                                 Interactive Stories
                                             </div>
                                         </div>
-                                        {featureAccess?.hasAccess ? (
-                                            <div className="mt-6 flex items-center text-emerald-600 group-hover:text-emerald-700 transition-colors">
-                                                <span className="font-medium">Start Practicing →</span>
-                                            </div>
-                                        ) : (
-                                            <div className="mt-6">
-                                                <div className="bg-gray-200 rounded-full h-2 mb-2">
-                                                    <div
-                                                        className="bg-gradient-to-r from-teal-500 to-emerald-600 h-2 rounded-full transition-all duration-300"
-                                                        style={{ width: `${featureAccess?.progress?.percentage || 0}%` }}
-                                                    ></div>
+                                        {
+                                            featureAccess?.hasAccess ? (
+                                                <div className="mt-6 flex items-center text-emerald-600 group-hover:text-emerald-700 transition-colors">
+                                                    <span className="font-medium">Start Practicing →</span>
                                                 </div>
-                                                <p className="text-sm text-gray-500">
-                                                    {featureAccess?.progress?.completed || 0} of {featureAccess?.progress?.total || 5} modules completed
-                                                </p>
-                                            </div>
-                                        )}
+                                            ) : (
+                                                <div className="mt-6">
+                                                    <div className="bg-gray-200 rounded-full h-2 mb-2">
+                                                        <div
+                                                            className="bg-gradient-to-r from-teal-500 to-emerald-600 h-2 rounded-full transition-all duration-300"
+                                                            style={{ width: `${featureAccess?.progress?.percentage || 0}%` }}
+                                                        ></div>
+                                                    </div>
+                                                    <p className="text-sm text-gray-500">
+                                                        {featureAccess?.progress?.completed || 0} of {featureAccess?.progress?.total || 5} modules completed
+                                                    </p>
+                                                </div>
+                                            )
+                                        }
                                     </CardContent>
                                 </Card>
                             </motion.div>
                         </div>
                     </div>
-
-                    {/* Learning Goals */}
                     <div className="mb-12">
                         <div className="flex items-center justify-between mb-6">
                             <h3 className="text-2xl font-medium text-gray-900">This Week&apos;s Goals</h3>
@@ -733,85 +727,95 @@ const Dashboard = () => {
                         </div>
                         <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-lg">
                             <CardContent className="p-8">
-                                {weeklyGoals.length > 0 ? (
-                                    <div className="space-y-4">
-                                        {weeklyGoals.map((goal, index) => (
-                                            <motion.div
-                                                key={goal.id}
-                                                initial={{ opacity: 0, x: -20 }}
-                                                animate={{ opacity: 1, x: 0 }}
-                                                transition={{ delay: 0.6 + index * 0.1 }}
-                                                className={`flex items-center space-x-4 p-4 rounded-xl transition-all duration-300 ${goal.completed
-                                                    ? 'bg-emerald-50 border border-emerald-200'
-                                                    : 'bg-gray-50 hover:bg-teal-50 border border-gray-200 hover:border-teal-200'
-                                                    }`}
-                                            >
-                                                <div className="flex items-center space-x-3">
-                                                    {goal.type === 'CUSTOM' ? (
-                                                        <Checkbox
-                                                            checked={goal.completed}
-                                                            onCheckedChange={() => handleToggleGoal(goal.id)}
-                                                            className="data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500"
-                                                        />
-                                                    ) : (
-                                                        <div className={`p-2 rounded-lg ${goal.completed ? 'bg-emerald-100' : 'bg-teal-100'
-                                                            }`}>
-                                                            <Target className={`w-4 h-4 ${goal.completed ? 'text-emerald-600' : 'text-teal-600'
-                                                                }`} />
-                                                        </div>
-                                                    )}
-                                                </div>
-                                                <div className="flex-1">
-                                                    <p className={`text-base font-medium ${goal.completed ? 'text-emerald-900 line-through' : 'text-gray-900'
-                                                        }`}>
-                                                        {goal.title}
-                                                    </p>
-                                                    {goal.description && (
-                                                        <p className="text-sm text-gray-600 mt-1">{goal.description}</p>
-                                                    )}
-                                                    <div className="flex items-center space-x-2 mt-2">
-                                                        <Badge variant="outline" className="text-xs">
-                                                            {goal.type === 'PRESET' ? 'Auto-tracked' : 'Custom'}
-                                                        </Badge>
-                                                        {goal.completedAt && (
-                                                            <span className="text-xs text-emerald-600">
-                                                                Completed {new Date(goal.completedAt).toLocaleDateString()}
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                                {goal.type === 'CUSTOM' && (
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        onClick={() => handleDeleteGoal(goal.id)}
-                                                        className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                                {
+                                    weeklyGoals.length > 0 ? (
+                                        <div className="space-y-4">
+                                            {
+                                                weeklyGoals.map((goal, index) => (
+                                                    <motion.div
+                                                        key={goal.id}
+                                                        initial={{ opacity: 0, x: -20 }}
+                                                        animate={{ opacity: 1, x: 0 }}
+                                                        transition={{ delay: 0.6 + index * 0.1 }}
+                                                        className={`flex items-center space-x-4 p-4 rounded-xl transition-all duration-300 ${goal.completed
+                                                            ? 'bg-emerald-50 border border-emerald-200'
+                                                            : 'bg-gray-50 hover:bg-teal-50 border border-gray-200 hover:border-teal-200'
+                                                            }`}
                                                     >
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </Button>
-                                                )}
-                                            </motion.div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <div className="text-center py-8">
-                                        <Target className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                                        <p className="text-gray-600 mb-4">No goals set for this week</p>
-                                        <Button
-                                            onClick={() => setShowGoalsDialog(true)}
-                                            variant="outline"
-                                            className="text-teal-600 border-teal-200 hover:bg-teal-50"
-                                        >
-                                            <Plus className="w-4 h-4 mr-2" />
-                                            Add Your First Goal
-                                        </Button>
-                                    </div>
-                                )}
+                                                        <div className="flex items-center space-x-3">
+                                                            {
+                                                                goal.type === 'CUSTOM' ? (
+                                                                    <Checkbox
+                                                                        checked={goal.completed}
+                                                                        onCheckedChange={() => handleToggleGoal(goal.id)}
+                                                                        className="data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500"
+                                                                    />
+                                                                ) : (
+                                                                    <div className={`p-2 rounded-lg ${goal.completed ? 'bg-emerald-100' : 'bg-teal-100'
+                                                                        }`}>
+                                                                        <Target className={`w-4 h-4 ${goal.completed ? 'text-emerald-600' : 'text-teal-600'
+                                                                            }`} />
+                                                                    </div>
+                                                                )
+                                                            }
+                                                        </div>
+                                                        <div className="flex-1">
+                                                            <p className={`text-base font-medium ${goal.completed ? 'text-emerald-900 line-through' : 'text-gray-900'
+                                                                }`}>
+                                                                {goal.title}
+                                                            </p>
+                                                            {
+                                                                goal.description && (
+                                                                    <p className="text-sm text-gray-600 mt-1">{goal.description}</p>
+                                                                )
+                                                            }
+                                                            <div className="flex items-center space-x-2 mt-2">
+                                                                <Badge variant="outline" className="text-xs">
+                                                                    {goal.type === 'PRESET' ? 'Auto-tracked' : 'Custom'}
+                                                                </Badge>
+                                                                {
+                                                                    goal.completedAt && (
+                                                                        <span className="text-xs text-emerald-600">
+                                                                            Completed {new Date(goal.completedAt).toLocaleDateString()}
+                                                                        </span>
+                                                                    )
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                        {
+                                                            goal.type === 'CUSTOM' && (
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="sm"
+                                                                    onClick={() => handleDeleteGoal(goal.id)}
+                                                                    className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                                                                >
+                                                                    <Trash2 className="w-4 h-4" />
+                                                                </Button>
+                                                            )
+                                                        }
+                                                    </motion.div>
+                                                ))
+                                            }
+                                        </div>
+                                    ) : (
+                                        <div className="text-center py-8">
+                                            <Target className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                                            <p className="text-gray-600 mb-4">No goals set for this week</p>
+                                            <Button
+                                                onClick={() => setShowGoalsDialog(true)}
+                                                variant="outline"
+                                                className="text-teal-600 border-teal-200 hover:bg-teal-50"
+                                            >
+                                                <Plus className="w-4 h-4 mr-2" />
+                                                Add Your First Goal
+                                            </Button>
+                                        </div>
+                                    )
+                                }
                             </CardContent>
                         </Card>
                     </div>
-
-                    {/* Learning Modes */}
                     <div className="mb-12">
                         <div className="flex items-center justify-between mb-8">
                             <h3 className="text-3xl font-bold text-gray-900">Learning Modes</h3>
@@ -819,124 +823,125 @@ const Dashboard = () => {
                                 1 Available • 3 Coming Soon
                             </Badge>
                         </div>
-
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                            {learningModes.map((mode, index) => {
-                                const IconComponent = mode.icon;
-                                return (
-                                    <motion.div
-                                        key={index}
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.8 + index * 0.1 }}
-                                    >
-                                        <Card className={`
+                            {
+                                learningModes.map((mode, index) => {
+                                    const IconComponent = mode.icon;
+                                    return (
+                                        <motion.div
+                                            key={index}
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: 0.8 + index * 0.1 }}
+                                        >
+                                            <Card className={`
                                         group relative overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-500 
                                         ${mode.available ? 'hover:-translate-y-2 bg-white/95' : 'bg-gray-50/90'}
                                         backdrop-blur-sm ${!mode.available ? 'opacity-80' : ''}
                                     `}>
-                                            {/* Gradient Background */}
-                                            <div className={`absolute inset-0 bg-gradient-to-br ${mode.color} opacity-5 group-hover:opacity-10 transition-opacity duration-300`} />
-
-                                            <CardHeader className="relative p-8">
-                                                <div className="flex items-start justify-between">
-                                                    <div className="flex items-center space-x-4">
-                                                        <div className={`p-4 rounded-3xl ${mode.bgColor} ${mode.available ? 'group-hover:scale-110' : ''} transition-transform duration-300`}>
-                                                            <IconComponent className={`h-8 w-8 ${mode.textColor}`} />
+                                                <div className={`absolute inset-0 bg-gradient-to-br ${mode.color} opacity-5 group-hover:opacity-10 transition-opacity duration-300`} />
+                                                <CardHeader className="relative p-8">
+                                                    <div className="flex items-start justify-between">
+                                                        <div className="flex items-center space-x-4">
+                                                            <div className={`p-4 rounded-3xl ${mode.bgColor} ${mode.available ? 'group-hover:scale-110' : ''} transition-transform duration-300`}>
+                                                                <IconComponent className={`h-8 w-8 ${mode.textColor}`} />
+                                                            </div>
+                                                            <div>
+                                                                <CardTitle className="text-2xl font-bold text-gray-900 mb-2">
+                                                                    {mode.title}
+                                                                </CardTitle>
+                                                                <CardDescription className="text-base font-medium text-gray-600">
+                                                                    {mode.subtitle}
+                                                                </CardDescription>
+                                                            </div>
                                                         </div>
-                                                        <div>
-                                                            <CardTitle className="text-2xl font-bold text-gray-900 mb-2">
-                                                                {mode.title}
-                                                            </CardTitle>
-                                                            <CardDescription className="text-base font-medium text-gray-600">
-                                                                {mode.subtitle}
-                                                            </CardDescription>
+                                                        <div className="flex flex-col items-end space-y-2">
+                                                            {
+                                                                mode.popular && (
+                                                                    <Badge className="bg-teal-500 text-white">
+                                                                        Most Popular
+                                                                    </Badge>
+                                                                )
+                                                            }
+                                                            {
+                                                                !mode.available && (
+                                                                    <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
+                                                                        Coming Soon
+                                                                    </Badge>
+                                                                )
+                                                            }
+                                                            <Badge variant="outline" className="text-sm">
+                                                                {mode.level}
+                                                            </Badge>
                                                         </div>
                                                     </div>
-                                                    <div className="flex flex-col items-end space-y-2">
-                                                        {mode.popular && (
-                                                            <Badge className="bg-teal-500 text-white">
-                                                                Most Popular
-                                                            </Badge>
-                                                        )}
-                                                        {!mode.available && (
-                                                            <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
+                                                </CardHeader>
+                                                <CardContent className="relative pt-0 p-8">
+                                                    <p className="text-gray-600 mb-6 leading-relaxed text-base">
+                                                        {mode.description}
+                                                    </p>
+                                                    <p className="text-sm text-gray-500 mb-6">{mode.credits}</p>
+                                                    {
+                                                        mode.available ? (
+                                                            <Link href={mode.href}>
+                                                                <Button
+                                                                    className={`w-full bg-gradient-to-r ${mode.color} text-white border-0 hover:shadow-lg hover:scale-105 transition-all duration-300 py-3 text-base font-semibold`}
+                                                                    disabled={credits < 10}
+                                                                >
+                                                                    {credits < 10 ? 'Need More Credits' : 'Start Session'}
+                                                                    <ArrowRight className="ml-2 h-5 w-5" />
+                                                                </Button>
+                                                            </Link>
+                                                        ) : (
+                                                            <Button
+                                                                variant="outline"
+                                                                className="w-full py-3 text-base"
+                                                                disabled
+                                                            >
                                                                 Coming Soon
-                                                            </Badge>
-                                                        )}
-                                                        <Badge variant="outline" className="text-sm">
-                                                            {mode.level}
-                                                        </Badge>
-                                                    </div>
-                                                </div>
-                                            </CardHeader>
-
-                                            <CardContent className="relative pt-0 p-8">
-                                                <p className="text-gray-600 mb-6 leading-relaxed text-base">
-                                                    {mode.description}
-                                                </p>
-                                                <p className="text-sm text-gray-500 mb-6">{mode.credits}</p>
-
-                                                {mode.available ? (
-                                                    <Link href={mode.href}>
-                                                        <Button
-                                                            className={`w-full bg-gradient-to-r ${mode.color} text-white border-0 hover:shadow-lg hover:scale-105 transition-all duration-300 py-3 text-base font-semibold`}
-                                                            disabled={credits < 10}
-                                                        >
-                                                            {credits < 10 ? 'Need More Credits' : 'Start Session'}
-                                                            <ArrowRight className="ml-2 h-5 w-5" />
-                                                        </Button>
-                                                    </Link>
-                                                ) : (
-                                                    <Button
-                                                        variant="outline"
-                                                        className="w-full py-3 text-base"
-                                                        disabled
-                                                    >
-                                                        Coming Soon
-                                                    </Button>
-                                                )}
-                                            </CardContent>
-                                        </Card>
-                                    </motion.div>
-                                );
-                            })}
+                                                            </Button>
+                                                        )
+                                                    }
+                                                </CardContent>
+                                            </Card>
+                                        </motion.div>
+                                    );
+                                })
+                            }
                         </div>
                     </div>
-
-                    {/* Credits Warning */}
-                    {credits < 50 && (
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 1.5 }}
-                            className="mb-8"
-                        >
-                            <Card className="border-0 shadow-lg bg-gradient-to-r from-amber-50 to-orange-50">
-                                <CardContent className="p-8">
-                                    <div className="flex items-center space-x-6">
-                                        <div className="p-4 rounded-full bg-amber-100">
-                                            <Coins className="w-8 h-8 text-amber-600" />
+                    {
+                        credits < 50 && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 1.5 }}
+                                className="mb-8"
+                            >
+                                <Card className="border-0 shadow-lg bg-gradient-to-r from-amber-50 to-orange-50">
+                                    <CardContent className="p-8">
+                                        <div className="flex items-center space-x-6">
+                                            <div className="p-4 rounded-full bg-amber-100">
+                                                <Coins className="w-8 h-8 text-amber-600" />
+                                            </div>
+                                            <div className="flex-1">
+                                                <h4 className="text-xl font-semibold text-amber-900 mb-2">Running Low on Credits?</h4>
+                                                <p className="text-base text-amber-700">
+                                                    You have {credits} credits remaining. Purchase more to continue your learning journey without interruption!
+                                                </p>
+                                            </div>
+                                            <Link href="/purchase">
+                                                <Button className="bg-gradient-to-r from-amber-500 to-orange-600 text-white px-6 py-3 text-base font-semibold hover:shadow-lg">
+                                                    Buy Credits
+                                                </Button>
+                                            </Link>
                                         </div>
-                                        <div className="flex-1">
-                                            <h4 className="text-xl font-semibold text-amber-900 mb-2">Running Low on Credits?</h4>
-                                            <p className="text-base text-amber-700">
-                                                You have {credits} credits remaining. Purchase more to continue your learning journey without interruption!
-                                            </p>
-                                        </div>
-                                        <Link href="/purchase">
-                                            <Button className="bg-gradient-to-r from-amber-500 to-orange-600 text-white px-6 py-3 text-base font-semibold hover:shadow-lg">
-                                                Buy Credits
-                                            </Button>
-                                        </Link>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </motion.div>
-                    )}
+                                    </CardContent>
+                                </Card>
+                            </motion.div>
+                        )
+                    }
                 </div>
-
-                {/* Weekly Goals Dialog */}
                 <Sheet open={showGoalsDialog} onOpenChange={setShowGoalsDialog}>
                     <SheetContent
                         side="right"
@@ -962,65 +967,71 @@ const Dashboard = () => {
                                     <TabsContent value="preset" className="space-y-4">
                                         <p className="text-sm text-gray-600 mb-4">Select from common language learning goals (these will be auto-tracked):</p>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                            {[
-                                                "Complete 3 conversations this week",
-                                                "Practice speaking for 30 minutes daily",
-                                                "Learn 20 new vocabulary words",
-                                                "Watch 2 language learning videos",
-                                                "Read one article in target language",
-                                                "Practice pronunciation for 15 minutes daily"
-                                            ].map((goalTitle, index) => {
-                                                const isSelected = selectedPresetGoals.includes(goalTitle);
-                                                const isAlreadyExists = weeklyGoals.some(goal => goal.title === goalTitle);
+                                            {
+                                                [
+                                                    "Complete 3 conversations this week",
+                                                    "Practice speaking for 30 minutes daily",
+                                                    "Learn 20 new vocabulary words",
+                                                    "Watch 2 language learning videos",
+                                                    "Read one article in target language",
+                                                    "Practice pronunciation for 15 minutes daily"
+                                                ].map((goalTitle, index) => {
+                                                    const isSelected = selectedPresetGoals.includes(goalTitle);
+                                                    const isAlreadyExists = weeklyGoals.some(goal => goal.title === goalTitle);
 
-                                                return (
-                                                    <div
-                                                        key={index}
-                                                        className={`p-4 rounded-lg border-2 transition-all duration-200 cursor-pointer ${isAlreadyExists
-                                                            ? 'bg-gray-100 border-gray-300 opacity-50 cursor-not-allowed'
-                                                            : isSelected
-                                                                ? 'bg-teal-50 border-teal-300 shadow-md'
-                                                                : 'bg-white border-gray-200 hover:border-teal-200 hover:bg-teal-25'
-                                                            }`}
-                                                        onClick={() => !isAlreadyExists && handlePresetGoalToggle(goalTitle)}
-                                                    >
-                                                        <div className="flex items-center space-x-3">
-                                                            <Checkbox
-                                                                checked={isSelected}
-                                                                disabled={isAlreadyExists}
-                                                                className="data-[state=checked]:bg-teal-500 data-[state=checked]:border-teal-500"
-                                                            />
-                                                            <div className="flex-1">
-                                                                <span className={`text-sm font-medium ${isAlreadyExists ? 'text-gray-500' : 'text-gray-900'
-                                                                    }`}>
-                                                                    {goalTitle}
-                                                                </span>
-                                                                {isAlreadyExists && (
-                                                                    <p className="text-xs text-gray-500 mt-1">Already added</p>
-                                                                )}
+                                                    return (
+                                                        <div
+                                                            key={index}
+                                                            className={`p-4 rounded-lg border-2 transition-all duration-200 cursor-pointer ${isAlreadyExists
+                                                                ? 'bg-gray-100 border-gray-300 opacity-50 cursor-not-allowed'
+                                                                : isSelected
+                                                                    ? 'bg-teal-50 border-teal-300 shadow-md'
+                                                                    : 'bg-white border-gray-200 hover:border-teal-200 hover:bg-teal-25'
+                                                                }`}
+                                                            onClick={() => !isAlreadyExists && handlePresetGoalToggle(goalTitle)}
+                                                        >
+                                                            <div className="flex items-center space-x-3">
+                                                                <Checkbox
+                                                                    checked={isSelected}
+                                                                    disabled={isAlreadyExists}
+                                                                    className="data-[state=checked]:bg-teal-500 data-[state=checked]:border-teal-500"
+                                                                />
+                                                                <div className="flex-1">
+                                                                    <span className={`text-sm font-medium ${isAlreadyExists ? 'text-gray-500' : 'text-gray-900'
+                                                                        }`}>
+                                                                        {goalTitle}
+                                                                    </span>
+                                                                    {
+                                                                        isAlreadyExists && (
+                                                                            <p className="text-xs text-gray-500 mt-1">Already added</p>
+                                                                        )
+                                                                    }
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                );
-                                            })}
+                                                    );
+                                                })
+                                            }
                                         </div>
-
-                                        {selectedPresetGoals.length > 0 && (
-                                            <div className="mt-4 p-4 bg-teal-50 rounded-lg">
-                                                <p className="text-sm font-medium text-teal-800 mb-2">
-                                                    Selected Goals ({selectedPresetGoals.length}):
-                                                </p>
-                                                <div className="flex flex-wrap gap-2">
-                                                    {selectedPresetGoals.map((goal, index) => (
-                                                        <Badge key={index} variant="outline" className="bg-teal-100 text-teal-700 border-teal-300">
-                                                            {goal}
-                                                        </Badge>
-                                                    ))}
+                                        {
+                                            selectedPresetGoals.length > 0 && (
+                                                <div className="mt-4 p-4 bg-teal-50 rounded-lg">
+                                                    <p className="text-sm font-medium text-teal-800 mb-2">
+                                                        Selected Goals ({selectedPresetGoals.length}):
+                                                    </p>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        {
+                                                            selectedPresetGoals.map((goal, index) => (
+                                                                <Badge key={index} variant="outline" className="bg-teal-100 text-teal-700 border-teal-300">
+                                                                    {goal}
+                                                                </Badge>
+                                                            ))
+                                                        }
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        )}
+                                            )
+                                        }
                                     </TabsContent>
-
                                     <TabsContent value="custom" className="space-y-4">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div className="space-y-4">
@@ -1036,7 +1047,6 @@ const Dashboard = () => {
                                                         className="mt-1"
                                                     />
                                                 </div>
-
                                                 <div>
                                                     <Label htmlFor="goal-category" className="text-sm font-medium text-gray-700">
                                                         Category
@@ -1059,7 +1069,6 @@ const Dashboard = () => {
                                                     </Select>
                                                 </div>
                                             </div>
-
                                             <div>
                                                 <Label htmlFor="goal-description" className="text-sm font-medium text-gray-700">
                                                     Description (Optional)
@@ -1078,7 +1087,6 @@ const Dashboard = () => {
                                 </Tabs>
                             </div>
                         </div>
-
                         <div className="flex justify-between items-center pt-6 border-t">
                             <Button
                                 variant="outline"
@@ -1095,29 +1103,28 @@ const Dashboard = () => {
                                 <X className="w-4 h-4 mr-2" />
                                 Close
                             </Button>
-
                             <Button
                                 onClick={handleCreateGoal}
                                 disabled={isCreatingGoal || (activeTab === 'preset' ? selectedPresetGoals.length === 0 : !newGoalTitle.trim())}
                                 className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white px-6 hover:shadow-lg"
                             >
-                                {isCreatingGoal ? (
-                                    <>Creating...</>
-                                ) : (
-                                    <>
-                                        <Plus className="w-4 h-4 mr-2" />
-                                        {activeTab === 'preset'
-                                            ? `Add ${selectedPresetGoals.length} Goal${selectedPresetGoals.length !== 1 ? 's' : ''}`
-                                            : 'Add Goal'
-                                        }
-                                    </>
-                                )}
+                                {
+                                    isCreatingGoal ? (
+                                        <>Creating...</>
+                                    ) : (
+                                        <>
+                                            <Plus className="w-4 h-4 mr-2" />
+                                            {activeTab === 'preset'
+                                                ? `Add ${selectedPresetGoals.length} Goal${selectedPresetGoals.length !== 1 ? 's' : ''}`
+                                                : 'Add Goal'
+                                            }
+                                        </>
+                                    )
+                                }
                             </Button>
                         </div>
                     </SheetContent>
                 </Sheet>
-
-                {/* Major Features Access Dialog */}
                 <Dialog open={showMajorFeaturesDialog} onOpenChange={setShowMajorFeaturesDialog}>
                     <DialogContent className="max-w-md">
                         <DialogHeader>
@@ -1129,7 +1136,6 @@ const Dashboard = () => {
                                 Complete foundation modules to unlock advanced features
                             </DialogDescription>
                         </DialogHeader>
-
                         <div className="space-y-6">
                             <div className="text-center">
                                 <div className="w-20 h-20 bg-gradient-to-br from-amber-100 to-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -1142,7 +1148,6 @@ const Dashboard = () => {
                                     Our foundation modules ensure you have the essential skills needed for effective AI conversations. This progressive approach leads to better learning outcomes.
                                 </p>
                             </div>
-
                             <div className="bg-gray-50 rounded-lg p-4">
                                 <h4 className="font-medium text-gray-900 mb-3">Your Progress</h4>
                                 <div className="space-y-3">
@@ -1163,7 +1168,6 @@ const Dashboard = () => {
                                     </p>
                                 </div>
                             </div>
-
                             <div className="space-y-3">
                                 <h4 className="font-medium text-gray-900">What you&apos;ll unlock:</h4>
                                 <div className="space-y-2">
@@ -1185,7 +1189,6 @@ const Dashboard = () => {
                                     </div>
                                 </div>
                             </div>
-
                             <div className="flex space-x-3">
                                 <Button
                                     variant="outline"

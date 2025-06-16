@@ -29,12 +29,10 @@ const ProfilePage = () => {
     const [transactions, setTransactions] = useState<any[]>([])
     const [isLoading, setIsLoading] = useState(true)
 
-    // Profile editing states
     const [editName, setEditName] = useState('')
     const [editLanguage, setEditLanguage] = useState('')
     const [isSaving, setSaving] = useState(false)
 
-    // Password change states
     const [currentPassword, setCurrentPassword] = useState('')
     const [newPassword, setNewPassword] = useState('')
     const [confirmPassword, setConfirmPassword] = useState('')
@@ -73,7 +71,6 @@ const ProfilePage = () => {
         try {
             const updates: any = { name: editName }
             
-            // Update language preference if changed
             if (editLanguage !== profile?.selectedLanguage) {
                 const languageResult = await updateLanguagePreference(editLanguage)
                 if (!languageResult.success) {
