@@ -210,7 +210,7 @@ export default function SignInPage() {
                             {isSubmitting ? "Signing in..." : "Sign in"}
                         </Button>
                         <div className="text-center text-sm">
-                            <span className="text-gray-600">Don't have an account? </span>
+                            <span className="text-gray-600">Don&apos;t have an account? </span>
                             <Link href="/signup" className="font-medium text-teal-600 hover:text-teal-700 underline">
                                 Sign up
                             </Link>

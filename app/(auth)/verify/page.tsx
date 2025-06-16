@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Globe, Mail, CheckCircle, RefreshCw, ArrowLeft } from "lucide-react"
+import { Mail, CheckCircle, RefreshCw, ArrowLeft } from "lucide-react"
 import { verifyOTP, resendOTP } from "@/actions/auth.action"
 import { signIn } from "next-auth/react"
 import { toast } from "sonner"
@@ -214,7 +214,7 @@ export default function VerifyPage() {
                     <CardContent className="text-center">
                         <div className="p-4 bg-teal-50 rounded-lg border border-teal-200">
                             <p className="text-sm text-teal-800">
-                                Your email has been verified and you're being signed in automatically. You'll be redirected to complete your onboarding in a moment.
+                                Your email has been verified and you&apos;re being signed in automatically. You&apos;ll be redirected to complete your onboarding in a moment.
                             </p>
                         </div>
                     </CardContent>
@@ -240,7 +240,7 @@ export default function VerifyPage() {
                             Verify your email
                         </CardTitle>
                         <CardDescription className="text-gray-600 mt-2">
-                            We've sent a 6-digit code to <br />
+                            We&apos;ve sent a 6-digit code to <br />
                             <span className="font-medium">{email}</span>
                         </CardDescription>
                     </div>
@@ -267,7 +267,7 @@ export default function VerifyPage() {
 
                         <div className="text-center space-y-4">
                             <p className="text-sm text-gray-600">
-                                Didn't receive the code?
+                                Didn&apos;t receive the code?
                             </p>
                             <Button
                                 type="button"

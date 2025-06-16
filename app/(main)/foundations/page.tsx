@@ -6,9 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { 
-    BookOpenText, Languages, Clock, Award, Lock, CheckCircle, 
-    Play, Settings, ArrowRight, Target, Mic, Globe, 
-    PenTool, MessageSquare, Users, Star, Coins
+    BookOpenText, Languages, Award, Lock, CheckCircle, 
+    Play, Settings, Mic, Globe, PenTool, MessageSquare
 } from 'lucide-react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
@@ -387,7 +386,7 @@ const FoundationsPage = () => {
                                         {/* Module Sections Preview */}
                                         <div className="space-y-2 mb-6">
                                             <h4 className={`text-sm font-medium ${isLocked ? 'text-gray-400' : 'text-gray-700'}`}>
-                                                What you'll learn:
+                                                What you&apos;ll learn:
                                             </h4>
                                             <div className="space-y-1">
                                                 {module.content?.sections?.slice(0, 3).map((section: any, idx: number) => (

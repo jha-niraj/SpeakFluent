@@ -14,6 +14,7 @@ export function AuthRedirect({ children }: { children: React.ReactNode }) {
     const router = useRouter();
     const [isChecking, setIsChecking] = useState(true);
     const [userDetails, setUserDetails] = useState<User | null>(null);
+    console.log(userDetails);
 
     useEffect(() => {
         async function checkOnboardingStatus() {
@@ -31,7 +32,6 @@ export function AuthRedirect({ children }: { children: React.ReactNode }) {
                         const userData = await response.json();
                         setUserDetails(userData);
                         
-                        // Check current path to avoid redirect loops
                         const currentPath = window.location.pathname;
                         
                         if (!userData.onboardingCompleted && currentPath !== '/onboarding') {
@@ -53,7 +53,6 @@ export function AuthRedirect({ children }: { children: React.ReactNode }) {
         checkOnboardingStatus();
     }, [session, status, router]);
 
-    // Show loading spinner while checking
     if (isChecking && status !== 'unauthenticated') {
         return (
             <div className="min-h-screen bg-gradient-to-br from-slate-50 via-teal-50 to-emerald-50 flex items-center justify-center">

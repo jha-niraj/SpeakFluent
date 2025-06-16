@@ -9,9 +9,7 @@ interface LenisProps {
 }
 
 function SmoothScroll({ children }: LenisProps) {
-    const lenis = useLenis(({ scroll }) => {
-        // You can add scroll event handling here if needed
-    })
+    const lenis = useLenis();
 
     useEffect(() => {
         // Initial resize

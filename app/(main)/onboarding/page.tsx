@@ -1,14 +1,14 @@
 "use client"
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
-    Languages, Target, Clock, Globe, ArrowRight, CheckCircle,
-    BookOpenText, Mic, Users, Star
+    Languages, Target, Clock, Globe, ArrowRight, 
+    CheckCircle, BookOpenText, Mic, Users, Star
 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -24,7 +24,7 @@ interface OnboardingData {
 }
 
 const OnboardingPage = () => {
-    const { data: session, status } = useSession();
+    const { status } = useSession();
     const router = useRouter();
     const [currentStep, setCurrentStep] = useState(1);
     const [isCompleting, setIsCompleting] = useState(false);
@@ -140,7 +140,7 @@ const OnboardingPage = () => {
                             Welcome to SpeakFluent! 🌍
                         </h1>
                         <p className="text-xl text-gray-600 mb-8">
-                            Let's personalize your language learning journey in just a few steps
+                            Let&apos;s personalize your language learning journey in just a few steps
                         </p>
                     </motion.div>
                     <div className="max-w-md mx-auto mb-8">
@@ -227,7 +227,7 @@ const OnboardingPage = () => {
                                 >
                                     <div className="text-center mb-8">
                                         <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                                            What's your current level?
+                                            What&apos;s your current level?
                                         </h2>
                                         <p className="text-gray-600">
                                             This helps us customize the difficulty of your lessons
@@ -301,10 +301,10 @@ const OnboardingPage = () => {
                                 >
                                     <div className="text-center mb-8">
                                         <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                                            What's your main goal?
+                                            What&apos;s your main goal?
                                         </h2>
                                         <p className="text-gray-600">
-                                            We'll tailor your learning experience based on your objectives
+                                            We&apos;ll tailor your learning experience based on your objectives
                                         </p>
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -385,7 +385,7 @@ const OnboardingPage = () => {
                                             How much time can you dedicate?
                                         </h2>
                                         <p className="text-gray-600">
-                                            We'll adjust your learning plan to fit your schedule
+                                            We&apos;ll adjust your learning plan to fit your schedule
                                         </p>
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -498,11 +498,11 @@ const OnboardingPage = () => {
                                                     <div className="flex items-center space-x-2 mb-2">
                                                         <CheckCircle className="w-5 h-5 text-teal-600" />
                                                         <span className="font-medium text-teal-900">
-                                                            Perfect! You're all set.
+                                                            Perfect! You&apos;re all set.
                                                         </span>
                                                     </div>
                                                     <p className="text-sm text-teal-700">
-                                                        With {onboardingData.dailyMinutes} minutes daily, you'll make great progress in {onboardingData.selectedLanguage}!
+                                                        With {onboardingData.dailyMinutes} minutes daily, you&apos;ll make great progress in {onboardingData.selectedLanguage}!
                                                     </p>
                                                 </motion.div>
                                             )

@@ -12,10 +12,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
-    Mic, MessageSquare, Star, Coins, Globe, Plus,
-    Target, Flame, LogIn, Languages, Headphones,
-    Video, Zap, Shield, X, Trash2, ArrowRight, Users,
-    BookOpenText, CreditCard, TrendingUp
+    Mic, MessageSquare, Globe, Plus,
+    Target, Flame, LogIn, Languages,
+    Video, Shield, X, Trash2, ArrowRight, Users,
+    BookOpenText, TrendingUp,
+    Coins,
+    Star
 } from 'lucide-react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
@@ -1163,7 +1165,7 @@ const Dashboard = () => {
                             </div>
 
                             <div className="space-y-3">
-                                <h4 className="font-medium text-gray-900">What you'll unlock:</h4>
+                                <h4 className="font-medium text-gray-900">What you&apos;ll unlock:</h4>
                                 <div className="space-y-2">
                                     <div className="flex items-center text-sm text-gray-600">
                                         <MessageSquare className="w-4 h-4 mr-3 text-teal-600" />

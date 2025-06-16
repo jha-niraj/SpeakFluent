@@ -2,8 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import {
-    MessageSquare, Home, CreditCard, TrendingUp, User,
-    Baseline
+    MessageSquare, Home, CreditCard, TrendingUp, Baseline
 } from 'lucide-react';
 import Sidebar, { Route } from '@/components/mainsidebar';
 import MainNavbar from '@/components/mainnavbar';
