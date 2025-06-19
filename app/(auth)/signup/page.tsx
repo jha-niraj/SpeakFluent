@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Globe, Eye, EyeOff, User, Mail, Lock } from "lucide-react"
+import { Eye, EyeOff, User, Mail, Lock } from "lucide-react"
 import { signupUser } from "@/actions/auth.action"
 import { toast } from "sonner"
 import { signIn } from "next-auth/react"
@@ -104,12 +104,7 @@ export default function SignUpPage() {
             <div className="absolute top-0 left-0 w-64 h-64 bg-gradient-to-br from-teal-500/10 to-emerald-500/10 rounded-br-full"></div>
             <div className="absolute bottom-0 right-0 w-64 h-64 bg-gradient-to-tl from-teal-500/10 to-emerald-500/10 rounded-tl-full"></div>
             <Card className="w-full max-w-md bg-white/90 backdrop-blur-sm shadow-xl border-0 relative">
-                <CardHeader className="space-y-4">
-                    <div className="flex items-center justify-center">
-                        <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
-                            <Globe className="w-6 h-6 text-white" />
-                        </div>
-                    </div>
+                <CardHeader className="space-y-2">
                     <div className="text-center">
                         <CardTitle className="text-2xl font-bold tracking-tight text-gray-900">
                             Create your account

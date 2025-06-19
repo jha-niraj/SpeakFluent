@@ -66,7 +66,14 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         }),
         GoogleProvider({
             clientId: process.env.GOOGLE_CLIENT_ID || "",
-            clientSecret: process.env.GOOGLE_SECRET_ID || ""
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+            authorization: {
+                params: {
+                    prompt: "consent",
+                    access_type: "offline",
+                    response_type: "code"
+                }
+            }
         }),
     ],
     callbacks: {
@@ -103,41 +110,42 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         },
         async signIn({ user, account, profile }) {
             if (account?.provider === 'google') {
-                const existingUser = await prisma.user.findUnique({
-                    where: { email: profile?.email as string }
-                });
-
-                if (existingUser) {
-                    // Update existing user to mark email as verified
-                    await prisma.user.update({
-                        where: {
-                            email: profile?.email as string
-                        },
-                        data: {
-                            emailVerified: new Date()
-                        }
+                try {
+                    const existingUser = await prisma.user.findUnique({
+                        where: { email: profile?.email as string }
                     });
-                } else {
-                    // For new Google users, they'll be created by the adapter
-                    // and we'll handle onboarding in the redirect callback
-                }
 
-                return true;
+                    if (existingUser) {
+                        // Update existing user to mark email as verified
+                        await prisma.user.update({
+                            where: {
+                                email: profile?.email as string
+                            },
+                            data: {
+                                emailVerified: new Date()
+                            }
+                        });
+                    } else {
+                        // For new Google users, they'll be created by the adapter
+                        // and we'll handle onboarding in the redirect callback
+                    }
+
+                    return true;
+                } catch (error) {
+                    console.error("Google sign-in error:", error);
+                    return false;
+                }
             }
             return true;
         },
         async redirect({ url, baseUrl }) {
-            // Handle sign-in redirects
-            if (url.startsWith("/") && !url.startsWith("/auth/signin") && !url.startsWith("/auth/signup")) {
-                return `${baseUrl}${url}`;
-            }
+            // Allows relative callback URLs
+            if (url.startsWith("/")) return `${baseUrl}${url}`;
             
-            if (new URL(url).origin === baseUrl) {
-                return url;
-            }
+            // Allows callback URLs on the same origin
+            if (new URL(url).origin === baseUrl) return url;
             
-            // For successful sign-ins, we'll let the client handle the redirect
-            // based on onboarding status to avoid server-side user lookups
+            // For successful sign-ins, redirect to dashboard
             return `${baseUrl}/dashboard`;
         },
     },
@@ -148,11 +156,21 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     },
     session: {
         strategy: "jwt",
+        maxAge: 30 * 24 * 60 * 60, // 30 days
     },
     secret: process.env.NEXTAUTH_SECRET,
     cookies: {
+        sessionToken: {
+            name: process.env.NODE_ENV === 'production' ? '__Secure-next-auth.session-token' : 'next-auth.session-token',
+            options: {
+                httpOnly: true,
+                sameSite: 'lax',
+                path: '/',
+                secure: process.env.NODE_ENV === 'production',
+            },
+        },
         csrfToken: {
-            name: "next-auth.csrf-token",
+            name: process.env.NODE_ENV === 'production' ? '__Host-next-auth.csrf-token' : 'next-auth.csrf-token',
             options: {
                 httpOnly: true,
                 sameSite: "lax",
@@ -161,4 +179,5 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
             },
         },
     },
+    debug: process.env.NODE_ENV === 'development',
 })
